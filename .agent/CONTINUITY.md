@@ -59,6 +59,7 @@
 - 2026-02-24T22:17Z [TOOL] [VERIFICATION] Re-validated Kimi summary checks from current workspace state: frontend `npm run lint` ✓, frontend `npm run build` ✓ (~1.97s), backend `npm run lint` ✓, backend `npm run build` ✓, backend `npm run test` ✓ (5/5). Claim: VERIFIED. Confidence: 0.99.
 - 2026-02-24T22:21Z [TOOL] [DETERMINISM] Executed full validation sweep: backend dataset build (`npm run build:dataset`) ✓, offline-mode tests (`GEOWRAITH_OFFLINE=1 npm run test`) ✓, benchmark (`npm run benchmark:accuracy`) ✓, frontend/backend lint+build ✓, backend tests ✓, health checks (`:3001`, `:8080/health`) ✓, browser live smoke (`live-smoke-multi.js`) ✓.
 - 2026-02-24T22:21Z [CODE] [DOCS] Added KI-0013 for modularity gate drift: multiple source files exceed 300 LOC hard limit.
+- 2026-02-24T22:25Z [CODE] [DOCS] Updated `mvp.md` with explicit "Remaining blockers" section (KI-0003, KI-0006, KI-0013, physical-device validation) and status footer (`PARTIAL`, confidence `0.97`).
 
 ## DISCOVERIES
 - 2026-02-24T16:47Z [TOOL] `.agent/CONTINUITY.md` did not exist at task start.

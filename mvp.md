@@ -117,3 +117,14 @@ Returns:
 ### Documentation
 - [ ] Accuracy claims validated with third-party datasets
 - [ ] Deployment runbook for production environments
+
+## Remaining blockers
+
+- Open issue KI-0003 (external tile dependency): [knowissues.md](/Users/apinzon/Desktop/Active Projects/geowraith/knowissues.md:85)
+- Mitigated issue KI-0006 (real-world accuracy still unvalidated): [knowissues.md](/Users/apinzon/Desktop/Active Projects/geowraith/knowissues.md:115)
+- Open issue KI-0013 (hard 300 LOC limit violated in multiple source files): [knowissues.md](/Users/apinzon/Desktop/Active Projects/geowraith/knowissues.md:220)
+- Physical-device map rendering validation is still required (headless runs can’t fully prove GUI/WebGL behavior): [CONTINUITY.md](/Users/apinzon/Desktop/Active Projects/geowraith/.agent/CONTINUITY.md:71)
+
+Status: PARTIAL
+Confidence: 0.97
+Unrun checks: none for the executed command suite above.
