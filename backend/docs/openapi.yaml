@@ -1,0 +1,120 @@
+openapi: 3.0.3
+info:
+  title: GeoWraith API
+  version: 0.2.0
+  description: Local-first API contract for the GeoWraith backend MVP implementation.
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  service:
+                    type: string
+                  version:
+                    type: string
+                  offline_mode:
+                    type: boolean
+                  engine:
+                    type: string
+  /api/predict:
+    post:
+      summary: Predict image location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                image_base64:
+                  type: string
+                  description: Base64-encoded image payload (preferred for local use).
+                image_url:
+                  type: string
+                  description: Optional base64 data URL (`data:image/...;base64,...`). Remote URLs are rejected.
+                options:
+                  type: object
+                  properties:
+                    mode:
+                      type: string
+                      enum: [fast, accurate]
+              oneOf:
+                - required: [image_base64]
+                - required: [image_url]
+      responses:
+        '200':
+          description: Prediction result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  status:
+                    type: string
+                  mode:
+                    type: string
+                  location:
+                    type: object
+                    properties:
+                      lat:
+                        type: number
+                      lon:
+                        type: number
+                      radius_m:
+                        type: number
+                  confidence:
+                    type: number
+                  elapsed_ms:
+                    type: number
+                  notes:
+                    type: string
+                  top_matches:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        label:
+                          type: string
+                        lat:
+                          type: number
+                        lon:
+                          type: number
+                        similarity:
+                          type: number
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string

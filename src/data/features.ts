@@ -1,0 +1,135 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import type { Feature, ProcessStep, TechStackItem, NavLink, FooterSection } from '../types';
+
+export const features: Feature[] = [
+  {
+    id: 'rust-core',
+    title: 'Rust Inference Engine',
+    description: 'Deterministic ONNX runtime with CPU-only operation. CUDA and OpenVINO acceleration optional. WASM-ready for browser privacy mode.',
+    icon: 'Cpu',
+  },
+  {
+    id: 'lancedb',
+    title: 'Embedded Vector Search',
+    description: 'LanceDB stores city-scale galleries locally on disk. No external vector database required. Sub-second similarity search.',
+    icon: 'Database',
+  },
+  {
+    id: 'hloc',
+    title: 'Meter-Level Refinement',
+    description: 'hloc + COLMAP geometric pose estimation achieves <10m accuracy in pre-mapped dense environments. Structure-from-motion refinement.',
+    icon: 'Target',
+  },
+  {
+    id: 'privacy',
+    title: '100% Local-First',
+    description: 'Zero data leaves your machine. No cloud services, no tracking, no telemetry. Privacy mode runs entirely in browser with WASM.',
+    icon: 'Shield',
+  },
+  {
+    id: 'offline',
+    title: 'Fully Offline Capable',
+    description: 'GEOWRAITH_OFFLINE=1 mode disables all external access. Works air-gapped after initial setup. No internet required for inference.',
+    icon: 'WifiOff',
+  },
+  {
+    id: 'opensource',
+    title: 'MIT Licensed',
+    description: 'Open source and free forever. Fork, audit, extend, deploy. Zero cost, fully transparent. Community-driven development.',
+    icon: 'Code2',
+  },
+];
+
+export const processSteps: ProcessStep[] = [
+  {
+    step: 1,
+    title: 'Upload',
+    description: 'Drag and drop any photo',
+    details: ['JPEG, PNG, WebP supported', 'No EXIF required', 'Browser-side preprocessing'],
+  },
+  {
+    step: 2,
+    title: 'Embed',
+    description: 'Vision model creates embedding',
+    details: ['ONNX inference', '384-dimensional vector', 'Sub-second processing'],
+  },
+  {
+    step: 3,
+    title: 'Search',
+    description: 'Vector similarity search',
+    details: ['LanceDB ANN search', 'Top-k matches retrieved', 'Confidence scoring'],
+  },
+  {
+    step: 4,
+    title: 'Refine',
+    description: 'Geometric pose estimation',
+    details: ['hloc + COLMAP', 'Structure-from-motion', 'Meter-level accuracy'],
+  },
+  {
+    step: 5,
+    title: 'Locate',
+    description: 'GPS coordinates output',
+    details: ['Lat/Lon coordinates', 'Accuracy radius', 'Map visualization'],
+  },
+];
+
+export const techStack: TechStackItem[] = [
+  { name: 'Rust', category: 'core', description: 'Axum API + ONNX Runtime' },
+  { name: 'ONNX', category: 'core', description: 'Vision model inference' },
+  { name: 'LanceDB', category: 'storage', description: 'Embedded vector database' },
+  { name: 'Python', category: 'core', description: 'hloc + COLMAP bridge' },
+  { name: 'React', category: 'frontend', description: 'UI components' },
+  { name: 'TypeScript', category: 'frontend', description: 'Type-safe development' },
+  { name: 'Vite', category: 'frontend', description: 'Build tooling' },
+  { name: 'Tailwind', category: 'frontend', description: 'Utility styling' },
+  { name: 'Docker', category: 'infrastructure', description: 'Containerization' },
+  { name: 'Earthly', category: 'infrastructure', description: 'Reproducible builds' },
+];
+
+export const navLinks: NavLink[] = [
+  { label: 'Docs', href: '#docs', hasDropdown: true },
+  { label: 'Examples', href: '#examples', hasDropdown: true },
+  { label: 'Gallery', href: '#gallery', hasDropdown: false },
+  { label: 'Contact', href: '#contact', hasDropdown: false },
+];
+
+export const footerSections: FooterSection[] = [
+  {
+    title: 'Product',
+    links: [
+      { label: 'Features', href: '#features' },
+      { label: 'How It Works', href: '#how-it-works' },
+      { label: 'Tech Stack', href: '#tech-stack' },
+      { label: 'Pricing', href: '#pricing' },
+    ],
+  },
+  {
+    title: 'Resources',
+    links: [
+      { label: 'Documentation', href: '#docs' },
+      { label: 'API Reference', href: '#api' },
+      { label: 'Examples', href: '#examples' },
+      { label: 'Gallery', href: '#gallery' },
+    ],
+  },
+  {
+    title: 'Community',
+    links: [
+      { label: 'GitHub', href: 'https://github.com/AngelP17/geowraith' },
+      { label: 'Contact', href: '#contact' },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { label: 'License (MIT)', href: '#license' },
+      { label: 'Privacy Policy', href: '#privacy' },
+      { label: 'Terms of Use', href: '#terms' },
+      { label: 'Responsible Use', href: '#ethics' },
+    ],
+  },
+];

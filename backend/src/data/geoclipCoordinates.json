@@ -1,0 +1,7202 @@
+[
+  {
+    "id": "geoclip_0001",
+    "label": "GeoCLIP Reference 1",
+    "lat": -50.943392,
+    "lon": -72.935664
+  },
+  {
+    "id": "geoclip_0002",
+    "label": "GeoCLIP Reference 2",
+    "lat": 64.151608,
+    "lon": -21.932144
+  },
+  {
+    "id": "geoclip_0003",
+    "label": "GeoCLIP Reference 3",
+    "lat": 37.4455,
+    "lon": -122.1672
+  },
+  {
+    "id": "geoclip_0004",
+    "label": "GeoCLIP Reference 4",
+    "lat": 35.968899,
+    "lon": -83.920724
+  },
+  {
+    "id": "geoclip_0005",
+    "label": "GeoCLIP Reference 5",
+    "lat": 48.414419,
+    "lon": -123.385262
+  },
+  {
+    "id": "geoclip_0006",
+    "label": "GeoCLIP Reference 6",
+    "lat": 25.793152,
+    "lon": -80.129825
+  },
+  {
+    "id": "geoclip_0007",
+    "label": "GeoCLIP Reference 7",
+    "lat": 42.861873,
+    "lon": -2.708129
+  },
+  {
+    "id": "geoclip_0008",
+    "label": "GeoCLIP Reference 8",
+    "lat": 41.657146,
+    "lon": -4.719432
+  },
+  {
+    "id": "geoclip_0009",
+    "label": "GeoCLIP Reference 9",
+    "lat": 28.000862,
+    "lon": -81.979894
+  },
+  {
+    "id": "geoclip_0010",
+    "label": "GeoCLIP Reference 10",
+    "lat": 38.510387,
+    "lon": -122.727607
+  },
+  {
+    "id": "geoclip_0011",
+    "label": "GeoCLIP Reference 11",
+    "lat": 22.02444,
+    "lon": 121.555733
+  },
+  {
+    "id": "geoclip_0012",
+    "label": "GeoCLIP Reference 12",
+    "lat": 41.479272,
+    "lon": 2.191155
+  },
+  {
+    "id": "geoclip_0013",
+    "label": "GeoCLIP Reference 13",
+    "lat": -23.57325,
+    "lon": -46.697044
+  },
+  {
+    "id": "geoclip_0014",
+    "label": "GeoCLIP Reference 14",
+    "lat": 46.177572,
+    "lon": 9.373569
+  },
+  {
+    "id": "geoclip_0015",
+    "label": "GeoCLIP Reference 15",
+    "lat": 52.303391,
+    "lon": 4.971882
+  },
+  {
+    "id": "geoclip_0016",
+    "label": "GeoCLIP Reference 16",
+    "lat": 40.7335,
+    "lon": -73.9995
+  },
+  {
+    "id": "geoclip_0017",
+    "label": "GeoCLIP Reference 17",
+    "lat": 49.110858,
+    "lon": 13.123967
+  },
+  {
+    "id": "geoclip_0018",
+    "label": "GeoCLIP Reference 18",
+    "lat": 44.839122,
+    "lon": -0.561826
+  },
+  {
+    "id": "geoclip_0019",
+    "label": "GeoCLIP Reference 19",
+    "lat": 35.866547,
+    "lon": 139.939529
+  },
+  {
+    "id": "geoclip_0020",
+    "label": "GeoCLIP Reference 20",
+    "lat": 51.540703,
+    "lon": -0.021758
+  },
+  {
+    "id": "geoclip_0021",
+    "label": "GeoCLIP Reference 21",
+    "lat": 4.16906,
+    "lon": 73.495101
+  },
+  {
+    "id": "geoclip_0022",
+    "label": "GeoCLIP Reference 22",
+    "lat": 45.504642,
+    "lon": -73.556831
+  },
+  {
+    "id": "geoclip_0023",
+    "label": "GeoCLIP Reference 23",
+    "lat": 46.268735,
+    "lon": -122.188793
+  },
+  {
+    "id": "geoclip_0024",
+    "label": "GeoCLIP Reference 24",
+    "lat": 40.759675,
+    "lon": -73.98498
+  },
+  {
+    "id": "geoclip_0025",
+    "label": "GeoCLIP Reference 25",
+    "lat": 41.277806,
+    "lon": 28.652343
+  },
+  {
+    "id": "geoclip_0026",
+    "label": "GeoCLIP Reference 26",
+    "lat": 44.0545,
+    "lon": -121.314811
+  },
+  {
+    "id": "geoclip_0027",
+    "label": "GeoCLIP Reference 27",
+    "lat": 49.379355,
+    "lon": -0.90311
+  },
+  {
+    "id": "geoclip_0028",
+    "label": "GeoCLIP Reference 28",
+    "lat": 51.500511,
+    "lon": -0.137715
+  },
+  {
+    "id": "geoclip_0029",
+    "label": "GeoCLIP Reference 29",
+    "lat": 34.161764,
+    "lon": -118.437402
+  },
+  {
+    "id": "geoclip_0030",
+    "label": "GeoCLIP Reference 30",
+    "lat": -33.858994,
+    "lon": 151.208471
+  },
+  {
+    "id": "geoclip_0031",
+    "label": "GeoCLIP Reference 31",
+    "lat": 54.966684,
+    "lon": -1.785831
+  },
+  {
+    "id": "geoclip_0032",
+    "label": "GeoCLIP Reference 32",
+    "lat": 48.424295,
+    "lon": 10.301109
+  },
+  {
+    "id": "geoclip_0033",
+    "label": "GeoCLIP Reference 33",
+    "lat": 40.433359,
+    "lon": -3.712005
+  },
+  {
+    "id": "geoclip_0034",
+    "label": "GeoCLIP Reference 34",
+    "lat": 34.102035,
+    "lon": -118.336112
+  },
+  {
+    "id": "geoclip_0035",
+    "label": "GeoCLIP Reference 35",
+    "lat": -20.158239,
+    "lon": 57.505183
+  },
+  {
+    "id": "geoclip_0036",
+    "label": "GeoCLIP Reference 36",
+    "lat": -37.857523,
+    "lon": 175.680016
+  },
+  {
+    "id": "geoclip_0037",
+    "label": "GeoCLIP Reference 37",
+    "lat": 39.659512,
+    "lon": -104.752589
+  },
+  {
+    "id": "geoclip_0038",
+    "label": "GeoCLIP Reference 38",
+    "lat": 41.828937,
+    "lon": -87.630439
+  },
+  {
+    "id": "geoclip_0039",
+    "label": "GeoCLIP Reference 39",
+    "lat": 63.436694,
+    "lon": 10.399246
+  },
+  {
+    "id": "geoclip_0040",
+    "label": "GeoCLIP Reference 40",
+    "lat": 37.983694,
+    "lon": 23.727774
+  },
+  {
+    "id": "geoclip_0041",
+    "label": "GeoCLIP Reference 41",
+    "lat": 50.118266,
+    "lon": 8.692245
+  },
+  {
+    "id": "geoclip_0042",
+    "label": "GeoCLIP Reference 42",
+    "lat": 37.783989,
+    "lon": -122.401314
+  },
+  {
+    "id": "geoclip_0043",
+    "label": "GeoCLIP Reference 43",
+    "lat": 50.465918,
+    "lon": -4.716584
+  },
+  {
+    "id": "geoclip_0044",
+    "label": "GeoCLIP Reference 44",
+    "lat": 47.245175,
+    "lon": 39.755267
+  },
+  {
+    "id": "geoclip_0045",
+    "label": "GeoCLIP Reference 45",
+    "lat": 33.814762,
+    "lon": -116.536792
+  },
+  {
+    "id": "geoclip_0046",
+    "label": "GeoCLIP Reference 46",
+    "lat": 35.564576,
+    "lon": -82.547235
+  },
+  {
+    "id": "geoclip_0047",
+    "label": "GeoCLIP Reference 47",
+    "lat": 26.542388,
+    "lon": -76.958949
+  },
+  {
+    "id": "geoclip_0048",
+    "label": "GeoCLIP Reference 48",
+    "lat": 50.826061,
+    "lon": -0.138248
+  },
+  {
+    "id": "geoclip_0049",
+    "label": "GeoCLIP Reference 49",
+    "lat": -29.368786,
+    "lon": -50.883693
+  },
+  {
+    "id": "geoclip_0050",
+    "label": "GeoCLIP Reference 50",
+    "lat": 45.760382,
+    "lon": 4.826785
+  },
+  {
+    "id": "geoclip_0051",
+    "label": "GeoCLIP Reference 51",
+    "lat": 51.899227,
+    "lon": -0.979791
+  },
+  {
+    "id": "geoclip_0052",
+    "label": "GeoCLIP Reference 52",
+    "lat": 52.238785,
+    "lon": 0.348901
+  },
+  {
+    "id": "geoclip_0053",
+    "label": "GeoCLIP Reference 53",
+    "lat": 40.748374,
+    "lon": -73.984611
+  },
+  {
+    "id": "geoclip_0054",
+    "label": "GeoCLIP Reference 54",
+    "lat": 37.831751,
+    "lon": -122.47859
+  },
+  {
+    "id": "geoclip_0055",
+    "label": "GeoCLIP Reference 55",
+    "lat": 51.589482,
+    "lon": 4.779825
+  },
+  {
+    "id": "geoclip_0056",
+    "label": "GeoCLIP Reference 56",
+    "lat": 54.652688,
+    "lon": -3.379209
+  },
+  {
+    "id": "geoclip_0057",
+    "label": "GeoCLIP Reference 57",
+    "lat": -22.965268,
+    "lon": -43.209571
+  },
+  {
+    "id": "geoclip_0058",
+    "label": "GeoCLIP Reference 58",
+    "lat": 41.892283,
+    "lon": 12.485366
+  },
+  {
+    "id": "geoclip_0059",
+    "label": "GeoCLIP Reference 59",
+    "lat": 41.932286,
+    "lon": 12.378212
+  },
+  {
+    "id": "geoclip_0060",
+    "label": "GeoCLIP Reference 60",
+    "lat": 49.797378,
+    "lon": 9.932842
+  },
+  {
+    "id": "geoclip_0061",
+    "label": "GeoCLIP Reference 61",
+    "lat": 30.412333,
+    "lon": -91.173666
+  },
+  {
+    "id": "geoclip_0062",
+    "label": "GeoCLIP Reference 62",
+    "lat": 42.360066,
+    "lon": -71.067638
+  },
+  {
+    "id": "geoclip_0063",
+    "label": "GeoCLIP Reference 63",
+    "lat": 25.31889,
+    "lon": 83.007545
+  },
+  {
+    "id": "geoclip_0064",
+    "label": "GeoCLIP Reference 64",
+    "lat": 19.464973,
+    "lon": 98.295021
+  },
+  {
+    "id": "geoclip_0065",
+    "label": "GeoCLIP Reference 65",
+    "lat": 44.66986,
+    "lon": -74.985893
+  },
+  {
+    "id": "geoclip_0066",
+    "label": "GeoCLIP Reference 66",
+    "lat": 45.510196,
+    "lon": -73.67202
+  },
+  {
+    "id": "geoclip_0067",
+    "label": "GeoCLIP Reference 67",
+    "lat": 42.363597,
+    "lon": -71.230098
+  },
+  {
+    "id": "geoclip_0068",
+    "label": "GeoCLIP Reference 68",
+    "lat": 52.309758,
+    "lon": 0.289807
+  },
+  {
+    "id": "geoclip_0069",
+    "label": "GeoCLIP Reference 69",
+    "lat": 46.471561,
+    "lon": 7.739009
+  },
+  {
+    "id": "geoclip_0070",
+    "label": "GeoCLIP Reference 70",
+    "lat": 36.846426,
+    "lon": -121.536748
+  },
+  {
+    "id": "geoclip_0071",
+    "label": "GeoCLIP Reference 71",
+    "lat": 54.173789,
+    "lon": -2.79602
+  },
+  {
+    "id": "geoclip_0072",
+    "label": "GeoCLIP Reference 72",
+    "lat": 38.7355,
+    "lon": -9.150834
+  },
+  {
+    "id": "geoclip_0073",
+    "label": "GeoCLIP Reference 73",
+    "lat": 52.0905,
+    "lon": 4.341833
+  },
+  {
+    "id": "geoclip_0074",
+    "label": "GeoCLIP Reference 74",
+    "lat": 50.595769,
+    "lon": -1.952476
+  },
+  {
+    "id": "geoclip_0075",
+    "label": "GeoCLIP Reference 75",
+    "lat": 51.481469,
+    "lon": -0.444517
+  },
+  {
+    "id": "geoclip_0076",
+    "label": "GeoCLIP Reference 76",
+    "lat": 40.752718,
+    "lon": -73.997104
+  },
+  {
+    "id": "geoclip_0077",
+    "label": "GeoCLIP Reference 77",
+    "lat": 21.7866,
+    "lon": 82.794761
+  },
+  {
+    "id": "geoclip_0078",
+    "label": "GeoCLIP Reference 78",
+    "lat": 35.68184,
+    "lon": 139.75708
+  },
+  {
+    "id": "geoclip_0079",
+    "label": "GeoCLIP Reference 79",
+    "lat": 1.286279,
+    "lon": 103.859167
+  },
+  {
+    "id": "geoclip_0080",
+    "label": "GeoCLIP Reference 80",
+    "lat": -33.858032,
+    "lon": 151.208481
+  },
+  {
+    "id": "geoclip_0081",
+    "label": "GeoCLIP Reference 81",
+    "lat": 37.387234,
+    "lon": -122.064392
+  },
+  {
+    "id": "geoclip_0082",
+    "label": "GeoCLIP Reference 82",
+    "lat": 57.029754,
+    "lon": -5.668601
+  },
+  {
+    "id": "geoclip_0083",
+    "label": "GeoCLIP Reference 83",
+    "lat": 51.916044,
+    "lon": 4.468247
+  },
+  {
+    "id": "geoclip_0084",
+    "label": "GeoCLIP Reference 84",
+    "lat": 28.541821,
+    "lon": 77.167968
+  },
+  {
+    "id": "geoclip_0085",
+    "label": "GeoCLIP Reference 85",
+    "lat": 40.69834,
+    "lon": -74.014635
+  },
+  {
+    "id": "geoclip_0086",
+    "label": "GeoCLIP Reference 86",
+    "lat": 51.508101,
+    "lon": -0.099349
+  },
+  {
+    "id": "geoclip_0087",
+    "label": "GeoCLIP Reference 87",
+    "lat": 33.101464,
+    "lon": -117.011775
+  },
+  {
+    "id": "geoclip_0088",
+    "label": "GeoCLIP Reference 88",
+    "lat": 50.894061,
+    "lon": 3.621763
+  },
+  {
+    "id": "geoclip_0089",
+    "label": "GeoCLIP Reference 89",
+    "lat": 46.217732,
+    "lon": -74.568672
+  },
+  {
+    "id": "geoclip_0090",
+    "label": "GeoCLIP Reference 90",
+    "lat": 24.710385,
+    "lon": 120.924324
+  },
+  {
+    "id": "geoclip_0091",
+    "label": "GeoCLIP Reference 91",
+    "lat": 51.473604,
+    "lon": -0.163164
+  },
+  {
+    "id": "geoclip_0092",
+    "label": "GeoCLIP Reference 92",
+    "lat": 48.859333,
+    "lon": 2.292999
+  },
+  {
+    "id": "geoclip_0093",
+    "label": "GeoCLIP Reference 93",
+    "lat": 37.457418,
+    "lon": -6.086425
+  },
+  {
+    "id": "geoclip_0094",
+    "label": "GeoCLIP Reference 94",
+    "lat": 53.556666,
+    "lon": 9.997499
+  },
+  {
+    "id": "geoclip_0095",
+    "label": "GeoCLIP Reference 95",
+    "lat": -37.838699,
+    "lon": 144.970865
+  },
+  {
+    "id": "geoclip_0096",
+    "label": "GeoCLIP Reference 96",
+    "lat": 37.738158,
+    "lon": -0.850421
+  },
+  {
+    "id": "geoclip_0097",
+    "label": "GeoCLIP Reference 97",
+    "lat": 51.759446,
+    "lon": 12.449054
+  },
+  {
+    "id": "geoclip_0098",
+    "label": "GeoCLIP Reference 98",
+    "lat": 25.019885,
+    "lon": -80.500001
+  },
+  {
+    "id": "geoclip_0099",
+    "label": "GeoCLIP Reference 99",
+    "lat": 43.600082,
+    "lon": -5.924881
+  },
+  {
+    "id": "geoclip_0100",
+    "label": "GeoCLIP Reference 100",
+    "lat": 38.901261,
+    "lon": -77.03261
+  },
+  {
+    "id": "geoclip_0101",
+    "label": "GeoCLIP Reference 101",
+    "lat": 40.748533,
+    "lon": -73.985559
+  },
+  {
+    "id": "geoclip_0102",
+    "label": "GeoCLIP Reference 102",
+    "lat": 50.128108,
+    "lon": 8.664404
+  },
+  {
+    "id": "geoclip_0103",
+    "label": "GeoCLIP Reference 103",
+    "lat": 37.976337,
+    "lon": 23.725619
+  },
+  {
+    "id": "geoclip_0104",
+    "label": "GeoCLIP Reference 104",
+    "lat": 35.145353,
+    "lon": -89.751219
+  },
+  {
+    "id": "geoclip_0105",
+    "label": "GeoCLIP Reference 105",
+    "lat": 32.735631,
+    "lon": -117.149126
+  },
+  {
+    "id": "geoclip_0106",
+    "label": "GeoCLIP Reference 106",
+    "lat": 47.20118,
+    "lon": 10.169797
+  },
+  {
+    "id": "geoclip_0107",
+    "label": "GeoCLIP Reference 107",
+    "lat": 52.661288,
+    "lon": 5.592177
+  },
+  {
+    "id": "geoclip_0108",
+    "label": "GeoCLIP Reference 108",
+    "lat": 52.634729,
+    "lon": 13.315386
+  },
+  {
+    "id": "geoclip_0109",
+    "label": "GeoCLIP Reference 109",
+    "lat": 19.01,
+    "lon": 72.839996
+  },
+  {
+    "id": "geoclip_0110",
+    "label": "GeoCLIP Reference 110",
+    "lat": 50.82543,
+    "lon": 6.362156
+  },
+  {
+    "id": "geoclip_0111",
+    "label": "GeoCLIP Reference 111",
+    "lat": 30.243227,
+    "lon": 120.151977
+  },
+  {
+    "id": "geoclip_0112",
+    "label": "GeoCLIP Reference 112",
+    "lat": 41.620864,
+    "lon": -86.220359
+  },
+  {
+    "id": "geoclip_0113",
+    "label": "GeoCLIP Reference 113",
+    "lat": 35.952094,
+    "lon": 14.388892
+  },
+  {
+    "id": "geoclip_0114",
+    "label": "GeoCLIP Reference 114",
+    "lat": 41.760044,
+    "lon": -88.869524
+  },
+  {
+    "id": "geoclip_0115",
+    "label": "GeoCLIP Reference 115",
+    "lat": 39.828465,
+    "lon": -86.132748
+  },
+  {
+    "id": "geoclip_0116",
+    "label": "GeoCLIP Reference 116",
+    "lat": 35.789572,
+    "lon": -78.781577
+  },
+  {
+    "id": "geoclip_0117",
+    "label": "GeoCLIP Reference 117",
+    "lat": 43.864563,
+    "lon": 12.20753
+  },
+  {
+    "id": "geoclip_0118",
+    "label": "GeoCLIP Reference 118",
+    "lat": 52.574159,
+    "lon": -3.627204
+  },
+  {
+    "id": "geoclip_0119",
+    "label": "GeoCLIP Reference 119",
+    "lat": 37.76247,
+    "lon": -122.446446
+  },
+  {
+    "id": "geoclip_0120",
+    "label": "GeoCLIP Reference 120",
+    "lat": 38.608151,
+    "lon": 34.82872
+  },
+  {
+    "id": "geoclip_0121",
+    "label": "GeoCLIP Reference 121",
+    "lat": 46.507897,
+    "lon": 8.903977
+  },
+  {
+    "id": "geoclip_0122",
+    "label": "GeoCLIP Reference 122",
+    "lat": 53.543909,
+    "lon": -113.489949
+  },
+  {
+    "id": "geoclip_0123",
+    "label": "GeoCLIP Reference 123",
+    "lat": 51.727473,
+    "lon": 7.102714
+  },
+  {
+    "id": "geoclip_0124",
+    "label": "GeoCLIP Reference 124",
+    "lat": 40.762454,
+    "lon": -73.97423
+  },
+  {
+    "id": "geoclip_0125",
+    "label": "GeoCLIP Reference 125",
+    "lat": 22.3705,
+    "lon": 114.119
+  },
+  {
+    "id": "geoclip_0126",
+    "label": "GeoCLIP Reference 126",
+    "lat": 40.291834,
+    "lon": -105.533552
+  },
+  {
+    "id": "geoclip_0127",
+    "label": "GeoCLIP Reference 127",
+    "lat": 53.084951,
+    "lon": -4.338226
+  },
+  {
+    "id": "geoclip_0128",
+    "label": "GeoCLIP Reference 128",
+    "lat": 64.932107,
+    "lon": -147.980411
+  },
+  {
+    "id": "geoclip_0129",
+    "label": "GeoCLIP Reference 129",
+    "lat": 52.403747,
+    "lon": -1.534384
+  },
+  {
+    "id": "geoclip_0130",
+    "label": "GeoCLIP Reference 130",
+    "lat": 3.320608,
+    "lon": 8.480587
+  },
+  {
+    "id": "geoclip_0131",
+    "label": "GeoCLIP Reference 131",
+    "lat": 51.041272,
+    "lon": -114.091215
+  },
+  {
+    "id": "geoclip_0132",
+    "label": "GeoCLIP Reference 132",
+    "lat": 45.19,
+    "lon": 9.157833
+  },
+  {
+    "id": "geoclip_0133",
+    "label": "GeoCLIP Reference 133",
+    "lat": 43.6525,
+    "lon": -79.3955
+  },
+  {
+    "id": "geoclip_0134",
+    "label": "GeoCLIP Reference 134",
+    "lat": 61.790651,
+    "lon": 7.10104
+  },
+  {
+    "id": "geoclip_0135",
+    "label": "GeoCLIP Reference 135",
+    "lat": 64.918157,
+    "lon": -15.418624
+  },
+  {
+    "id": "geoclip_0136",
+    "label": "GeoCLIP Reference 136",
+    "lat": 35.566304,
+    "lon": 137.615261
+  },
+  {
+    "id": "geoclip_0137",
+    "label": "GeoCLIP Reference 137",
+    "lat": 41.479807,
+    "lon": -71.520631
+  },
+  {
+    "id": "geoclip_0138",
+    "label": "GeoCLIP Reference 138",
+    "lat": 11.484451,
+    "lon": 104.901924
+  },
+  {
+    "id": "geoclip_0139",
+    "label": "GeoCLIP Reference 139",
+    "lat": 42.331336,
+    "lon": -71.126969
+  },
+  {
+    "id": "geoclip_0140",
+    "label": "GeoCLIP Reference 140",
+    "lat": 34.173512,
+    "lon": -118.37986
+  },
+  {
+    "id": "geoclip_0141",
+    "label": "GeoCLIP Reference 141",
+    "lat": 41.045698,
+    "lon": -96.298427
+  },
+  {
+    "id": "geoclip_0142",
+    "label": "GeoCLIP Reference 142",
+    "lat": 41.207782,
+    "lon": -8.688983
+  },
+  {
+    "id": "geoclip_0143",
+    "label": "GeoCLIP Reference 143",
+    "lat": 64.249293,
+    "lon": -20.763301
+  },
+  {
+    "id": "geoclip_0144",
+    "label": "GeoCLIP Reference 144",
+    "lat": 35.55632,
+    "lon": 139.696311
+  },
+  {
+    "id": "geoclip_0145",
+    "label": "GeoCLIP Reference 145",
+    "lat": 46.879166,
+    "lon": -102.8015
+  },
+  {
+    "id": "geoclip_0146",
+    "label": "GeoCLIP Reference 146",
+    "lat": 40.198191,
+    "lon": -75.544572
+  },
+  {
+    "id": "geoclip_0147",
+    "label": "GeoCLIP Reference 147",
+    "lat": 44.889862,
+    "lon": 1.216408
+  },
+  {
+    "id": "geoclip_0148",
+    "label": "GeoCLIP Reference 148",
+    "lat": -33.877595,
+    "lon": 151.204336
+  },
+  {
+    "id": "geoclip_0149",
+    "label": "GeoCLIP Reference 149",
+    "lat": 42.011996,
+    "lon": -70.876064
+  },
+  {
+    "id": "geoclip_0150",
+    "label": "GeoCLIP Reference 150",
+    "lat": 38.928367,
+    "lon": -77.050466
+  },
+  {
+    "id": "geoclip_0151",
+    "label": "GeoCLIP Reference 151",
+    "lat": 34.106077,
+    "lon": -115.665029
+  },
+  {
+    "id": "geoclip_0152",
+    "label": "GeoCLIP Reference 152",
+    "lat": 39.852961,
+    "lon": 3.121747
+  },
+  {
+    "id": "geoclip_0153",
+    "label": "GeoCLIP Reference 153",
+    "lat": 9.936678,
+    "lon": -84.151818
+  },
+  {
+    "id": "geoclip_0154",
+    "label": "GeoCLIP Reference 154",
+    "lat": 35.067694,
+    "lon": -85.202493
+  },
+  {
+    "id": "geoclip_0155",
+    "label": "GeoCLIP Reference 155",
+    "lat": 51.475175,
+    "lon": 0.055146
+  },
+  {
+    "id": "geoclip_0156",
+    "label": "GeoCLIP Reference 156",
+    "lat": 40.747777,
+    "lon": -73.993263
+  },
+  {
+    "id": "geoclip_0157",
+    "label": "GeoCLIP Reference 157",
+    "lat": 51.401548,
+    "lon": -1.324517
+  },
+  {
+    "id": "geoclip_0158",
+    "label": "GeoCLIP Reference 158",
+    "lat": 35.668499,
+    "lon": 139.485666
+  },
+  {
+    "id": "geoclip_0159",
+    "label": "GeoCLIP Reference 159",
+    "lat": 37.564854,
+    "lon": 126.987533
+  },
+  {
+    "id": "geoclip_0160",
+    "label": "GeoCLIP Reference 160",
+    "lat": 36.321487,
+    "lon": -5.459003
+  },
+  {
+    "id": "geoclip_0161",
+    "label": "GeoCLIP Reference 161",
+    "lat": 42.61978,
+    "lon": -83.50459
+  },
+  {
+    "id": "geoclip_0162",
+    "label": "GeoCLIP Reference 162",
+    "lat": 28.931885,
+    "lon": -13.644998
+  },
+  {
+    "id": "geoclip_0163",
+    "label": "GeoCLIP Reference 163",
+    "lat": 37.544336,
+    "lon": -107.821712
+  },
+  {
+    "id": "geoclip_0164",
+    "label": "GeoCLIP Reference 164",
+    "lat": 46.670407,
+    "lon": -86.15839
+  },
+  {
+    "id": "geoclip_0165",
+    "label": "GeoCLIP Reference 165",
+    "lat": 51.527108,
+    "lon": -0.135521
+  },
+  {
+    "id": "geoclip_0166",
+    "label": "GeoCLIP Reference 166",
+    "lat": 52.78649,
+    "lon": 6.896581
+  },
+  {
+    "id": "geoclip_0167",
+    "label": "GeoCLIP Reference 167",
+    "lat": 51.159107,
+    "lon": -2.587795
+  },
+  {
+    "id": "geoclip_0168",
+    "label": "GeoCLIP Reference 168",
+    "lat": 45.44122,
+    "lon": 12.331103
+  },
+  {
+    "id": "geoclip_0169",
+    "label": "GeoCLIP Reference 169",
+    "lat": 46.785016,
+    "lon": -91.419296
+  },
+  {
+    "id": "geoclip_0170",
+    "label": "GeoCLIP Reference 170",
+    "lat": 50.814949,
+    "lon": 16.272027
+  },
+  {
+    "id": "geoclip_0171",
+    "label": "GeoCLIP Reference 171",
+    "lat": 35.431713,
+    "lon": 126.703793
+  },
+  {
+    "id": "geoclip_0172",
+    "label": "GeoCLIP Reference 172",
+    "lat": 48.211176,
+    "lon": 16.357226
+  },
+  {
+    "id": "geoclip_0173",
+    "label": "GeoCLIP Reference 173",
+    "lat": 32.674667,
+    "lon": -95.709833
+  },
+  {
+    "id": "geoclip_0174",
+    "label": "GeoCLIP Reference 174",
+    "lat": 12.946166,
+    "lon": 100.885333
+  },
+  {
+    "id": "geoclip_0175",
+    "label": "GeoCLIP Reference 175",
+    "lat": 41.976829,
+    "lon": -87.862739
+  },
+  {
+    "id": "geoclip_0176",
+    "label": "GeoCLIP Reference 176",
+    "lat": 46.76985,
+    "lon": 7.509326
+  },
+  {
+    "id": "geoclip_0177",
+    "label": "GeoCLIP Reference 177",
+    "lat": 42.426157,
+    "lon": 3.160575
+  },
+  {
+    "id": "geoclip_0178",
+    "label": "GeoCLIP Reference 178",
+    "lat": 36.748895,
+    "lon": 139.615974
+  },
+  {
+    "id": "geoclip_0179",
+    "label": "GeoCLIP Reference 179",
+    "lat": 52.497883,
+    "lon": 13.462715
+  },
+  {
+    "id": "geoclip_0180",
+    "label": "GeoCLIP Reference 180",
+    "lat": -27.55759,
+    "lon": 151.941776
+  },
+  {
+    "id": "geoclip_0181",
+    "label": "GeoCLIP Reference 181",
+    "lat": 49.282624,
+    "lon": -123.036398
+  },
+  {
+    "id": "geoclip_0182",
+    "label": "GeoCLIP Reference 182",
+    "lat": 59.899527,
+    "lon": 10.758479
+  },
+  {
+    "id": "geoclip_0183",
+    "label": "GeoCLIP Reference 183",
+    "lat": 53.544591,
+    "lon": -2.776107
+  },
+  {
+    "id": "geoclip_0184",
+    "label": "GeoCLIP Reference 184",
+    "lat": 28.371005,
+    "lon": -81.556548
+  },
+  {
+    "id": "geoclip_0185",
+    "label": "GeoCLIP Reference 185",
+    "lat": 13.364234,
+    "lon": 103.857192
+  },
+  {
+    "id": "geoclip_0186",
+    "label": "GeoCLIP Reference 186",
+    "lat": 37.756501,
+    "lon": -122.421146
+  },
+  {
+    "id": "geoclip_0187",
+    "label": "GeoCLIP Reference 187",
+    "lat": -14.24292,
+    "lon": -54.387829
+  },
+  {
+    "id": "geoclip_0188",
+    "label": "GeoCLIP Reference 188",
+    "lat": 40.955178,
+    "lon": -74.16943
+  },
+  {
+    "id": "geoclip_0189",
+    "label": "GeoCLIP Reference 189",
+    "lat": 30.67,
+    "lon": 104.071022
+  },
+  {
+    "id": "geoclip_0190",
+    "label": "GeoCLIP Reference 190",
+    "lat": 47.982875,
+    "lon": 7.891327
+  },
+  {
+    "id": "geoclip_0191",
+    "label": "GeoCLIP Reference 191",
+    "lat": 34.469408,
+    "lon": -84.429245
+  },
+  {
+    "id": "geoclip_0192",
+    "label": "GeoCLIP Reference 192",
+    "lat": 40.779062,
+    "lon": -73.982148
+  },
+  {
+    "id": "geoclip_0193",
+    "label": "GeoCLIP Reference 193",
+    "lat": -0.760952,
+    "lon": 36.395301
+  },
+  {
+    "id": "geoclip_0194",
+    "label": "GeoCLIP Reference 194",
+    "lat": 44.524354,
+    "lon": 11.365699
+  },
+  {
+    "id": "geoclip_0195",
+    "label": "GeoCLIP Reference 195",
+    "lat": 39.904008,
+    "lon": -75.171375
+  },
+  {
+    "id": "geoclip_0196",
+    "label": "GeoCLIP Reference 196",
+    "lat": 42.785385,
+    "lon": 9.341297
+  },
+  {
+    "id": "geoclip_0197",
+    "label": "GeoCLIP Reference 197",
+    "lat": 59.445075,
+    "lon": 24.74121
+  },
+  {
+    "id": "geoclip_0198",
+    "label": "GeoCLIP Reference 198",
+    "lat": 48.851666,
+    "lon": 2.445555
+  },
+  {
+    "id": "geoclip_0199",
+    "label": "GeoCLIP Reference 199",
+    "lat": 41.906844,
+    "lon": 12.45407
+  },
+  {
+    "id": "geoclip_0200",
+    "label": "GeoCLIP Reference 200",
+    "lat": 59.140197,
+    "lon": 9.655694
+  },
+  {
+    "id": "geoclip_0201",
+    "label": "GeoCLIP Reference 201",
+    "lat": 47.593792,
+    "lon": -122.313644
+  },
+  {
+    "id": "geoclip_0202",
+    "label": "GeoCLIP Reference 202",
+    "lat": 41.145028,
+    "lon": 24.887455
+  },
+  {
+    "id": "geoclip_0203",
+    "label": "GeoCLIP Reference 203",
+    "lat": 37.775,
+    "lon": -122.425667
+  },
+  {
+    "id": "geoclip_0204",
+    "label": "GeoCLIP Reference 204",
+    "lat": 47.480378,
+    "lon": 1.18678
+  },
+  {
+    "id": "geoclip_0205",
+    "label": "GeoCLIP Reference 205",
+    "lat": 44.983059,
+    "lon": -93.184629
+  },
+  {
+    "id": "geoclip_0206",
+    "label": "GeoCLIP Reference 206",
+    "lat": 20.704096,
+    "lon": -103.324356
+  },
+  {
+    "id": "geoclip_0207",
+    "label": "GeoCLIP Reference 207",
+    "lat": 42.853253,
+    "lon": 0.143852
+  },
+  {
+    "id": "geoclip_0208",
+    "label": "GeoCLIP Reference 208",
+    "lat": 30.062557,
+    "lon": 31.218338
+  },
+  {
+    "id": "geoclip_0209",
+    "label": "GeoCLIP Reference 209",
+    "lat": -45.877042,
+    "lon": 170.505023
+  },
+  {
+    "id": "geoclip_0210",
+    "label": "GeoCLIP Reference 210",
+    "lat": 19.432271,
+    "lon": -99.133383
+  },
+  {
+    "id": "geoclip_0211",
+    "label": "GeoCLIP Reference 211",
+    "lat": 1.312705,
+    "lon": 103.873811
+  },
+  {
+    "id": "geoclip_0212",
+    "label": "GeoCLIP Reference 212",
+    "lat": 41.959531,
+    "lon": 2.65998
+  },
+  {
+    "id": "geoclip_0213",
+    "label": "GeoCLIP Reference 213",
+    "lat": 40.421076,
+    "lon": -3.707456
+  },
+  {
+    "id": "geoclip_0214",
+    "label": "GeoCLIP Reference 214",
+    "lat": -34.042261,
+    "lon": 151.161584
+  },
+  {
+    "id": "geoclip_0215",
+    "label": "GeoCLIP Reference 215",
+    "lat": 45.438251,
+    "lon": 12.31849
+  },
+  {
+    "id": "geoclip_0216",
+    "label": "GeoCLIP Reference 216",
+    "lat": 40.354219,
+    "lon": -74.661094
+  },
+  {
+    "id": "geoclip_0217",
+    "label": "GeoCLIP Reference 217",
+    "lat": 59.324498,
+    "lon": 18.006227
+  },
+  {
+    "id": "geoclip_0218",
+    "label": "GeoCLIP Reference 218",
+    "lat": 57.863566,
+    "lon": 12.359962
+  },
+  {
+    "id": "geoclip_0219",
+    "label": "GeoCLIP Reference 219",
+    "lat": 53.375648,
+    "lon": -1.063828
+  },
+  {
+    "id": "geoclip_0220",
+    "label": "GeoCLIP Reference 220",
+    "lat": 51.748926,
+    "lon": -1.254673
+  },
+  {
+    "id": "geoclip_0221",
+    "label": "GeoCLIP Reference 221",
+    "lat": 60.182053,
+    "lon": 24.914224
+  },
+  {
+    "id": "geoclip_0222",
+    "label": "GeoCLIP Reference 222",
+    "lat": -33.43589,
+    "lon": -70.63095
+  },
+  {
+    "id": "geoclip_0223",
+    "label": "GeoCLIP Reference 223",
+    "lat": 4.150912,
+    "lon": -73.629684
+  },
+  {
+    "id": "geoclip_0224",
+    "label": "GeoCLIP Reference 224",
+    "lat": 61.98043,
+    "lon": -6.647242
+  },
+  {
+    "id": "geoclip_0225",
+    "label": "GeoCLIP Reference 225",
+    "lat": 46.44312,
+    "lon": -93.530559
+  },
+  {
+    "id": "geoclip_0226",
+    "label": "GeoCLIP Reference 226",
+    "lat": 45.779017,
+    "lon": 126.610951
+  },
+  {
+    "id": "geoclip_0227",
+    "label": "GeoCLIP Reference 227",
+    "lat": 45.31705,
+    "lon": 8.858694
+  },
+  {
+    "id": "geoclip_0228",
+    "label": "GeoCLIP Reference 228",
+    "lat": 50.936498,
+    "lon": -1.397023
+  },
+  {
+    "id": "geoclip_0229",
+    "label": "GeoCLIP Reference 229",
+    "lat": 41.215208,
+    "lon": 1.731204
+  },
+  {
+    "id": "geoclip_0230",
+    "label": "GeoCLIP Reference 230",
+    "lat": 19.295266,
+    "lon": -104.843559
+  },
+  {
+    "id": "geoclip_0231",
+    "label": "GeoCLIP Reference 231",
+    "lat": 52.876838,
+    "lon": 7.075358
+  },
+  {
+    "id": "geoclip_0232",
+    "label": "GeoCLIP Reference 232",
+    "lat": -4.290608,
+    "lon": 55.697937
+  },
+  {
+    "id": "geoclip_0233",
+    "label": "GeoCLIP Reference 233",
+    "lat": 40.756236,
+    "lon": -73.978589
+  },
+  {
+    "id": "geoclip_0234",
+    "label": "GeoCLIP Reference 234",
+    "lat": 40.761528,
+    "lon": 14.031622
+  },
+  {
+    "id": "geoclip_0235",
+    "label": "GeoCLIP Reference 235",
+    "lat": 40.665618,
+    "lon": -73.982771
+  },
+  {
+    "id": "geoclip_0236",
+    "label": "GeoCLIP Reference 236",
+    "lat": 3.694679,
+    "lon": 101.537361
+  },
+  {
+    "id": "geoclip_0237",
+    "label": "GeoCLIP Reference 237",
+    "lat": 42.854637,
+    "lon": -4.006072
+  },
+  {
+    "id": "geoclip_0238",
+    "label": "GeoCLIP Reference 238",
+    "lat": 36.147578,
+    "lon": 137.258806
+  },
+  {
+    "id": "geoclip_0239",
+    "label": "GeoCLIP Reference 239",
+    "lat": 51.216118,
+    "lon": 4.395233
+  },
+  {
+    "id": "geoclip_0240",
+    "label": "GeoCLIP Reference 240",
+    "lat": 42.378329,
+    "lon": -71.116561
+  },
+  {
+    "id": "geoclip_0241",
+    "label": "GeoCLIP Reference 241",
+    "lat": 41.793184,
+    "lon": 13.219599
+  },
+  {
+    "id": "geoclip_0242",
+    "label": "GeoCLIP Reference 242",
+    "lat": 37.929755,
+    "lon": 12.331128
+  },
+  {
+    "id": "geoclip_0243",
+    "label": "GeoCLIP Reference 243",
+    "lat": 41.907898,
+    "lon": 123.515167
+  },
+  {
+    "id": "geoclip_0244",
+    "label": "GeoCLIP Reference 244",
+    "lat": 24.627766,
+    "lon": -82.74712
+  },
+  {
+    "id": "geoclip_0245",
+    "label": "GeoCLIP Reference 245",
+    "lat": 43.648544,
+    "lon": -79.371478
+  },
+  {
+    "id": "geoclip_0246",
+    "label": "GeoCLIP Reference 246",
+    "lat": 51.549684,
+    "lon": -2.46378
+  },
+  {
+    "id": "geoclip_0247",
+    "label": "GeoCLIP Reference 247",
+    "lat": 37.758868,
+    "lon": -122.384444
+  },
+  {
+    "id": "geoclip_0248",
+    "label": "GeoCLIP Reference 248",
+    "lat": 40.432787,
+    "lon": -3.650658
+  },
+  {
+    "id": "geoclip_0249",
+    "label": "GeoCLIP Reference 249",
+    "lat": 40.702988,
+    "lon": -73.98432
+  },
+  {
+    "id": "geoclip_0250",
+    "label": "GeoCLIP Reference 250",
+    "lat": 53.592963,
+    "lon": 10.023093
+  },
+  {
+    "id": "geoclip_0251",
+    "label": "GeoCLIP Reference 251",
+    "lat": 6.270167,
+    "lon": -75.563793
+  },
+  {
+    "id": "geoclip_0252",
+    "label": "GeoCLIP Reference 252",
+    "lat": 41.410837,
+    "lon": 2.220118
+  },
+  {
+    "id": "geoclip_0253",
+    "label": "GeoCLIP Reference 253",
+    "lat": 54.489884,
+    "lon": -3.244743
+  },
+  {
+    "id": "geoclip_0254",
+    "label": "GeoCLIP Reference 254",
+    "lat": 51.472271,
+    "lon": -0.453529
+  },
+  {
+    "id": "geoclip_0255",
+    "label": "GeoCLIP Reference 255",
+    "lat": 53.390872,
+    "lon": -1.472468
+  },
+  {
+    "id": "geoclip_0256",
+    "label": "GeoCLIP Reference 256",
+    "lat": 45.797698,
+    "lon": 8.406048
+  },
+  {
+    "id": "geoclip_0257",
+    "label": "GeoCLIP Reference 257",
+    "lat": 39.11874,
+    "lon": 117.199745
+  },
+  {
+    "id": "geoclip_0258",
+    "label": "GeoCLIP Reference 258",
+    "lat": 48.87077,
+    "lon": 2.347083
+  },
+  {
+    "id": "geoclip_0259",
+    "label": "GeoCLIP Reference 259",
+    "lat": 42.954035,
+    "lon": -85.59328
+  },
+  {
+    "id": "geoclip_0260",
+    "label": "GeoCLIP Reference 260",
+    "lat": 56.104322,
+    "lon": -4.901447
+  },
+  {
+    "id": "geoclip_0261",
+    "label": "GeoCLIP Reference 261",
+    "lat": 36.114,
+    "lon": -115.173333
+  },
+  {
+    "id": "geoclip_0262",
+    "label": "GeoCLIP Reference 262",
+    "lat": 18.330654,
+    "lon": -78.336639
+  },
+  {
+    "id": "geoclip_0263",
+    "label": "GeoCLIP Reference 263",
+    "lat": 52.497282,
+    "lon": 13.455119
+  },
+  {
+    "id": "geoclip_0264",
+    "label": "GeoCLIP Reference 264",
+    "lat": 54.680499,
+    "lon": 25.2925
+  },
+  {
+    "id": "geoclip_0265",
+    "label": "GeoCLIP Reference 265",
+    "lat": 57.980803,
+    "lon": -4.137639
+  },
+  {
+    "id": "geoclip_0266",
+    "label": "GeoCLIP Reference 266",
+    "lat": 5.038962,
+    "lon": -52.426757
+  },
+  {
+    "id": "geoclip_0267",
+    "label": "GeoCLIP Reference 267",
+    "lat": 49.302397,
+    "lon": -123.126139
+  },
+  {
+    "id": "geoclip_0268",
+    "label": "GeoCLIP Reference 268",
+    "lat": 41.299621,
+    "lon": -95.899379
+  },
+  {
+    "id": "geoclip_0269",
+    "label": "GeoCLIP Reference 269",
+    "lat": 45.070743,
+    "lon": 7.687018
+  },
+  {
+    "id": "geoclip_0270",
+    "label": "GeoCLIP Reference 270",
+    "lat": 41.890329,
+    "lon": 12.492249
+  },
+  {
+    "id": "geoclip_0271",
+    "label": "GeoCLIP Reference 271",
+    "lat": 42.347059,
+    "lon": -88.034343
+  },
+  {
+    "id": "geoclip_0272",
+    "label": "GeoCLIP Reference 272",
+    "lat": 41.353876,
+    "lon": 41.301641
+  },
+  {
+    "id": "geoclip_0273",
+    "label": "GeoCLIP Reference 273",
+    "lat": 52.522905,
+    "lon": 13.378601
+  },
+  {
+    "id": "geoclip_0274",
+    "label": "GeoCLIP Reference 274",
+    "lat": 43.291973,
+    "lon": 5.449619
+  },
+  {
+    "id": "geoclip_0275",
+    "label": "GeoCLIP Reference 275",
+    "lat": 40.703955,
+    "lon": -73.986867
+  },
+  {
+    "id": "geoclip_0276",
+    "label": "GeoCLIP Reference 276",
+    "lat": 47.575522,
+    "lon": -98.588272
+  },
+  {
+    "id": "geoclip_0277",
+    "label": "GeoCLIP Reference 277",
+    "lat": 50.808226,
+    "lon": 4.937195
+  },
+  {
+    "id": "geoclip_0278",
+    "label": "GeoCLIP Reference 278",
+    "lat": 49.284855,
+    "lon": -123.042905
+  },
+  {
+    "id": "geoclip_0279",
+    "label": "GeoCLIP Reference 279",
+    "lat": 38.79373,
+    "lon": -94.262931
+  },
+  {
+    "id": "geoclip_0280",
+    "label": "GeoCLIP Reference 280",
+    "lat": 52.251224,
+    "lon": -1.995232
+  },
+  {
+    "id": "geoclip_0281",
+    "label": "GeoCLIP Reference 281",
+    "lat": 46.490821,
+    "lon": -80.99518
+  },
+  {
+    "id": "geoclip_0282",
+    "label": "GeoCLIP Reference 282",
+    "lat": 22.625815,
+    "lon": 120.281066
+  },
+  {
+    "id": "geoclip_0283",
+    "label": "GeoCLIP Reference 283",
+    "lat": 40.718998,
+    "lon": -74.002071
+  },
+  {
+    "id": "geoclip_0284",
+    "label": "GeoCLIP Reference 284",
+    "lat": 52.501678,
+    "lon": 13.319377
+  },
+  {
+    "id": "geoclip_0285",
+    "label": "GeoCLIP Reference 285",
+    "lat": -33.027591,
+    "lon": -71.558959
+  },
+  {
+    "id": "geoclip_0286",
+    "label": "GeoCLIP Reference 286",
+    "lat": 1.283233,
+    "lon": 103.832302
+  },
+  {
+    "id": "geoclip_0287",
+    "label": "GeoCLIP Reference 287",
+    "lat": 52.243726,
+    "lon": 21.013612
+  },
+  {
+    "id": "geoclip_0288",
+    "label": "GeoCLIP Reference 288",
+    "lat": 44.279206,
+    "lon": -79.524762
+  },
+  {
+    "id": "geoclip_0289",
+    "label": "GeoCLIP Reference 289",
+    "lat": 41.901989,
+    "lon": -87.66784
+  },
+  {
+    "id": "geoclip_0290",
+    "label": "GeoCLIP Reference 290",
+    "lat": 34.796801,
+    "lon": 135.669372
+  },
+  {
+    "id": "geoclip_0291",
+    "label": "GeoCLIP Reference 291",
+    "lat": 38.453555,
+    "lon": -90.354115
+  },
+  {
+    "id": "geoclip_0292",
+    "label": "GeoCLIP Reference 292",
+    "lat": 37.17102,
+    "lon": -93.328986
+  },
+  {
+    "id": "geoclip_0293",
+    "label": "GeoCLIP Reference 293",
+    "lat": 45.070792,
+    "lon": 7.686138
+  },
+  {
+    "id": "geoclip_0294",
+    "label": "GeoCLIP Reference 294",
+    "lat": 65.818404,
+    "lon": 21.712286
+  },
+  {
+    "id": "geoclip_0295",
+    "label": "GeoCLIP Reference 295",
+    "lat": 49.10287,
+    "lon": 9.031448
+  },
+  {
+    "id": "geoclip_0296",
+    "label": "GeoCLIP Reference 296",
+    "lat": 1.300952,
+    "lon": 103.786211
+  },
+  {
+    "id": "geoclip_0297",
+    "label": "GeoCLIP Reference 297",
+    "lat": 59.331101,
+    "lon": 18.05854
+  },
+  {
+    "id": "geoclip_0298",
+    "label": "GeoCLIP Reference 298",
+    "lat": 35.864647,
+    "lon": 139.795115
+  },
+  {
+    "id": "geoclip_0299",
+    "label": "GeoCLIP Reference 299",
+    "lat": 40.795375,
+    "lon": -73.495597
+  },
+  {
+    "id": "geoclip_0300",
+    "label": "GeoCLIP Reference 300",
+    "lat": 40.689867,
+    "lon": -74.047465
+  },
+  {
+    "id": "geoclip_0301",
+    "label": "GeoCLIP Reference 301",
+    "lat": 53.852526,
+    "lon": -3.515625
+  },
+  {
+    "id": "geoclip_0302",
+    "label": "GeoCLIP Reference 302",
+    "lat": 51.352126,
+    "lon": 4.331113
+  },
+  {
+    "id": "geoclip_0303",
+    "label": "GeoCLIP Reference 303",
+    "lat": 25.180833,
+    "lon": -80.3825
+  },
+  {
+    "id": "geoclip_0304",
+    "label": "GeoCLIP Reference 304",
+    "lat": 19.493568,
+    "lon": -99.133383
+  },
+  {
+    "id": "geoclip_0305",
+    "label": "GeoCLIP Reference 305",
+    "lat": -35.015139,
+    "lon": 117.884588
+  },
+  {
+    "id": "geoclip_0306",
+    "label": "GeoCLIP Reference 306",
+    "lat": 55.978498,
+    "lon": -3.600168
+  },
+  {
+    "id": "geoclip_0307",
+    "label": "GeoCLIP Reference 307",
+    "lat": 37.214489,
+    "lon": -112.962294
+  },
+  {
+    "id": "geoclip_0308",
+    "label": "GeoCLIP Reference 308",
+    "lat": 56.006533,
+    "lon": -4.73006
+  },
+  {
+    "id": "geoclip_0309",
+    "label": "GeoCLIP Reference 309",
+    "lat": 51.217704,
+    "lon": 4.420688
+  },
+  {
+    "id": "geoclip_0310",
+    "label": "GeoCLIP Reference 310",
+    "lat": 21.583361,
+    "lon": -158.137594
+  },
+  {
+    "id": "geoclip_0311",
+    "label": "GeoCLIP Reference 311",
+    "lat": 33.772333,
+    "lon": -84.380139
+  },
+  {
+    "id": "geoclip_0312",
+    "label": "GeoCLIP Reference 312",
+    "lat": 43.049133,
+    "lon": -87.889895
+  },
+  {
+    "id": "geoclip_0313",
+    "label": "GeoCLIP Reference 313",
+    "lat": 44.458902,
+    "lon": -110.827159
+  },
+  {
+    "id": "geoclip_0314",
+    "label": "GeoCLIP Reference 314",
+    "lat": 38.305244,
+    "lon": -77.459648
+  },
+  {
+    "id": "geoclip_0315",
+    "label": "GeoCLIP Reference 315",
+    "lat": 39.144756,
+    "lon": -84.509046
+  },
+  {
+    "id": "geoclip_0316",
+    "label": "GeoCLIP Reference 316",
+    "lat": 50.832044,
+    "lon": -0.135483
+  },
+  {
+    "id": "geoclip_0317",
+    "label": "GeoCLIP Reference 317",
+    "lat": 40.766404,
+    "lon": -73.999807
+  },
+  {
+    "id": "geoclip_0318",
+    "label": "GeoCLIP Reference 318",
+    "lat": 6.077656,
+    "lon": 116.564941
+  },
+  {
+    "id": "geoclip_0319",
+    "label": "GeoCLIP Reference 319",
+    "lat": 59.329665,
+    "lon": 18.09343
+  },
+  {
+    "id": "geoclip_0320",
+    "label": "GeoCLIP Reference 320",
+    "lat": 41.79272,
+    "lon": 12.450449
+  },
+  {
+    "id": "geoclip_0321",
+    "label": "GeoCLIP Reference 321",
+    "lat": 25.283816,
+    "lon": 110.282478
+  },
+  {
+    "id": "geoclip_0322",
+    "label": "GeoCLIP Reference 322",
+    "lat": -27.689722,
+    "lon": 152.654728
+  },
+  {
+    "id": "geoclip_0323",
+    "label": "GeoCLIP Reference 323",
+    "lat": 23.006791,
+    "lon": 120.218549
+  },
+  {
+    "id": "geoclip_0324",
+    "label": "GeoCLIP Reference 324",
+    "lat": 44.642227,
+    "lon": 10.936042
+  },
+  {
+    "id": "geoclip_0325",
+    "label": "GeoCLIP Reference 325",
+    "lat": 42.930869,
+    "lon": -78.696289
+  },
+  {
+    "id": "geoclip_0326",
+    "label": "GeoCLIP Reference 326",
+    "lat": -30.44945,
+    "lon": 152.899603
+  },
+  {
+    "id": "geoclip_0327",
+    "label": "GeoCLIP Reference 327",
+    "lat": 46.744322,
+    "lon": -120.44867
+  },
+  {
+    "id": "geoclip_0328",
+    "label": "GeoCLIP Reference 328",
+    "lat": 37.178714,
+    "lon": -3.596134
+  },
+  {
+    "id": "geoclip_0329",
+    "label": "GeoCLIP Reference 329",
+    "lat": -38.791378,
+    "lon": 143.490571
+  },
+  {
+    "id": "geoclip_0330",
+    "label": "GeoCLIP Reference 330",
+    "lat": 34.802439,
+    "lon": -87.67476
+  },
+  {
+    "id": "geoclip_0331",
+    "label": "GeoCLIP Reference 331",
+    "lat": -33.857246,
+    "lon": 151.214645
+  },
+  {
+    "id": "geoclip_0332",
+    "label": "GeoCLIP Reference 332",
+    "lat": 12.97102,
+    "lon": 77.558498
+  },
+  {
+    "id": "geoclip_0333",
+    "label": "GeoCLIP Reference 333",
+    "lat": 22.418129,
+    "lon": 114.385786
+  },
+  {
+    "id": "geoclip_0334",
+    "label": "GeoCLIP Reference 334",
+    "lat": 47.6555,
+    "lon": -122.312833
+  },
+  {
+    "id": "geoclip_0335",
+    "label": "GeoCLIP Reference 335",
+    "lat": 52.548814,
+    "lon": -4.017713
+  },
+  {
+    "id": "geoclip_0336",
+    "label": "GeoCLIP Reference 336",
+    "lat": 38.57508,
+    "lon": -92.167564
+  },
+  {
+    "id": "geoclip_0337",
+    "label": "GeoCLIP Reference 337",
+    "lat": 51.524499,
+    "lon": -0.080834
+  },
+  {
+    "id": "geoclip_0338",
+    "label": "GeoCLIP Reference 338",
+    "lat": 13.702697,
+    "lon": 100.527305
+  },
+  {
+    "id": "geoclip_0339",
+    "label": "GeoCLIP Reference 339",
+    "lat": 36.474306,
+    "lon": 2.830352
+  },
+  {
+    "id": "geoclip_0340",
+    "label": "GeoCLIP Reference 340",
+    "lat": 25.043833,
+    "lon": 121.500833
+  },
+  {
+    "id": "geoclip_0341",
+    "label": "GeoCLIP Reference 341",
+    "lat": 32.89056,
+    "lon": -117.21013
+  },
+  {
+    "id": "geoclip_0342",
+    "label": "GeoCLIP Reference 342",
+    "lat": 42.496438,
+    "lon": -90.655478
+  },
+  {
+    "id": "geoclip_0343",
+    "label": "GeoCLIP Reference 343",
+    "lat": 45.880687,
+    "lon": 3.082523
+  },
+  {
+    "id": "geoclip_0344",
+    "label": "GeoCLIP Reference 344",
+    "lat": -21.055026,
+    "lon": -67.968292
+  },
+  {
+    "id": "geoclip_0345",
+    "label": "GeoCLIP Reference 345",
+    "lat": 52.520712,
+    "lon": 13.412075
+  },
+  {
+    "id": "geoclip_0346",
+    "label": "GeoCLIP Reference 346",
+    "lat": 1.281903,
+    "lon": 103.853845
+  },
+  {
+    "id": "geoclip_0347",
+    "label": "GeoCLIP Reference 347",
+    "lat": 40.722765,
+    "lon": -74.002277
+  },
+  {
+    "id": "geoclip_0348",
+    "label": "GeoCLIP Reference 348",
+    "lat": -37.761182,
+    "lon": 144.98168
+  },
+  {
+    "id": "geoclip_0349",
+    "label": "GeoCLIP Reference 349",
+    "lat": 59.431188,
+    "lon": 24.758469
+  },
+  {
+    "id": "geoclip_0350",
+    "label": "GeoCLIP Reference 350",
+    "lat": 32.429274,
+    "lon": -90.131664
+  },
+  {
+    "id": "geoclip_0351",
+    "label": "GeoCLIP Reference 351",
+    "lat": 28.508371,
+    "lon": 34.514865
+  },
+  {
+    "id": "geoclip_0352",
+    "label": "GeoCLIP Reference 352",
+    "lat": 30.408884,
+    "lon": -81.431513
+  },
+  {
+    "id": "geoclip_0353",
+    "label": "GeoCLIP Reference 353",
+    "lat": 41.415472,
+    "lon": -75.712044
+  },
+  {
+    "id": "geoclip_0354",
+    "label": "GeoCLIP Reference 354",
+    "lat": 42.360422,
+    "lon": -71.087379
+  },
+  {
+    "id": "geoclip_0355",
+    "label": "GeoCLIP Reference 355",
+    "lat": 37.025854,
+    "lon": -106.083297
+  },
+  {
+    "id": "geoclip_0356",
+    "label": "GeoCLIP Reference 356",
+    "lat": -20.000234,
+    "lon": 57.58193
+  },
+  {
+    "id": "geoclip_0357",
+    "label": "GeoCLIP Reference 357",
+    "lat": 41.802254,
+    "lon": 12.995216
+  },
+  {
+    "id": "geoclip_0358",
+    "label": "GeoCLIP Reference 358",
+    "lat": 49.166861,
+    "lon": -2.061352
+  },
+  {
+    "id": "geoclip_0359",
+    "label": "GeoCLIP Reference 359",
+    "lat": -35.594646,
+    "lon": 138.592185
+  },
+  {
+    "id": "geoclip_0360",
+    "label": "GeoCLIP Reference 360",
+    "lat": -44.695504,
+    "lon": 169.158039
+  },
+  {
+    "id": "geoclip_0361",
+    "label": "GeoCLIP Reference 361",
+    "lat": 34.684181,
+    "lon": 135.842685
+  },
+  {
+    "id": "geoclip_0362",
+    "label": "GeoCLIP Reference 362",
+    "lat": 44.051891,
+    "lon": 9.835289
+  },
+  {
+    "id": "geoclip_0363",
+    "label": "GeoCLIP Reference 363",
+    "lat": 44.889666,
+    "lon": 11.062833
+  },
+  {
+    "id": "geoclip_0364",
+    "label": "GeoCLIP Reference 364",
+    "lat": 41.866764,
+    "lon": 12.502881
+  },
+  {
+    "id": "geoclip_0365",
+    "label": "GeoCLIP Reference 365",
+    "lat": 37.972155,
+    "lon": 23.728365
+  },
+  {
+    "id": "geoclip_0366",
+    "label": "GeoCLIP Reference 366",
+    "lat": 39.977711,
+    "lon": -74.12085
+  },
+  {
+    "id": "geoclip_0367",
+    "label": "GeoCLIP Reference 367",
+    "lat": 26.581158,
+    "lon": 107.918186
+  },
+  {
+    "id": "geoclip_0368",
+    "label": "GeoCLIP Reference 368",
+    "lat": 33.106164,
+    "lon": -117.224013
+  },
+  {
+    "id": "geoclip_0369",
+    "label": "GeoCLIP Reference 369",
+    "lat": 40.71455,
+    "lon": -74.007118
+  },
+  {
+    "id": "geoclip_0370",
+    "label": "GeoCLIP Reference 370",
+    "lat": 40.452139,
+    "lon": -79.85183
+  },
+  {
+    "id": "geoclip_0371",
+    "label": "GeoCLIP Reference 371",
+    "lat": 52.224442,
+    "lon": 6.892419
+  },
+  {
+    "id": "geoclip_0372",
+    "label": "GeoCLIP Reference 372",
+    "lat": 56.783132,
+    "lon": 54.140839
+  },
+  {
+    "id": "geoclip_0373",
+    "label": "GeoCLIP Reference 373",
+    "lat": 32.072683,
+    "lon": 34.773101
+  },
+  {
+    "id": "geoclip_0374",
+    "label": "GeoCLIP Reference 374",
+    "lat": 32.736186,
+    "lon": -117.149185
+  },
+  {
+    "id": "geoclip_0375",
+    "label": "GeoCLIP Reference 375",
+    "lat": 35.685535,
+    "lon": -121.168127
+  },
+  {
+    "id": "geoclip_0376",
+    "label": "GeoCLIP Reference 376",
+    "lat": 47.043896,
+    "lon": -122.894933
+  },
+  {
+    "id": "geoclip_0377",
+    "label": "GeoCLIP Reference 377",
+    "lat": 25.775925,
+    "lon": -80.35025
+  },
+  {
+    "id": "geoclip_0378",
+    "label": "GeoCLIP Reference 378",
+    "lat": 35.809833,
+    "lon": -78.550667
+  },
+  {
+    "id": "geoclip_0379",
+    "label": "GeoCLIP Reference 379",
+    "lat": 43.771699,
+    "lon": -79.511972
+  },
+  {
+    "id": "geoclip_0380",
+    "label": "GeoCLIP Reference 380",
+    "lat": 42.853693,
+    "lon": -2.673883
+  },
+  {
+    "id": "geoclip_0381",
+    "label": "GeoCLIP Reference 381",
+    "lat": 38.83359,
+    "lon": -77.307529
+  },
+  {
+    "id": "geoclip_0382",
+    "label": "GeoCLIP Reference 382",
+    "lat": -15.06,
+    "lon": -57.184334
+  },
+  {
+    "id": "geoclip_0383",
+    "label": "GeoCLIP Reference 383",
+    "lat": 50.823939,
+    "lon": 4.351272
+  },
+  {
+    "id": "geoclip_0384",
+    "label": "GeoCLIP Reference 384",
+    "lat": 33.760489,
+    "lon": -84.386823
+  },
+  {
+    "id": "geoclip_0385",
+    "label": "GeoCLIP Reference 385",
+    "lat": 37.769637,
+    "lon": -122.486819
+  },
+  {
+    "id": "geoclip_0386",
+    "label": "GeoCLIP Reference 386",
+    "lat": 40.729307,
+    "lon": -74.00103
+  },
+  {
+    "id": "geoclip_0387",
+    "label": "GeoCLIP Reference 387",
+    "lat": -34.016288,
+    "lon": 151.066055
+  },
+  {
+    "id": "geoclip_0388",
+    "label": "GeoCLIP Reference 388",
+    "lat": 45.46894,
+    "lon": 9.18103
+  },
+  {
+    "id": "geoclip_0389",
+    "label": "GeoCLIP Reference 389",
+    "lat": 28.118504,
+    "lon": -15.424461
+  },
+  {
+    "id": "geoclip_0390",
+    "label": "GeoCLIP Reference 390",
+    "lat": 36.242681,
+    "lon": 22.945976
+  },
+  {
+    "id": "geoclip_0391",
+    "label": "GeoCLIP Reference 391",
+    "lat": 36.028736,
+    "lon": -78.897354
+  },
+  {
+    "id": "geoclip_0392",
+    "label": "GeoCLIP Reference 392",
+    "lat": -33.975538,
+    "lon": -53.52848
+  },
+  {
+    "id": "geoclip_0393",
+    "label": "GeoCLIP Reference 393",
+    "lat": 41.893364,
+    "lon": -87.636351
+  },
+  {
+    "id": "geoclip_0394",
+    "label": "GeoCLIP Reference 394",
+    "lat": 8.107552,
+    "lon": 98.622941
+  },
+  {
+    "id": "geoclip_0395",
+    "label": "GeoCLIP Reference 395",
+    "lat": 44.510033,
+    "lon": 7.480316
+  },
+  {
+    "id": "geoclip_0396",
+    "label": "GeoCLIP Reference 396",
+    "lat": 62.107054,
+    "lon": 6.564245
+  },
+  {
+    "id": "geoclip_0397",
+    "label": "GeoCLIP Reference 397",
+    "lat": 56.055362,
+    "lon": -3.630799
+  },
+  {
+    "id": "geoclip_0398",
+    "label": "GeoCLIP Reference 398",
+    "lat": -33.872666,
+    "lon": 151.199666
+  },
+  {
+    "id": "geoclip_0399",
+    "label": "GeoCLIP Reference 399",
+    "lat": 10.00672,
+    "lon": 76.710319
+  },
+  {
+    "id": "geoclip_0400",
+    "label": "GeoCLIP Reference 400",
+    "lat": 42.38125,
+    "lon": -71.102306
+  },
+  {
+    "id": "geoclip_0401",
+    "label": "GeoCLIP Reference 401",
+    "lat": 37.835458,
+    "lon": -25.672564
+  },
+  {
+    "id": "geoclip_0402",
+    "label": "GeoCLIP Reference 402",
+    "lat": 46.478846,
+    "lon": 6.325421
+  },
+  {
+    "id": "geoclip_0403",
+    "label": "GeoCLIP Reference 403",
+    "lat": 25.026059,
+    "lon": 121.545696
+  },
+  {
+    "id": "geoclip_0404",
+    "label": "GeoCLIP Reference 404",
+    "lat": -3.345237,
+    "lon": 40.026454
+  },
+  {
+    "id": "geoclip_0405",
+    "label": "GeoCLIP Reference 405",
+    "lat": 48.139938,
+    "lon": 11.575684
+  },
+  {
+    "id": "geoclip_0406",
+    "label": "GeoCLIP Reference 406",
+    "lat": 27.701999,
+    "lon": 85.317497
+  },
+  {
+    "id": "geoclip_0407",
+    "label": "GeoCLIP Reference 407",
+    "lat": 40.834333,
+    "lon": -74.190802
+  },
+  {
+    "id": "geoclip_0408",
+    "label": "GeoCLIP Reference 408",
+    "lat": 51.442433,
+    "lon": -2.127711
+  },
+  {
+    "id": "geoclip_0409",
+    "label": "GeoCLIP Reference 409",
+    "lat": 45.448376,
+    "lon": 4.353246
+  },
+  {
+    "id": "geoclip_0410",
+    "label": "GeoCLIP Reference 410",
+    "lat": 47.560629,
+    "lon": 8.915297
+  },
+  {
+    "id": "geoclip_0411",
+    "label": "GeoCLIP Reference 411",
+    "lat": 10.350172,
+    "lon": -68.73948
+  },
+  {
+    "id": "geoclip_0412",
+    "label": "GeoCLIP Reference 412",
+    "lat": -23.2983,
+    "lon": 151.705505
+  },
+  {
+    "id": "geoclip_0413",
+    "label": "GeoCLIP Reference 413",
+    "lat": -1.482817,
+    "lon": 35.244998
+  },
+  {
+    "id": "geoclip_0414",
+    "label": "GeoCLIP Reference 414",
+    "lat": 38.92997,
+    "lon": -77.055101
+  },
+  {
+    "id": "geoclip_0415",
+    "label": "GeoCLIP Reference 415",
+    "lat": 36.243719,
+    "lon": 137.972488
+  },
+  {
+    "id": "geoclip_0416",
+    "label": "GeoCLIP Reference 416",
+    "lat": 45.96394,
+    "lon": 6.862678
+  },
+  {
+    "id": "geoclip_0417",
+    "label": "GeoCLIP Reference 417",
+    "lat": 41.996261,
+    "lon": -87.689811
+  },
+  {
+    "id": "geoclip_0418",
+    "label": "GeoCLIP Reference 418",
+    "lat": 47.140833,
+    "lon": 9.522833
+  },
+  {
+    "id": "geoclip_0419",
+    "label": "GeoCLIP Reference 419",
+    "lat": 37.759666,
+    "lon": -122.435
+  },
+  {
+    "id": "geoclip_0420",
+    "label": "GeoCLIP Reference 420",
+    "lat": 21.276578,
+    "lon": -157.823753
+  },
+  {
+    "id": "geoclip_0421",
+    "label": "GeoCLIP Reference 421",
+    "lat": 1.406752,
+    "lon": 103.790245
+  },
+  {
+    "id": "geoclip_0422",
+    "label": "GeoCLIP Reference 422",
+    "lat": 18.786869,
+    "lon": 99.032886
+  },
+  {
+    "id": "geoclip_0423",
+    "label": "GeoCLIP Reference 423",
+    "lat": -33.84276,
+    "lon": 151.242341
+  },
+  {
+    "id": "geoclip_0424",
+    "label": "GeoCLIP Reference 424",
+    "lat": 34.681358,
+    "lon": 135.498847
+  },
+  {
+    "id": "geoclip_0425",
+    "label": "GeoCLIP Reference 425",
+    "lat": -34.521178,
+    "lon": -58.473588
+  },
+  {
+    "id": "geoclip_0426",
+    "label": "GeoCLIP Reference 426",
+    "lat": 40.69001,
+    "lon": -74.019098
+  },
+  {
+    "id": "geoclip_0427",
+    "label": "GeoCLIP Reference 427",
+    "lat": -23.563819,
+    "lon": -46.716088
+  },
+  {
+    "id": "geoclip_0428",
+    "label": "GeoCLIP Reference 428",
+    "lat": 37.762666,
+    "lon": 23.409833
+  },
+  {
+    "id": "geoclip_0429",
+    "label": "GeoCLIP Reference 429",
+    "lat": 34.037166,
+    "lon": -118.487167
+  },
+  {
+    "id": "geoclip_0430",
+    "label": "GeoCLIP Reference 430",
+    "lat": -39.254637,
+    "lon": 175.569881
+  },
+  {
+    "id": "geoclip_0431",
+    "label": "GeoCLIP Reference 431",
+    "lat": -37.768667,
+    "lon": 145.0005
+  },
+  {
+    "id": "geoclip_0432",
+    "label": "GeoCLIP Reference 432",
+    "lat": 61.763888,
+    "lon": 7.460472
+  },
+  {
+    "id": "geoclip_0433",
+    "label": "GeoCLIP Reference 433",
+    "lat": 47.048969,
+    "lon": -68.573398
+  },
+  {
+    "id": "geoclip_0434",
+    "label": "GeoCLIP Reference 434",
+    "lat": 59.922301,
+    "lon": 10.733057
+  },
+  {
+    "id": "geoclip_0435",
+    "label": "GeoCLIP Reference 435",
+    "lat": 52.210183,
+    "lon": 0.127716
+  },
+  {
+    "id": "geoclip_0436",
+    "label": "GeoCLIP Reference 436",
+    "lat": 64.823033,
+    "lon": -23.384408
+  },
+  {
+    "id": "geoclip_0437",
+    "label": "GeoCLIP Reference 437",
+    "lat": 10.447129,
+    "lon": -84.738235
+  },
+  {
+    "id": "geoclip_0438",
+    "label": "GeoCLIP Reference 438",
+    "lat": 47.652282,
+    "lon": -122.353915
+  },
+  {
+    "id": "geoclip_0439",
+    "label": "GeoCLIP Reference 439",
+    "lat": 42.355313,
+    "lon": -71.079493
+  },
+  {
+    "id": "geoclip_0440",
+    "label": "GeoCLIP Reference 440",
+    "lat": 37.526132,
+    "lon": 127.050533
+  },
+  {
+    "id": "geoclip_0441",
+    "label": "GeoCLIP Reference 441",
+    "lat": 39.996668,
+    "lon": -74.789364
+  },
+  {
+    "id": "geoclip_0442",
+    "label": "GeoCLIP Reference 442",
+    "lat": 40.419891,
+    "lon": -3.701502
+  },
+  {
+    "id": "geoclip_0443",
+    "label": "GeoCLIP Reference 443",
+    "lat": 40.697999,
+    "lon": -74.081167
+  },
+  {
+    "id": "geoclip_0444",
+    "label": "GeoCLIP Reference 444",
+    "lat": 11.566648,
+    "lon": 104.911022
+  },
+  {
+    "id": "geoclip_0445",
+    "label": "GeoCLIP Reference 445",
+    "lat": 57.827953,
+    "lon": -6.851295
+  },
+  {
+    "id": "geoclip_0446",
+    "label": "GeoCLIP Reference 446",
+    "lat": 61.126661,
+    "lon": -149.933166
+  },
+  {
+    "id": "geoclip_0447",
+    "label": "GeoCLIP Reference 447",
+    "lat": 51.91812,
+    "lon": 4.481477
+  },
+  {
+    "id": "geoclip_0448",
+    "label": "GeoCLIP Reference 448",
+    "lat": 35.947411,
+    "lon": -114.853431
+  },
+  {
+    "id": "geoclip_0449",
+    "label": "GeoCLIP Reference 449",
+    "lat": 53.790371,
+    "lon": -1.756203
+  },
+  {
+    "id": "geoclip_0450",
+    "label": "GeoCLIP Reference 450",
+    "lat": 52.073597,
+    "lon": 7.007389
+  },
+  {
+    "id": "geoclip_0451",
+    "label": "GeoCLIP Reference 451",
+    "lat": 39.918934,
+    "lon": 116.454553
+  },
+  {
+    "id": "geoclip_0452",
+    "label": "GeoCLIP Reference 452",
+    "lat": 40.74856,
+    "lon": -74.026047
+  },
+  {
+    "id": "geoclip_0453",
+    "label": "GeoCLIP Reference 453",
+    "lat": 42.368627,
+    "lon": -74.159603
+  },
+  {
+    "id": "geoclip_0454",
+    "label": "GeoCLIP Reference 454",
+    "lat": 36.073591,
+    "lon": -79.085748
+  },
+  {
+    "id": "geoclip_0455",
+    "label": "GeoCLIP Reference 455",
+    "lat": 21.4299,
+    "lon": 39.816169
+  },
+  {
+    "id": "geoclip_0456",
+    "label": "GeoCLIP Reference 456",
+    "lat": -20.292431,
+    "lon": 148.785541
+  },
+  {
+    "id": "geoclip_0457",
+    "label": "GeoCLIP Reference 457",
+    "lat": 53.697113,
+    "lon": -2.383518
+  },
+  {
+    "id": "geoclip_0458",
+    "label": "GeoCLIP Reference 458",
+    "lat": 35.789538,
+    "lon": 139.871386
+  },
+  {
+    "id": "geoclip_0459",
+    "label": "GeoCLIP Reference 459",
+    "lat": 48.361895,
+    "lon": -4.779224
+  },
+  {
+    "id": "geoclip_0460",
+    "label": "GeoCLIP Reference 460",
+    "lat": 40.77381,
+    "lon": -73.971183
+  },
+  {
+    "id": "geoclip_0461",
+    "label": "GeoCLIP Reference 461",
+    "lat": 31.716367,
+    "lon": -110.759718
+  },
+  {
+    "id": "geoclip_0462",
+    "label": "GeoCLIP Reference 462",
+    "lat": 20.212669,
+    "lon": -89.664058
+  },
+  {
+    "id": "geoclip_0463",
+    "label": "GeoCLIP Reference 463",
+    "lat": -25.446985,
+    "lon": -49.246709
+  },
+  {
+    "id": "geoclip_0464",
+    "label": "GeoCLIP Reference 464",
+    "lat": 38.896493,
+    "lon": -77.033579
+  },
+  {
+    "id": "geoclip_0465",
+    "label": "GeoCLIP Reference 465",
+    "lat": 51.510438,
+    "lon": -0.144002
+  },
+  {
+    "id": "geoclip_0466",
+    "label": "GeoCLIP Reference 466",
+    "lat": 52.284397,
+    "lon": -1.535704
+  },
+  {
+    "id": "geoclip_0467",
+    "label": "GeoCLIP Reference 467",
+    "lat": 2.929165,
+    "lon": 101.687242
+  },
+  {
+    "id": "geoclip_0468",
+    "label": "GeoCLIP Reference 468",
+    "lat": 42.88903,
+    "lon": -5.66078
+  },
+  {
+    "id": "geoclip_0469",
+    "label": "GeoCLIP Reference 469",
+    "lat": 55.948358,
+    "lon": -3.187129
+  },
+  {
+    "id": "geoclip_0470",
+    "label": "GeoCLIP Reference 470",
+    "lat": 6.798944,
+    "lon": 80.817317
+  },
+  {
+    "id": "geoclip_0471",
+    "label": "GeoCLIP Reference 471",
+    "lat": 47.060914,
+    "lon": 8.456152
+  },
+  {
+    "id": "geoclip_0472",
+    "label": "GeoCLIP Reference 472",
+    "lat": 40.705038,
+    "lon": 17.336232
+  },
+  {
+    "id": "geoclip_0473",
+    "label": "GeoCLIP Reference 473",
+    "lat": 45.495281,
+    "lon": -73.562972
+  },
+  {
+    "id": "geoclip_0474",
+    "label": "GeoCLIP Reference 474",
+    "lat": 36.906528,
+    "lon": -76.199455
+  },
+  {
+    "id": "geoclip_0475",
+    "label": "GeoCLIP Reference 475",
+    "lat": 47.497955,
+    "lon": 19.054809
+  },
+  {
+    "id": "geoclip_0476",
+    "label": "GeoCLIP Reference 476",
+    "lat": 33.869398,
+    "lon": -117.925304
+  },
+  {
+    "id": "geoclip_0477",
+    "label": "GeoCLIP Reference 477",
+    "lat": 49.668794,
+    "lon": -1.26141
+  },
+  {
+    "id": "geoclip_0478",
+    "label": "GeoCLIP Reference 478",
+    "lat": -15.007152,
+    "lon": -148.056778
+  },
+  {
+    "id": "geoclip_0479",
+    "label": "GeoCLIP Reference 479",
+    "lat": 65.070918,
+    "lon": -14.011859
+  },
+  {
+    "id": "geoclip_0480",
+    "label": "GeoCLIP Reference 480",
+    "lat": 50.435367,
+    "lon": -104.624133
+  },
+  {
+    "id": "geoclip_0481",
+    "label": "GeoCLIP Reference 481",
+    "lat": 39.209,
+    "lon": -76.8625
+  },
+  {
+    "id": "geoclip_0482",
+    "label": "GeoCLIP Reference 482",
+    "lat": 43.190143,
+    "lon": -88.104257
+  },
+  {
+    "id": "geoclip_0483",
+    "label": "GeoCLIP Reference 483",
+    "lat": 51.377666,
+    "lon": -2.331334
+  },
+  {
+    "id": "geoclip_0484",
+    "label": "GeoCLIP Reference 484",
+    "lat": 56.024746,
+    "lon": 9.919066
+  },
+  {
+    "id": "geoclip_0485",
+    "label": "GeoCLIP Reference 485",
+    "lat": 43.052277,
+    "lon": -89.385548
+  },
+  {
+    "id": "geoclip_0486",
+    "label": "GeoCLIP Reference 486",
+    "lat": -34.650014,
+    "lon": -54.158864
+  },
+  {
+    "id": "geoclip_0487",
+    "label": "GeoCLIP Reference 487",
+    "lat": 53.81735,
+    "lon": -3.048491
+  },
+  {
+    "id": "geoclip_0488",
+    "label": "GeoCLIP Reference 488",
+    "lat": -32.532667,
+    "lon": -59.368
+  },
+  {
+    "id": "geoclip_0489",
+    "label": "GeoCLIP Reference 489",
+    "lat": -37.799378,
+    "lon": 144.978498
+  },
+  {
+    "id": "geoclip_0490",
+    "label": "GeoCLIP Reference 490",
+    "lat": 42.357465,
+    "lon": -71.092014
+  },
+  {
+    "id": "geoclip_0491",
+    "label": "GeoCLIP Reference 491",
+    "lat": 29.754579,
+    "lon": -82.415786
+  },
+  {
+    "id": "geoclip_0492",
+    "label": "GeoCLIP Reference 492",
+    "lat": 36.836767,
+    "lon": -114.062805
+  },
+  {
+    "id": "geoclip_0493",
+    "label": "GeoCLIP Reference 493",
+    "lat": 13.692945,
+    "lon": 100.751104
+  },
+  {
+    "id": "geoclip_0494",
+    "label": "GeoCLIP Reference 494",
+    "lat": 31.247709,
+    "lon": 121.472618
+  },
+  {
+    "id": "geoclip_0495",
+    "label": "GeoCLIP Reference 495",
+    "lat": -34.542762,
+    "lon": -58.414306
+  },
+  {
+    "id": "geoclip_0496",
+    "label": "GeoCLIP Reference 496",
+    "lat": 43.322804,
+    "lon": 2.716884
+  },
+  {
+    "id": "geoclip_0497",
+    "label": "GeoCLIP Reference 497",
+    "lat": -34.497732,
+    "lon": -58.523569
+  },
+  {
+    "id": "geoclip_0498",
+    "label": "GeoCLIP Reference 498",
+    "lat": 24.558872,
+    "lon": -81.807138
+  },
+  {
+    "id": "geoclip_0499",
+    "label": "GeoCLIP Reference 499",
+    "lat": 22.463566,
+    "lon": 114.031734
+  },
+  {
+    "id": "geoclip_0500",
+    "label": "GeoCLIP Reference 500",
+    "lat": 46.114895,
+    "lon": -74.59131
+  },
+  {
+    "id": "geoclip_0501",
+    "label": "GeoCLIP Reference 501",
+    "lat": 46.459861,
+    "lon": 12.4153
+  },
+  {
+    "id": "geoclip_0502",
+    "label": "GeoCLIP Reference 502",
+    "lat": 13.724666,
+    "lon": 100.579505
+  },
+  {
+    "id": "geoclip_0503",
+    "label": "GeoCLIP Reference 503",
+    "lat": 40.724543,
+    "lon": -73.993241
+  },
+  {
+    "id": "geoclip_0504",
+    "label": "GeoCLIP Reference 504",
+    "lat": 41.655022,
+    "lon": -0.891653
+  },
+  {
+    "id": "geoclip_0505",
+    "label": "GeoCLIP Reference 505",
+    "lat": 42.4135,
+    "lon": -88.0275
+  },
+  {
+    "id": "geoclip_0506",
+    "label": "GeoCLIP Reference 506",
+    "lat": 42.815544,
+    "lon": -1.650148
+  },
+  {
+    "id": "geoclip_0507",
+    "label": "GeoCLIP Reference 507",
+    "lat": 49.282707,
+    "lon": -123.094296
+  },
+  {
+    "id": "geoclip_0508",
+    "label": "GeoCLIP Reference 508",
+    "lat": 24.576361,
+    "lon": 120.831652
+  },
+  {
+    "id": "geoclip_0509",
+    "label": "GeoCLIP Reference 509",
+    "lat": 12.207153,
+    "lon": 104.826736
+  },
+  {
+    "id": "geoclip_0510",
+    "label": "GeoCLIP Reference 510",
+    "lat": 18.471956,
+    "lon": -69.908752
+  },
+  {
+    "id": "geoclip_0511",
+    "label": "GeoCLIP Reference 511",
+    "lat": 8.17874,
+    "lon": 98.291373
+  },
+  {
+    "id": "geoclip_0512",
+    "label": "GeoCLIP Reference 512",
+    "lat": 51.373666,
+    "lon": 7.017833
+  },
+  {
+    "id": "geoclip_0513",
+    "label": "GeoCLIP Reference 513",
+    "lat": 24.467239,
+    "lon": 54.605784
+  },
+  {
+    "id": "geoclip_0514",
+    "label": "GeoCLIP Reference 514",
+    "lat": 47.691103,
+    "lon": -122.403938
+  },
+  {
+    "id": "geoclip_0515",
+    "label": "GeoCLIP Reference 515",
+    "lat": 38.23847,
+    "lon": -85.701427
+  },
+  {
+    "id": "geoclip_0516",
+    "label": "GeoCLIP Reference 516",
+    "lat": 34.182511,
+    "lon": -118.478167
+  },
+  {
+    "id": "geoclip_0517",
+    "label": "GeoCLIP Reference 517",
+    "lat": 40.913512,
+    "lon": -74.245605
+  },
+  {
+    "id": "geoclip_0518",
+    "label": "GeoCLIP Reference 518",
+    "lat": 42.622338,
+    "lon": 8.899669
+  },
+  {
+    "id": "geoclip_0519",
+    "label": "GeoCLIP Reference 519",
+    "lat": 50.921324,
+    "lon": 1.703326
+  },
+  {
+    "id": "geoclip_0520",
+    "label": "GeoCLIP Reference 520",
+    "lat": 50.515514,
+    "lon": -3.59652
+  },
+  {
+    "id": "geoclip_0521",
+    "label": "GeoCLIP Reference 521",
+    "lat": 9.83289,
+    "lon": -83.92044
+  },
+  {
+    "id": "geoclip_0522",
+    "label": "GeoCLIP Reference 522",
+    "lat": -12.1318,
+    "lon": -77.03043
+  },
+  {
+    "id": "geoclip_0523",
+    "label": "GeoCLIP Reference 523",
+    "lat": 24.986167,
+    "lon": 121.561333
+  },
+  {
+    "id": "geoclip_0524",
+    "label": "GeoCLIP Reference 524",
+    "lat": 29.964174,
+    "lon": -90.057642
+  },
+  {
+    "id": "geoclip_0525",
+    "label": "GeoCLIP Reference 525",
+    "lat": 29.924427,
+    "lon": -90.085684
+  },
+  {
+    "id": "geoclip_0526",
+    "label": "GeoCLIP Reference 526",
+    "lat": 10.061403,
+    "lon": 34.539384
+  },
+  {
+    "id": "geoclip_0527",
+    "label": "GeoCLIP Reference 527",
+    "lat": 46.066859,
+    "lon": -89.804134
+  },
+  {
+    "id": "geoclip_0528",
+    "label": "GeoCLIP Reference 528",
+    "lat": 46.985991,
+    "lon": 28.858498
+  },
+  {
+    "id": "geoclip_0529",
+    "label": "GeoCLIP Reference 529",
+    "lat": 16.920112,
+    "lon": -96.359367
+  },
+  {
+    "id": "geoclip_0530",
+    "label": "GeoCLIP Reference 530",
+    "lat": 49.219328,
+    "lon": 12.660241
+  },
+  {
+    "id": "geoclip_0531",
+    "label": "GeoCLIP Reference 531",
+    "lat": 38.899049,
+    "lon": -77.025661
+  },
+  {
+    "id": "geoclip_0532",
+    "label": "GeoCLIP Reference 532",
+    "lat": 33.811004,
+    "lon": -118.37635
+  },
+  {
+    "id": "geoclip_0533",
+    "label": "GeoCLIP Reference 533",
+    "lat": 47.873093,
+    "lon": -121.660945
+  },
+  {
+    "id": "geoclip_0534",
+    "label": "GeoCLIP Reference 534",
+    "lat": 40.464449,
+    "lon": -121.45523
+  },
+  {
+    "id": "geoclip_0535",
+    "label": "GeoCLIP Reference 535",
+    "lat": 33.374835,
+    "lon": -79.149026
+  },
+  {
+    "id": "geoclip_0536",
+    "label": "GeoCLIP Reference 536",
+    "lat": 51.506425,
+    "lon": -0.117389
+  },
+  {
+    "id": "geoclip_0537",
+    "label": "GeoCLIP Reference 537",
+    "lat": 49.182488,
+    "lon": 13.183937
+  },
+  {
+    "id": "geoclip_0538",
+    "label": "GeoCLIP Reference 538",
+    "lat": 52.072917,
+    "lon": 4.35611
+  },
+  {
+    "id": "geoclip_0539",
+    "label": "GeoCLIP Reference 539",
+    "lat": 49.29615,
+    "lon": -123.135463
+  },
+  {
+    "id": "geoclip_0540",
+    "label": "GeoCLIP Reference 540",
+    "lat": 37.781097,
+    "lon": -122.505178
+  },
+  {
+    "id": "geoclip_0541",
+    "label": "GeoCLIP Reference 541",
+    "lat": 50.876831,
+    "lon": 20.624189
+  },
+  {
+    "id": "geoclip_0542",
+    "label": "GeoCLIP Reference 542",
+    "lat": 35.652167,
+    "lon": 139.530167
+  },
+  {
+    "id": "geoclip_0543",
+    "label": "GeoCLIP Reference 543",
+    "lat": 52.978598,
+    "lon": -0.025299
+  },
+  {
+    "id": "geoclip_0544",
+    "label": "GeoCLIP Reference 544",
+    "lat": 64.940713,
+    "lon": -147.973952
+  },
+  {
+    "id": "geoclip_0545",
+    "label": "GeoCLIP Reference 545",
+    "lat": 35.696549,
+    "lon": 139.709529
+  },
+  {
+    "id": "geoclip_0546",
+    "label": "GeoCLIP Reference 546",
+    "lat": 22.283616,
+    "lon": 114.172925
+  },
+  {
+    "id": "geoclip_0547",
+    "label": "GeoCLIP Reference 547",
+    "lat": 40.724262,
+    "lon": -73.990881
+  },
+  {
+    "id": "geoclip_0548",
+    "label": "GeoCLIP Reference 548",
+    "lat": 50.083347,
+    "lon": -5.317039
+  },
+  {
+    "id": "geoclip_0549",
+    "label": "GeoCLIP Reference 549",
+    "lat": -34.42572,
+    "lon": -58.58625
+  },
+  {
+    "id": "geoclip_0550",
+    "label": "GeoCLIP Reference 550",
+    "lat": 43.644522,
+    "lon": -79.38137
+  },
+  {
+    "id": "geoclip_0551",
+    "label": "GeoCLIP Reference 551",
+    "lat": 57.682442,
+    "lon": -6.339615
+  },
+  {
+    "id": "geoclip_0552",
+    "label": "GeoCLIP Reference 552",
+    "lat": 33.54333,
+    "lon": -111.912778
+  },
+  {
+    "id": "geoclip_0553",
+    "label": "GeoCLIP Reference 553",
+    "lat": 21.871331,
+    "lon": -159.449365
+  },
+  {
+    "id": "geoclip_0554",
+    "label": "GeoCLIP Reference 554",
+    "lat": 27.993113,
+    "lon": -81.691406
+  },
+  {
+    "id": "geoclip_0555",
+    "label": "GeoCLIP Reference 555",
+    "lat": 33.972975,
+    "lon": -118.251342
+  },
+  {
+    "id": "geoclip_0556",
+    "label": "GeoCLIP Reference 556",
+    "lat": 32.077629,
+    "lon": 34.797821
+  },
+  {
+    "id": "geoclip_0557",
+    "label": "GeoCLIP Reference 557",
+    "lat": 41.417077,
+    "lon": 2.110823
+  },
+  {
+    "id": "geoclip_0558",
+    "label": "GeoCLIP Reference 558",
+    "lat": 41.895708,
+    "lon": 12.47652
+  },
+  {
+    "id": "geoclip_0559",
+    "label": "GeoCLIP Reference 559",
+    "lat": 51.508074,
+    "lon": -0.083062
+  },
+  {
+    "id": "geoclip_0560",
+    "label": "GeoCLIP Reference 560",
+    "lat": 39.907629,
+    "lon": 8.515777
+  },
+  {
+    "id": "geoclip_0561",
+    "label": "GeoCLIP Reference 561",
+    "lat": 26.33225,
+    "lon": -81.762417
+  },
+  {
+    "id": "geoclip_0562",
+    "label": "GeoCLIP Reference 562",
+    "lat": 38.709819,
+    "lon": -9.136536
+  },
+  {
+    "id": "geoclip_0563",
+    "label": "GeoCLIP Reference 563",
+    "lat": 38.929794,
+    "lon": -77.027893
+  },
+  {
+    "id": "geoclip_0564",
+    "label": "GeoCLIP Reference 564",
+    "lat": 33.572848,
+    "lon": -86.812452
+  },
+  {
+    "id": "geoclip_0565",
+    "label": "GeoCLIP Reference 565",
+    "lat": 51.496872,
+    "lon": -0.172477
+  },
+  {
+    "id": "geoclip_0566",
+    "label": "GeoCLIP Reference 566",
+    "lat": 51.753655,
+    "lon": -1.256008
+  },
+  {
+    "id": "geoclip_0567",
+    "label": "GeoCLIP Reference 567",
+    "lat": 51.639361,
+    "lon": -0.764601
+  },
+  {
+    "id": "geoclip_0568",
+    "label": "GeoCLIP Reference 568",
+    "lat": 48.202541,
+    "lon": 16.368799
+  },
+  {
+    "id": "geoclip_0569",
+    "label": "GeoCLIP Reference 569",
+    "lat": 45.884272,
+    "lon": 10.885391
+  },
+  {
+    "id": "geoclip_0570",
+    "label": "GeoCLIP Reference 570",
+    "lat": 60.159532,
+    "lon": 24.887101
+  },
+  {
+    "id": "geoclip_0571",
+    "label": "GeoCLIP Reference 571",
+    "lat": 44.837319,
+    "lon": 11.60763
+  },
+  {
+    "id": "geoclip_0572",
+    "label": "GeoCLIP Reference 572",
+    "lat": 51.838611,
+    "lon": -2.638888
+  },
+  {
+    "id": "geoclip_0573",
+    "label": "GeoCLIP Reference 573",
+    "lat": 55.785719,
+    "lon": 12.444162
+  },
+  {
+    "id": "geoclip_0574",
+    "label": "GeoCLIP Reference 574",
+    "lat": 50.725053,
+    "lon": -1.739519
+  },
+  {
+    "id": "geoclip_0575",
+    "label": "GeoCLIP Reference 575",
+    "lat": 42.168962,
+    "lon": 0.238705
+  },
+  {
+    "id": "geoclip_0576",
+    "label": "GeoCLIP Reference 576",
+    "lat": 37.702226,
+    "lon": -121.993045
+  },
+  {
+    "id": "geoclip_0577",
+    "label": "GeoCLIP Reference 577",
+    "lat": 35.622349,
+    "lon": 140.09654
+  },
+  {
+    "id": "geoclip_0578",
+    "label": "GeoCLIP Reference 578",
+    "lat": 52.625372,
+    "lon": -1.122161
+  },
+  {
+    "id": "geoclip_0579",
+    "label": "GeoCLIP Reference 579",
+    "lat": 48.842505,
+    "lon": 2.344561
+  },
+  {
+    "id": "geoclip_0580",
+    "label": "GeoCLIP Reference 580",
+    "lat": 33.873678,
+    "lon": -117.210643
+  },
+  {
+    "id": "geoclip_0581",
+    "label": "GeoCLIP Reference 581",
+    "lat": 32.721736,
+    "lon": 129.848727
+  },
+  {
+    "id": "geoclip_0582",
+    "label": "GeoCLIP Reference 582",
+    "lat": 42.854,
+    "lon": 13.584309
+  },
+  {
+    "id": "geoclip_0583",
+    "label": "GeoCLIP Reference 583",
+    "lat": 50.088979,
+    "lon": 8.711407
+  },
+  {
+    "id": "geoclip_0584",
+    "label": "GeoCLIP Reference 584",
+    "lat": 50.146862,
+    "lon": 8.45561
+  },
+  {
+    "id": "geoclip_0585",
+    "label": "GeoCLIP Reference 585",
+    "lat": 49.659183,
+    "lon": -124.921932
+  },
+  {
+    "id": "geoclip_0586",
+    "label": "GeoCLIP Reference 586",
+    "lat": 40.425045,
+    "lon": -3.689775
+  },
+  {
+    "id": "geoclip_0587",
+    "label": "GeoCLIP Reference 587",
+    "lat": 32.38325,
+    "lon": -96.849739
+  },
+  {
+    "id": "geoclip_0588",
+    "label": "GeoCLIP Reference 588",
+    "lat": 50.084738,
+    "lon": 14.459638
+  },
+  {
+    "id": "geoclip_0589",
+    "label": "GeoCLIP Reference 589",
+    "lat": 48.422878,
+    "lon": -89.240065
+  },
+  {
+    "id": "geoclip_0590",
+    "label": "GeoCLIP Reference 590",
+    "lat": -37.450195,
+    "lon": 143.361968
+  },
+  {
+    "id": "geoclip_0591",
+    "label": "GeoCLIP Reference 591",
+    "lat": 56.954851,
+    "lon": 24.157218
+  },
+  {
+    "id": "geoclip_0592",
+    "label": "GeoCLIP Reference 592",
+    "lat": 48.887294,
+    "lon": 2.386007
+  },
+  {
+    "id": "geoclip_0593",
+    "label": "GeoCLIP Reference 593",
+    "lat": 35.579399,
+    "lon": 139.448904
+  },
+  {
+    "id": "geoclip_0594",
+    "label": "GeoCLIP Reference 594",
+    "lat": 30.411522,
+    "lon": -91.185359
+  },
+  {
+    "id": "geoclip_0595",
+    "label": "GeoCLIP Reference 595",
+    "lat": 41.328333,
+    "lon": 14.223833
+  },
+  {
+    "id": "geoclip_0596",
+    "label": "GeoCLIP Reference 596",
+    "lat": 35.851769,
+    "lon": 129.210376
+  },
+  {
+    "id": "geoclip_0597",
+    "label": "GeoCLIP Reference 597",
+    "lat": 46.131315,
+    "lon": 11.473159
+  },
+  {
+    "id": "geoclip_0598",
+    "label": "GeoCLIP Reference 598",
+    "lat": 41.039451,
+    "lon": 28.940949
+  },
+  {
+    "id": "geoclip_0599",
+    "label": "GeoCLIP Reference 599",
+    "lat": 34.101677,
+    "lon": -118.340306
+  },
+  {
+    "id": "geoclip_0600",
+    "label": "GeoCLIP Reference 600",
+    "lat": 51.424527,
+    "lon": -0.0834
+  },
+  {
+    "id": "geoclip_0601",
+    "label": "GeoCLIP Reference 601",
+    "lat": 59.91786,
+    "lon": 10.722656
+  },
+  {
+    "id": "geoclip_0602",
+    "label": "GeoCLIP Reference 602",
+    "lat": 38.742333,
+    "lon": -0.4385
+  },
+  {
+    "id": "geoclip_0603",
+    "label": "GeoCLIP Reference 603",
+    "lat": 53.473594,
+    "lon": -2.24097
+  },
+  {
+    "id": "geoclip_0604",
+    "label": "GeoCLIP Reference 604",
+    "lat": 34.043457,
+    "lon": -118.265411
+  },
+  {
+    "id": "geoclip_0605",
+    "label": "GeoCLIP Reference 605",
+    "lat": 26.037041,
+    "lon": 34.365234
+  },
+  {
+    "id": "geoclip_0606",
+    "label": "GeoCLIP Reference 606",
+    "lat": 38.922257,
+    "lon": -77.427434
+  },
+  {
+    "id": "geoclip_0607",
+    "label": "GeoCLIP Reference 607",
+    "lat": 3.337953,
+    "lon": 101.513671
+  },
+  {
+    "id": "geoclip_0608",
+    "label": "GeoCLIP Reference 608",
+    "lat": 53.542653,
+    "lon": 9.858727
+  },
+  {
+    "id": "geoclip_0609",
+    "label": "GeoCLIP Reference 609",
+    "lat": 45.77767,
+    "lon": 3.085269
+  },
+  {
+    "id": "geoclip_0610",
+    "label": "GeoCLIP Reference 610",
+    "lat": 60.171654,
+    "lon": 24.93699
+  },
+  {
+    "id": "geoclip_0611",
+    "label": "GeoCLIP Reference 611",
+    "lat": 53.543836,
+    "lon": -113.491537
+  },
+  {
+    "id": "geoclip_0612",
+    "label": "GeoCLIP Reference 612",
+    "lat": 49.300445,
+    "lon": -123.117427
+  },
+  {
+    "id": "geoclip_0613",
+    "label": "GeoCLIP Reference 613",
+    "lat": 31.773599,
+    "lon": 35.224998
+  },
+  {
+    "id": "geoclip_0614",
+    "label": "GeoCLIP Reference 614",
+    "lat": 37.392527,
+    "lon": -5.987892
+  },
+  {
+    "id": "geoclip_0615",
+    "label": "GeoCLIP Reference 615",
+    "lat": 47.8876,
+    "lon": -3.984603
+  },
+  {
+    "id": "geoclip_0616",
+    "label": "GeoCLIP Reference 616",
+    "lat": 43.536104,
+    "lon": 12.92181
+  },
+  {
+    "id": "geoclip_0617",
+    "label": "GeoCLIP Reference 617",
+    "lat": 51.475963,
+    "lon": -0.297768
+  },
+  {
+    "id": "geoclip_0618",
+    "label": "GeoCLIP Reference 618",
+    "lat": 52.555706,
+    "lon": 13.865261
+  },
+  {
+    "id": "geoclip_0619",
+    "label": "GeoCLIP Reference 619",
+    "lat": 41.386009,
+    "lon": 2.167975
+  },
+  {
+    "id": "geoclip_0620",
+    "label": "GeoCLIP Reference 620",
+    "lat": 40.708132,
+    "lon": -73.968286
+  },
+  {
+    "id": "geoclip_0621",
+    "label": "GeoCLIP Reference 621",
+    "lat": 41.902189,
+    "lon": 12.457798
+  },
+  {
+    "id": "geoclip_0622",
+    "label": "GeoCLIP Reference 622",
+    "lat": 46.71843,
+    "lon": 2.948241
+  },
+  {
+    "id": "geoclip_0623",
+    "label": "GeoCLIP Reference 623",
+    "lat": 39.191886,
+    "lon": -76.694955
+  },
+  {
+    "id": "geoclip_0624",
+    "label": "GeoCLIP Reference 624",
+    "lat": 50.837166,
+    "lon": -0.807495
+  },
+  {
+    "id": "geoclip_0625",
+    "label": "GeoCLIP Reference 625",
+    "lat": 55.691556,
+    "lon": 12.598228
+  },
+  {
+    "id": "geoclip_0626",
+    "label": "GeoCLIP Reference 626",
+    "lat": 37.869,
+    "lon": -122.255334
+  },
+  {
+    "id": "geoclip_0627",
+    "label": "GeoCLIP Reference 627",
+    "lat": 58.463942,
+    "lon": 13.746385
+  },
+  {
+    "id": "geoclip_0628",
+    "label": "GeoCLIP Reference 628",
+    "lat": 50.861833,
+    "lon": 16.482666
+  },
+  {
+    "id": "geoclip_0629",
+    "label": "GeoCLIP Reference 629",
+    "lat": 39.915595,
+    "lon": 116.391005
+  },
+  {
+    "id": "geoclip_0630",
+    "label": "GeoCLIP Reference 630",
+    "lat": 41.364409,
+    "lon": 2.164682
+  },
+  {
+    "id": "geoclip_0631",
+    "label": "GeoCLIP Reference 631",
+    "lat": 60.171729,
+    "lon": 24.936808
+  },
+  {
+    "id": "geoclip_0632",
+    "label": "GeoCLIP Reference 632",
+    "lat": 38.90213,
+    "lon": -77.024101
+  },
+  {
+    "id": "geoclip_0633",
+    "label": "GeoCLIP Reference 633",
+    "lat": 51.4945,
+    "lon": -0.049667
+  },
+  {
+    "id": "geoclip_0634",
+    "label": "GeoCLIP Reference 634",
+    "lat": 44.388218,
+    "lon": -79.687335
+  },
+  {
+    "id": "geoclip_0635",
+    "label": "GeoCLIP Reference 635",
+    "lat": 48.948298,
+    "lon": 5.639634
+  },
+  {
+    "id": "geoclip_0636",
+    "label": "GeoCLIP Reference 636",
+    "lat": 41.217693,
+    "lon": 16.072998
+  },
+  {
+    "id": "geoclip_0637",
+    "label": "GeoCLIP Reference 637",
+    "lat": 49.270436,
+    "lon": 14.075091
+  },
+  {
+    "id": "geoclip_0638",
+    "label": "GeoCLIP Reference 638",
+    "lat": 41.907202,
+    "lon": 12.455062
+  },
+  {
+    "id": "geoclip_0639",
+    "label": "GeoCLIP Reference 639",
+    "lat": 51.546008,
+    "lon": -0.14184
+  },
+  {
+    "id": "geoclip_0640",
+    "label": "GeoCLIP Reference 640",
+    "lat": 39.1418,
+    "lon": -92.462481
+  },
+  {
+    "id": "geoclip_0641",
+    "label": "GeoCLIP Reference 641",
+    "lat": 53.392619,
+    "lon": -6.065053
+  },
+  {
+    "id": "geoclip_0642",
+    "label": "GeoCLIP Reference 642",
+    "lat": 32.08078,
+    "lon": -81.090721
+  },
+  {
+    "id": "geoclip_0643",
+    "label": "GeoCLIP Reference 643",
+    "lat": 41.887518,
+    "lon": -87.629646
+  },
+  {
+    "id": "geoclip_0644",
+    "label": "GeoCLIP Reference 644",
+    "lat": 52.719808,
+    "lon": 4.77648
+  },
+  {
+    "id": "geoclip_0645",
+    "label": "GeoCLIP Reference 645",
+    "lat": 52.075312,
+    "lon": 17.09979
+  },
+  {
+    "id": "geoclip_0646",
+    "label": "GeoCLIP Reference 646",
+    "lat": -43.556417,
+    "lon": 172.678213
+  },
+  {
+    "id": "geoclip_0647",
+    "label": "GeoCLIP Reference 647",
+    "lat": 35.713989,
+    "lon": 139.363608
+  },
+  {
+    "id": "geoclip_0648",
+    "label": "GeoCLIP Reference 648",
+    "lat": 41.553212,
+    "lon": -8.407732
+  },
+  {
+    "id": "geoclip_0649",
+    "label": "GeoCLIP Reference 649",
+    "lat": 39.789412,
+    "lon": 3.095912
+  },
+  {
+    "id": "geoclip_0650",
+    "label": "GeoCLIP Reference 650",
+    "lat": 29.664886,
+    "lon": -82.312623
+  },
+  {
+    "id": "geoclip_0651",
+    "label": "GeoCLIP Reference 651",
+    "lat": 34.096169,
+    "lon": -118.124324
+  },
+  {
+    "id": "geoclip_0652",
+    "label": "GeoCLIP Reference 652",
+    "lat": 24.060258,
+    "lon": 32.917785
+  },
+  {
+    "id": "geoclip_0653",
+    "label": "GeoCLIP Reference 653",
+    "lat": 43.565466,
+    "lon": -80.257873
+  },
+  {
+    "id": "geoclip_0654",
+    "label": "GeoCLIP Reference 654",
+    "lat": 19.432726,
+    "lon": -99.133222
+  },
+  {
+    "id": "geoclip_0655",
+    "label": "GeoCLIP Reference 655",
+    "lat": 48.846304,
+    "lon": 2.349014
+  },
+  {
+    "id": "geoclip_0656",
+    "label": "GeoCLIP Reference 656",
+    "lat": 35.702801,
+    "lon": 139.771783
+  },
+  {
+    "id": "geoclip_0657",
+    "label": "GeoCLIP Reference 657",
+    "lat": -38.026205,
+    "lon": -57.530336
+  },
+  {
+    "id": "geoclip_0658",
+    "label": "GeoCLIP Reference 658",
+    "lat": 35.784398,
+    "lon": 140.313434
+  },
+  {
+    "id": "geoclip_0659",
+    "label": "GeoCLIP Reference 659",
+    "lat": 48.880684,
+    "lon": 2.355044
+  },
+  {
+    "id": "geoclip_0660",
+    "label": "GeoCLIP Reference 660",
+    "lat": 31.232,
+    "lon": 121.469306
+  },
+  {
+    "id": "geoclip_0661",
+    "label": "GeoCLIP Reference 661",
+    "lat": 37.7981,
+    "lon": -122.4072
+  },
+  {
+    "id": "geoclip_0662",
+    "label": "GeoCLIP Reference 662",
+    "lat": 22.856641,
+    "lon": 106.722393
+  },
+  {
+    "id": "geoclip_0663",
+    "label": "GeoCLIP Reference 663",
+    "lat": -43.802168,
+    "lon": 172.971925
+  },
+  {
+    "id": "geoclip_0664",
+    "label": "GeoCLIP Reference 664",
+    "lat": 52.551084,
+    "lon": 13.29554
+  },
+  {
+    "id": "geoclip_0665",
+    "label": "GeoCLIP Reference 665",
+    "lat": 33.384688,
+    "lon": -111.924759
+  },
+  {
+    "id": "geoclip_0666",
+    "label": "GeoCLIP Reference 666",
+    "lat": 53.373651,
+    "lon": -1.695928
+  },
+  {
+    "id": "geoclip_0667",
+    "label": "GeoCLIP Reference 667",
+    "lat": 41.10873,
+    "lon": -81.569358
+  },
+  {
+    "id": "geoclip_0668",
+    "label": "GeoCLIP Reference 668",
+    "lat": 57.177369,
+    "lon": -2.089458
+  },
+  {
+    "id": "geoclip_0669",
+    "label": "GeoCLIP Reference 669",
+    "lat": 50.853833,
+    "lon": -1.297
+  },
+  {
+    "id": "geoclip_0670",
+    "label": "GeoCLIP Reference 670",
+    "lat": 50.814273,
+    "lon": 4.38142
+  },
+  {
+    "id": "geoclip_0671",
+    "label": "GeoCLIP Reference 671",
+    "lat": 50.895725,
+    "lon": 5.772972
+  },
+  {
+    "id": "geoclip_0672",
+    "label": "GeoCLIP Reference 672",
+    "lat": -35.795538,
+    "lon": 137.131347
+  },
+  {
+    "id": "geoclip_0673",
+    "label": "GeoCLIP Reference 673",
+    "lat": 48.852969,
+    "lon": 2.353112
+  },
+  {
+    "id": "geoclip_0674",
+    "label": "GeoCLIP Reference 674",
+    "lat": 49.450969,
+    "lon": 8.471682
+  },
+  {
+    "id": "geoclip_0675",
+    "label": "GeoCLIP Reference 675",
+    "lat": 32.992827,
+    "lon": -96.750669
+  },
+  {
+    "id": "geoclip_0676",
+    "label": "GeoCLIP Reference 676",
+    "lat": 38.663214,
+    "lon": -94.341976
+  },
+  {
+    "id": "geoclip_0677",
+    "label": "GeoCLIP Reference 677",
+    "lat": 34.062673,
+    "lon": -118.360065
+  },
+  {
+    "id": "geoclip_0678",
+    "label": "GeoCLIP Reference 678",
+    "lat": 47.440228,
+    "lon": 11.590962
+  },
+  {
+    "id": "geoclip_0679",
+    "label": "GeoCLIP Reference 679",
+    "lat": 27.861422,
+    "lon": 86.796647
+  },
+  {
+    "id": "geoclip_0680",
+    "label": "GeoCLIP Reference 680",
+    "lat": 41.380183,
+    "lon": 2.174762
+  },
+  {
+    "id": "geoclip_0681",
+    "label": "GeoCLIP Reference 681",
+    "lat": 34.135394,
+    "lon": -117.89471
+  },
+  {
+    "id": "geoclip_0682",
+    "label": "GeoCLIP Reference 682",
+    "lat": 10.68618,
+    "lon": -61.599369
+  },
+  {
+    "id": "geoclip_0683",
+    "label": "GeoCLIP Reference 683",
+    "lat": 55.951965,
+    "lon": -3.197072
+  },
+  {
+    "id": "geoclip_0684",
+    "label": "GeoCLIP Reference 684",
+    "lat": 56.32665,
+    "lon": -6.371006
+  },
+  {
+    "id": "geoclip_0685",
+    "label": "GeoCLIP Reference 685",
+    "lat": 29.759279,
+    "lon": -98.10456
+  },
+  {
+    "id": "geoclip_0686",
+    "label": "GeoCLIP Reference 686",
+    "lat": 41.881862,
+    "lon": -87.779335
+  },
+  {
+    "id": "geoclip_0687",
+    "label": "GeoCLIP Reference 687",
+    "lat": 50.97768,
+    "lon": 11.02307
+  },
+  {
+    "id": "geoclip_0688",
+    "label": "GeoCLIP Reference 688",
+    "lat": 32.163324,
+    "lon": 34.842302
+  },
+  {
+    "id": "geoclip_0689",
+    "label": "GeoCLIP Reference 689",
+    "lat": 32.077574,
+    "lon": -81.091353
+  },
+  {
+    "id": "geoclip_0690",
+    "label": "GeoCLIP Reference 690",
+    "lat": 42.83003,
+    "lon": 1.034173
+  },
+  {
+    "id": "geoclip_0691",
+    "label": "GeoCLIP Reference 691",
+    "lat": 51.511524,
+    "lon": -0.176725
+  },
+  {
+    "id": "geoclip_0692",
+    "label": "GeoCLIP Reference 692",
+    "lat": 39.50885,
+    "lon": -84.761431
+  },
+  {
+    "id": "geoclip_0693",
+    "label": "GeoCLIP Reference 693",
+    "lat": 60.209721,
+    "lon": 24.976538
+  },
+  {
+    "id": "geoclip_0694",
+    "label": "GeoCLIP Reference 694",
+    "lat": 40.764917,
+    "lon": -73.976547
+  },
+  {
+    "id": "geoclip_0695",
+    "label": "GeoCLIP Reference 695",
+    "lat": 57.452338,
+    "lon": -6.679687
+  },
+  {
+    "id": "geoclip_0696",
+    "label": "GeoCLIP Reference 696",
+    "lat": -32.276756,
+    "lon": 148.58159
+  },
+  {
+    "id": "geoclip_0697",
+    "label": "GeoCLIP Reference 697",
+    "lat": 45.129439,
+    "lon": 6.990909
+  },
+  {
+    "id": "geoclip_0698",
+    "label": "GeoCLIP Reference 698",
+    "lat": 29.963337,
+    "lon": -90.052528
+  },
+  {
+    "id": "geoclip_0699",
+    "label": "GeoCLIP Reference 699",
+    "lat": 25.070177,
+    "lon": 121.52183
+  },
+  {
+    "id": "geoclip_0700",
+    "label": "GeoCLIP Reference 700",
+    "lat": 45.45792,
+    "lon": 9.21055
+  },
+  {
+    "id": "geoclip_0701",
+    "label": "GeoCLIP Reference 701",
+    "lat": 40.746769,
+    "lon": -73.844261
+  },
+  {
+    "id": "geoclip_0702",
+    "label": "GeoCLIP Reference 702",
+    "lat": -23.567488,
+    "lon": -46.643142
+  },
+  {
+    "id": "geoclip_0703",
+    "label": "GeoCLIP Reference 703",
+    "lat": 33.826433,
+    "lon": -118.224048
+  },
+  {
+    "id": "geoclip_0704",
+    "label": "GeoCLIP Reference 704",
+    "lat": -41.787697,
+    "lon": -73.504028
+  },
+  {
+    "id": "geoclip_0705",
+    "label": "GeoCLIP Reference 705",
+    "lat": 41.794768,
+    "lon": -70.017499
+  },
+  {
+    "id": "geoclip_0706",
+    "label": "GeoCLIP Reference 706",
+    "lat": 55.949986,
+    "lon": -3.17085
+  },
+  {
+    "id": "geoclip_0707",
+    "label": "GeoCLIP Reference 707",
+    "lat": 35.004,
+    "lon": 135.7715
+  },
+  {
+    "id": "geoclip_0708",
+    "label": "GeoCLIP Reference 708",
+    "lat": 50.041279,
+    "lon": 9.227035
+  },
+  {
+    "id": "geoclip_0709",
+    "label": "GeoCLIP Reference 709",
+    "lat": 48.900837,
+    "lon": 2.307128
+  },
+  {
+    "id": "geoclip_0710",
+    "label": "GeoCLIP Reference 710",
+    "lat": 36.894451,
+    "lon": 104.165649
+  },
+  {
+    "id": "geoclip_0711",
+    "label": "GeoCLIP Reference 711",
+    "lat": 10.428475,
+    "lon": -75.544681
+  },
+  {
+    "id": "geoclip_0712",
+    "label": "GeoCLIP Reference 712",
+    "lat": 39.382908,
+    "lon": -89.074702
+  },
+  {
+    "id": "geoclip_0713",
+    "label": "GeoCLIP Reference 713",
+    "lat": 49.21883,
+    "lon": -2.225589
+  },
+  {
+    "id": "geoclip_0714",
+    "label": "GeoCLIP Reference 714",
+    "lat": 40.101661,
+    "lon": -123.793489
+  },
+  {
+    "id": "geoclip_0715",
+    "label": "GeoCLIP Reference 715",
+    "lat": 42.794329,
+    "lon": -71.435251
+  },
+  {
+    "id": "geoclip_0716",
+    "label": "GeoCLIP Reference 716",
+    "lat": 64.042555,
+    "lon": -16.210412
+  },
+  {
+    "id": "geoclip_0717",
+    "label": "GeoCLIP Reference 717",
+    "lat": 14.044003,
+    "lon": 39.422721
+  },
+  {
+    "id": "geoclip_0718",
+    "label": "GeoCLIP Reference 718",
+    "lat": 51.426195,
+    "lon": 0.05889
+  },
+  {
+    "id": "geoclip_0719",
+    "label": "GeoCLIP Reference 719",
+    "lat": 52.520451,
+    "lon": 5.428361
+  },
+  {
+    "id": "geoclip_0720",
+    "label": "GeoCLIP Reference 720",
+    "lat": 59.920387,
+    "lon": 10.75275
+  },
+  {
+    "id": "geoclip_0721",
+    "label": "GeoCLIP Reference 721",
+    "lat": 37.653386,
+    "lon": -107.330778
+  },
+  {
+    "id": "geoclip_0722",
+    "label": "GeoCLIP Reference 722",
+    "lat": 38.856231,
+    "lon": -77.042167
+  },
+  {
+    "id": "geoclip_0723",
+    "label": "GeoCLIP Reference 723",
+    "lat": 60.174287,
+    "lon": 24.925605
+  },
+  {
+    "id": "geoclip_0724",
+    "label": "GeoCLIP Reference 724",
+    "lat": 41.887817,
+    "lon": -88.307907
+  },
+  {
+    "id": "geoclip_0725",
+    "label": "GeoCLIP Reference 725",
+    "lat": 39.919021,
+    "lon": -75.077133
+  },
+  {
+    "id": "geoclip_0726",
+    "label": "GeoCLIP Reference 726",
+    "lat": 37.949819,
+    "lon": 13.996861
+  },
+  {
+    "id": "geoclip_0727",
+    "label": "GeoCLIP Reference 727",
+    "lat": 51.743526,
+    "lon": -2.246988
+  },
+  {
+    "id": "geoclip_0728",
+    "label": "GeoCLIP Reference 728",
+    "lat": 52.772447,
+    "lon": -78.697128
+  },
+  {
+    "id": "geoclip_0729",
+    "label": "GeoCLIP Reference 729",
+    "lat": 40.864105,
+    "lon": -72.874782
+  },
+  {
+    "id": "geoclip_0730",
+    "label": "GeoCLIP Reference 730",
+    "lat": 48.120667,
+    "lon": -123.432333
+  },
+  {
+    "id": "geoclip_0731",
+    "label": "GeoCLIP Reference 731",
+    "lat": 25.044159,
+    "lon": 102.701053
+  },
+  {
+    "id": "geoclip_0732",
+    "label": "GeoCLIP Reference 732",
+    "lat": 46.707499,
+    "lon": -1.979427
+  },
+  {
+    "id": "geoclip_0733",
+    "label": "GeoCLIP Reference 733",
+    "lat": -10.991033,
+    "lon": -37.051054
+  },
+  {
+    "id": "geoclip_0734",
+    "label": "GeoCLIP Reference 734",
+    "lat": 40.420843,
+    "lon": -105.811525
+  },
+  {
+    "id": "geoclip_0735",
+    "label": "GeoCLIP Reference 735",
+    "lat": 37.177799,
+    "lon": -3.598537
+  },
+  {
+    "id": "geoclip_0736",
+    "label": "GeoCLIP Reference 736",
+    "lat": 47.516084,
+    "lon": 19.056365
+  },
+  {
+    "id": "geoclip_0737",
+    "label": "GeoCLIP Reference 737",
+    "lat": 45.591563,
+    "lon": -0.989874
+  },
+  {
+    "id": "geoclip_0738",
+    "label": "GeoCLIP Reference 738",
+    "lat": 43.652167,
+    "lon": -79.366167
+  },
+  {
+    "id": "geoclip_0739",
+    "label": "GeoCLIP Reference 739",
+    "lat": 47.587002,
+    "lon": 1.335333
+  },
+  {
+    "id": "geoclip_0740",
+    "label": "GeoCLIP Reference 740",
+    "lat": 27.711798,
+    "lon": 85.312957
+  },
+  {
+    "id": "geoclip_0741",
+    "label": "GeoCLIP Reference 741",
+    "lat": 49.294344,
+    "lon": 8.704004
+  },
+  {
+    "id": "geoclip_0742",
+    "label": "GeoCLIP Reference 742",
+    "lat": 15.530602,
+    "lon": -87.29393
+  },
+  {
+    "id": "geoclip_0743",
+    "label": "GeoCLIP Reference 743",
+    "lat": 41.645121,
+    "lon": -80.152248
+  },
+  {
+    "id": "geoclip_0744",
+    "label": "GeoCLIP Reference 744",
+    "lat": 49.792818,
+    "lon": 9.927756
+  },
+  {
+    "id": "geoclip_0745",
+    "label": "GeoCLIP Reference 745",
+    "lat": 35.715698,
+    "lon": -120.763843
+  },
+  {
+    "id": "geoclip_0746",
+    "label": "GeoCLIP Reference 746",
+    "lat": -6.759098,
+    "lon": 107.050437
+  },
+  {
+    "id": "geoclip_0747",
+    "label": "GeoCLIP Reference 747",
+    "lat": 46.238396,
+    "lon": -119.334354
+  },
+  {
+    "id": "geoclip_0748",
+    "label": "GeoCLIP Reference 748",
+    "lat": 28.437298,
+    "lon": 69.637184
+  },
+  {
+    "id": "geoclip_0749",
+    "label": "GeoCLIP Reference 749",
+    "lat": 51.178327,
+    "lon": 6.389429
+  },
+  {
+    "id": "geoclip_0750",
+    "label": "GeoCLIP Reference 750",
+    "lat": 54.170473,
+    "lon": -3.232383
+  },
+  {
+    "id": "geoclip_0751",
+    "label": "GeoCLIP Reference 751",
+    "lat": 55.862699,
+    "lon": -4.26512
+  },
+  {
+    "id": "geoclip_0752",
+    "label": "GeoCLIP Reference 752",
+    "lat": 55.555048,
+    "lon": 38.138351
+  },
+  {
+    "id": "geoclip_0753",
+    "label": "GeoCLIP Reference 753",
+    "lat": 37.645296,
+    "lon": 22.109169
+  },
+  {
+    "id": "geoclip_0754",
+    "label": "GeoCLIP Reference 754",
+    "lat": 53.009886,
+    "lon": 18.599171
+  },
+  {
+    "id": "geoclip_0755",
+    "label": "GeoCLIP Reference 755",
+    "lat": 39.452995,
+    "lon": -0.347099
+  },
+  {
+    "id": "geoclip_0756",
+    "label": "GeoCLIP Reference 756",
+    "lat": 41.567554,
+    "lon": 0.524597
+  },
+  {
+    "id": "geoclip_0757",
+    "label": "GeoCLIP Reference 757",
+    "lat": 43.529361,
+    "lon": 5.447931
+  },
+  {
+    "id": "geoclip_0758",
+    "label": "GeoCLIP Reference 758",
+    "lat": 59.340543,
+    "lon": 18.14804
+  },
+  {
+    "id": "geoclip_0759",
+    "label": "GeoCLIP Reference 759",
+    "lat": 44.219338,
+    "lon": -71.411647
+  },
+  {
+    "id": "geoclip_0760",
+    "label": "GeoCLIP Reference 760",
+    "lat": 19.440406,
+    "lon": -99.159024
+  },
+  {
+    "id": "geoclip_0761",
+    "label": "GeoCLIP Reference 761",
+    "lat": -16.230827,
+    "lon": -50.336694
+  },
+  {
+    "id": "geoclip_0762",
+    "label": "GeoCLIP Reference 762",
+    "lat": 47.635682,
+    "lon": 15.86313
+  },
+  {
+    "id": "geoclip_0763",
+    "label": "GeoCLIP Reference 763",
+    "lat": 43.159488,
+    "lon": -5.417976
+  },
+  {
+    "id": "geoclip_0764",
+    "label": "GeoCLIP Reference 764",
+    "lat": 22.337507,
+    "lon": 114.174009
+  },
+  {
+    "id": "geoclip_0765",
+    "label": "GeoCLIP Reference 765",
+    "lat": 35.429168,
+    "lon": 139.239511
+  },
+  {
+    "id": "geoclip_0766",
+    "label": "GeoCLIP Reference 766",
+    "lat": -26.656318,
+    "lon": 153.104417
+  },
+  {
+    "id": "geoclip_0767",
+    "label": "GeoCLIP Reference 767",
+    "lat": 44.797672,
+    "lon": 20.4677
+  },
+  {
+    "id": "geoclip_0768",
+    "label": "GeoCLIP Reference 768",
+    "lat": 49.464833,
+    "lon": 105.98648
+  },
+  {
+    "id": "geoclip_0769",
+    "label": "GeoCLIP Reference 769",
+    "lat": 35.79955,
+    "lon": 139.663406
+  },
+  {
+    "id": "geoclip_0770",
+    "label": "GeoCLIP Reference 770",
+    "lat": 35.663416,
+    "lon": -106.409628
+  },
+  {
+    "id": "geoclip_0771",
+    "label": "GeoCLIP Reference 771",
+    "lat": 30.968052,
+    "lon": -94.332187
+  },
+  {
+    "id": "geoclip_0772",
+    "label": "GeoCLIP Reference 772",
+    "lat": 36.891064,
+    "lon": 15.070474
+  },
+  {
+    "id": "geoclip_0773",
+    "label": "GeoCLIP Reference 773",
+    "lat": 43.608208,
+    "lon": 13.511445
+  },
+  {
+    "id": "geoclip_0774",
+    "label": "GeoCLIP Reference 774",
+    "lat": 45.638587,
+    "lon": -122.647075
+  },
+  {
+    "id": "geoclip_0775",
+    "label": "GeoCLIP Reference 775",
+    "lat": 34.561848,
+    "lon": 38.26538
+  },
+  {
+    "id": "geoclip_0776",
+    "label": "GeoCLIP Reference 776",
+    "lat": 33.9265,
+    "lon": -116.1875
+  },
+  {
+    "id": "geoclip_0777",
+    "label": "GeoCLIP Reference 777",
+    "lat": 41.906525,
+    "lon": -87.701561
+  },
+  {
+    "id": "geoclip_0778",
+    "label": "GeoCLIP Reference 778",
+    "lat": 52.416819,
+    "lon": -4.085575
+  },
+  {
+    "id": "geoclip_0779",
+    "label": "GeoCLIP Reference 779",
+    "lat": 32.732891,
+    "lon": -117.199873
+  },
+  {
+    "id": "geoclip_0780",
+    "label": "GeoCLIP Reference 780",
+    "lat": 38.566319,
+    "lon": -122.549142
+  },
+  {
+    "id": "geoclip_0781",
+    "label": "GeoCLIP Reference 781",
+    "lat": -33.720913,
+    "lon": 150.369186
+  },
+  {
+    "id": "geoclip_0782",
+    "label": "GeoCLIP Reference 782",
+    "lat": 37.257227,
+    "lon": -112.967444
+  },
+  {
+    "id": "geoclip_0783",
+    "label": "GeoCLIP Reference 783",
+    "lat": 41.878931,
+    "lon": -87.635922
+  },
+  {
+    "id": "geoclip_0784",
+    "label": "GeoCLIP Reference 784",
+    "lat": 52.503,
+    "lon": 13.445
+  },
+  {
+    "id": "geoclip_0785",
+    "label": "GeoCLIP Reference 785",
+    "lat": 40.707295,
+    "lon": -73.998337
+  },
+  {
+    "id": "geoclip_0786",
+    "label": "GeoCLIP Reference 786",
+    "lat": 45.7146,
+    "lon": 11.35423
+  },
+  {
+    "id": "geoclip_0787",
+    "label": "GeoCLIP Reference 787",
+    "lat": 39.829162,
+    "lon": 4.293015
+  },
+  {
+    "id": "geoclip_0788",
+    "label": "GeoCLIP Reference 788",
+    "lat": 34.095069,
+    "lon": -117.77304
+  },
+  {
+    "id": "geoclip_0789",
+    "label": "GeoCLIP Reference 789",
+    "lat": 39.927158,
+    "lon": -105.038178
+  },
+  {
+    "id": "geoclip_0790",
+    "label": "GeoCLIP Reference 790",
+    "lat": 39.793996,
+    "lon": 18.352317
+  },
+  {
+    "id": "geoclip_0791",
+    "label": "GeoCLIP Reference 791",
+    "lat": 23.368225,
+    "lon": 69.248199
+  },
+  {
+    "id": "geoclip_0792",
+    "label": "GeoCLIP Reference 792",
+    "lat": 46.476704,
+    "lon": 11.740951
+  },
+  {
+    "id": "geoclip_0793",
+    "label": "GeoCLIP Reference 793",
+    "lat": 56.185555,
+    "lon": -4.049445
+  },
+  {
+    "id": "geoclip_0794",
+    "label": "GeoCLIP Reference 794",
+    "lat": 35.582833,
+    "lon": 139.567666
+  },
+  {
+    "id": "geoclip_0795",
+    "label": "GeoCLIP Reference 795",
+    "lat": 38.41123,
+    "lon": -85.567016
+  },
+  {
+    "id": "geoclip_0796",
+    "label": "GeoCLIP Reference 796",
+    "lat": 60.184208,
+    "lon": -149.636368
+  },
+  {
+    "id": "geoclip_0797",
+    "label": "GeoCLIP Reference 797",
+    "lat": 57.126602,
+    "lon": 12.256833
+  },
+  {
+    "id": "geoclip_0798",
+    "label": "GeoCLIP Reference 798",
+    "lat": 35.411438,
+    "lon": -86.263275
+  },
+  {
+    "id": "geoclip_0799",
+    "label": "GeoCLIP Reference 799",
+    "lat": 51.189262,
+    "lon": 4.453915
+  },
+  {
+    "id": "geoclip_0800",
+    "label": "GeoCLIP Reference 800",
+    "lat": 39.929496,
+    "lon": 116.377924
+  },
+  {
+    "id": "geoclip_0801",
+    "label": "GeoCLIP Reference 801",
+    "lat": 42.236075,
+    "lon": -8.728219
+  },
+  {
+    "id": "geoclip_0802",
+    "label": "GeoCLIP Reference 802",
+    "lat": 45.549333,
+    "lon": -122.6755
+  },
+  {
+    "id": "geoclip_0803",
+    "label": "GeoCLIP Reference 803",
+    "lat": 13.412314,
+    "lon": 103.865915
+  },
+  {
+    "id": "geoclip_0804",
+    "label": "GeoCLIP Reference 804",
+    "lat": 39.852434,
+    "lon": 2.801728
+  },
+  {
+    "id": "geoclip_0805",
+    "label": "GeoCLIP Reference 805",
+    "lat": 13.668672,
+    "lon": 100.489196
+  },
+  {
+    "id": "geoclip_0806",
+    "label": "GeoCLIP Reference 806",
+    "lat": 33.952046,
+    "lon": -83.387432
+  },
+  {
+    "id": "geoclip_0807",
+    "label": "GeoCLIP Reference 807",
+    "lat": 24.691105,
+    "lon": 121.732764
+  },
+  {
+    "id": "geoclip_0808",
+    "label": "GeoCLIP Reference 808",
+    "lat": 31.305175,
+    "lon": 120.611686
+  },
+  {
+    "id": "geoclip_0809",
+    "label": "GeoCLIP Reference 809",
+    "lat": 45.560602,
+    "lon": -122.644709
+  },
+  {
+    "id": "geoclip_0810",
+    "label": "GeoCLIP Reference 810",
+    "lat": 40.089534,
+    "lon": -75.226997
+  },
+  {
+    "id": "geoclip_0811",
+    "label": "GeoCLIP Reference 811",
+    "lat": 24.074605,
+    "lon": 120.719277
+  },
+  {
+    "id": "geoclip_0812",
+    "label": "GeoCLIP Reference 812",
+    "lat": 42.428239,
+    "lon": -71.205182
+  },
+  {
+    "id": "geoclip_0813",
+    "label": "GeoCLIP Reference 813",
+    "lat": 52.450726,
+    "lon": -1.72614
+  },
+  {
+    "id": "geoclip_0814",
+    "label": "GeoCLIP Reference 814",
+    "lat": 50.507545,
+    "lon": 18.286571
+  },
+  {
+    "id": "geoclip_0815",
+    "label": "GeoCLIP Reference 815",
+    "lat": 52.670833,
+    "lon": 6.051666
+  },
+  {
+    "id": "geoclip_0816",
+    "label": "GeoCLIP Reference 816",
+    "lat": 35.726974,
+    "lon": 139.719436
+  },
+  {
+    "id": "geoclip_0817",
+    "label": "GeoCLIP Reference 817",
+    "lat": 48.129821,
+    "lon": 11.583141
+  },
+  {
+    "id": "geoclip_0818",
+    "label": "GeoCLIP Reference 818",
+    "lat": 52.079968,
+    "lon": 4.317558
+  },
+  {
+    "id": "geoclip_0819",
+    "label": "GeoCLIP Reference 819",
+    "lat": 49.887065,
+    "lon": -97.135469
+  },
+  {
+    "id": "geoclip_0820",
+    "label": "GeoCLIP Reference 820",
+    "lat": 40.702443,
+    "lon": -74.016426
+  },
+  {
+    "id": "geoclip_0821",
+    "label": "GeoCLIP Reference 821",
+    "lat": 38.9085,
+    "lon": -77.031834
+  },
+  {
+    "id": "geoclip_0822",
+    "label": "GeoCLIP Reference 822",
+    "lat": 49.267286,
+    "lon": -123.254767
+  },
+  {
+    "id": "geoclip_0823",
+    "label": "GeoCLIP Reference 823",
+    "lat": 40.440666,
+    "lon": -79.989834
+  },
+  {
+    "id": "geoclip_0824",
+    "label": "GeoCLIP Reference 824",
+    "lat": 35.966172,
+    "lon": -97.216956
+  },
+  {
+    "id": "geoclip_0825",
+    "label": "GeoCLIP Reference 825",
+    "lat": 39.055584,
+    "lon": -86.337604
+  },
+  {
+    "id": "geoclip_0826",
+    "label": "GeoCLIP Reference 826",
+    "lat": 51.508822,
+    "lon": -0.075101
+  },
+  {
+    "id": "geoclip_0827",
+    "label": "GeoCLIP Reference 827",
+    "lat": 51.463852,
+    "lon": -0.647831
+  },
+  {
+    "id": "geoclip_0828",
+    "label": "GeoCLIP Reference 828",
+    "lat": 48.590589,
+    "lon": 8.009333
+  },
+  {
+    "id": "geoclip_0829",
+    "label": "GeoCLIP Reference 829",
+    "lat": 41.4113,
+    "lon": 2.221431
+  },
+  {
+    "id": "geoclip_0830",
+    "label": "GeoCLIP Reference 830",
+    "lat": -20.238039,
+    "lon": -70.138778
+  },
+  {
+    "id": "geoclip_0831",
+    "label": "GeoCLIP Reference 831",
+    "lat": 46.563127,
+    "lon": 13.274252
+  },
+  {
+    "id": "geoclip_0832",
+    "label": "GeoCLIP Reference 832",
+    "lat": 39.324798,
+    "lon": -76.644599
+  },
+  {
+    "id": "geoclip_0833",
+    "label": "GeoCLIP Reference 833",
+    "lat": 37.792304,
+    "lon": -122.403542
+  },
+  {
+    "id": "geoclip_0834",
+    "label": "GeoCLIP Reference 834",
+    "lat": 49.24643,
+    "lon": 6.140444
+  },
+  {
+    "id": "geoclip_0835",
+    "label": "GeoCLIP Reference 835",
+    "lat": 41.656497,
+    "lon": -91.522293
+  },
+  {
+    "id": "geoclip_0836",
+    "label": "GeoCLIP Reference 836",
+    "lat": 47.379452,
+    "lon": 8.545153
+  },
+  {
+    "id": "geoclip_0837",
+    "label": "GeoCLIP Reference 837",
+    "lat": 44.287624,
+    "lon": -77.564946
+  },
+  {
+    "id": "geoclip_0838",
+    "label": "GeoCLIP Reference 838",
+    "lat": 59.315,
+    "lon": 18.030666
+  },
+  {
+    "id": "geoclip_0839",
+    "label": "GeoCLIP Reference 839",
+    "lat": -34.618234,
+    "lon": -58.376884
+  },
+  {
+    "id": "geoclip_0840",
+    "label": "GeoCLIP Reference 840",
+    "lat": 39.654697,
+    "lon": -84.225482
+  },
+  {
+    "id": "geoclip_0841",
+    "label": "GeoCLIP Reference 841",
+    "lat": 14.412667,
+    "lon": 102.961333
+  },
+  {
+    "id": "geoclip_0842",
+    "label": "GeoCLIP Reference 842",
+    "lat": 34.664275,
+    "lon": 135.501422
+  },
+  {
+    "id": "geoclip_0843",
+    "label": "GeoCLIP Reference 843",
+    "lat": -8.466859,
+    "lon": 115.266952
+  },
+  {
+    "id": "geoclip_0844",
+    "label": "GeoCLIP Reference 844",
+    "lat": 51.051454,
+    "lon": 13.732663
+  },
+  {
+    "id": "geoclip_0845",
+    "label": "GeoCLIP Reference 845",
+    "lat": 37.931813,
+    "lon": -107.807625
+  },
+  {
+    "id": "geoclip_0846",
+    "label": "GeoCLIP Reference 846",
+    "lat": 46.099989,
+    "lon": 8.965444
+  },
+  {
+    "id": "geoclip_0847",
+    "label": "GeoCLIP Reference 847",
+    "lat": 37.094946,
+    "lon": -81.77802
+  },
+  {
+    "id": "geoclip_0848",
+    "label": "GeoCLIP Reference 848",
+    "lat": 13.698225,
+    "lon": -89.230839
+  },
+  {
+    "id": "geoclip_0849",
+    "label": "GeoCLIP Reference 849",
+    "lat": 38.303779,
+    "lon": -123.064727
+  },
+  {
+    "id": "geoclip_0850",
+    "label": "GeoCLIP Reference 850",
+    "lat": 50.765087,
+    "lon": 16.274904
+  },
+  {
+    "id": "geoclip_0851",
+    "label": "GeoCLIP Reference 851",
+    "lat": 31.629121,
+    "lon": -8.003196
+  },
+  {
+    "id": "geoclip_0852",
+    "label": "GeoCLIP Reference 852",
+    "lat": 35.595941,
+    "lon": -82.550019
+  },
+  {
+    "id": "geoclip_0853",
+    "label": "GeoCLIP Reference 853",
+    "lat": 52.105582,
+    "lon": -3.627548
+  },
+  {
+    "id": "geoclip_0854",
+    "label": "GeoCLIP Reference 854",
+    "lat": 46.396436,
+    "lon": 7.736949
+  },
+  {
+    "id": "geoclip_0855",
+    "label": "GeoCLIP Reference 855",
+    "lat": 29.95789,
+    "lon": -90.063514
+  },
+  {
+    "id": "geoclip_0856",
+    "label": "GeoCLIP Reference 856",
+    "lat": 31.200835,
+    "lon": 121.56887
+  },
+  {
+    "id": "geoclip_0857",
+    "label": "GeoCLIP Reference 857",
+    "lat": 13.746711,
+    "lon": 100.539397
+  },
+  {
+    "id": "geoclip_0858",
+    "label": "GeoCLIP Reference 858",
+    "lat": 42.312561,
+    "lon": -71.088676
+  },
+  {
+    "id": "geoclip_0859",
+    "label": "GeoCLIP Reference 859",
+    "lat": 40.412227,
+    "lon": -3.691363
+  },
+  {
+    "id": "geoclip_0860",
+    "label": "GeoCLIP Reference 860",
+    "lat": 42.811175,
+    "lon": 2.87816
+  },
+  {
+    "id": "geoclip_0861",
+    "label": "GeoCLIP Reference 861",
+    "lat": -8.184984,
+    "lon": -35.549697
+  },
+  {
+    "id": "geoclip_0862",
+    "label": "GeoCLIP Reference 862",
+    "lat": 45.046723,
+    "lon": 9.675865
+  },
+  {
+    "id": "geoclip_0863",
+    "label": "GeoCLIP Reference 863",
+    "lat": 26.479349,
+    "lon": 74.562866
+  },
+  {
+    "id": "geoclip_0864",
+    "label": "GeoCLIP Reference 864",
+    "lat": 35.034019,
+    "lon": 135.718274
+  },
+  {
+    "id": "geoclip_0865",
+    "label": "GeoCLIP Reference 865",
+    "lat": -20.907924,
+    "lon": 55.423418
+  },
+  {
+    "id": "geoclip_0866",
+    "label": "GeoCLIP Reference 866",
+    "lat": 44.954776,
+    "lon": -93.282766
+  },
+  {
+    "id": "geoclip_0867",
+    "label": "GeoCLIP Reference 867",
+    "lat": 42.210051,
+    "lon": -8.775758
+  },
+  {
+    "id": "geoclip_0868",
+    "label": "GeoCLIP Reference 868",
+    "lat": 51.110184,
+    "lon": 17.031898
+  },
+  {
+    "id": "geoclip_0869",
+    "label": "GeoCLIP Reference 869",
+    "lat": 37.17653,
+    "lon": -3.539839
+  },
+  {
+    "id": "geoclip_0870",
+    "label": "GeoCLIP Reference 870",
+    "lat": 50.934815,
+    "lon": 6.969473
+  },
+  {
+    "id": "geoclip_0871",
+    "label": "GeoCLIP Reference 871",
+    "lat": 45.420232,
+    "lon": -75.705049
+  },
+  {
+    "id": "geoclip_0872",
+    "label": "GeoCLIP Reference 872",
+    "lat": 41.338862,
+    "lon": 2.127399
+  },
+  {
+    "id": "geoclip_0873",
+    "label": "GeoCLIP Reference 873",
+    "lat": 39.286183,
+    "lon": -76.610584
+  },
+  {
+    "id": "geoclip_0874",
+    "label": "GeoCLIP Reference 874",
+    "lat": 47.621474,
+    "lon": -122.347655
+  },
+  {
+    "id": "geoclip_0875",
+    "label": "GeoCLIP Reference 875",
+    "lat": 15.575254,
+    "lon": -89.970645
+  },
+  {
+    "id": "geoclip_0876",
+    "label": "GeoCLIP Reference 876",
+    "lat": 40.764666,
+    "lon": -73.974167
+  },
+  {
+    "id": "geoclip_0877",
+    "label": "GeoCLIP Reference 877",
+    "lat": 29.952238,
+    "lon": -81.30372
+  },
+  {
+    "id": "geoclip_0878",
+    "label": "GeoCLIP Reference 878",
+    "lat": 60.183675,
+    "lon": -149.635462
+  },
+  {
+    "id": "geoclip_0879",
+    "label": "GeoCLIP Reference 879",
+    "lat": 49.324668,
+    "lon": 8.566436
+  },
+  {
+    "id": "geoclip_0880",
+    "label": "GeoCLIP Reference 880",
+    "lat": 40.40781,
+    "lon": -3.708486
+  },
+  {
+    "id": "geoclip_0881",
+    "label": "GeoCLIP Reference 881",
+    "lat": -34.321056,
+    "lon": -58.535156
+  },
+  {
+    "id": "geoclip_0882",
+    "label": "GeoCLIP Reference 882",
+    "lat": 48.202541,
+    "lon": 16.368799
+  },
+  {
+    "id": "geoclip_0883",
+    "label": "GeoCLIP Reference 883",
+    "lat": 29.75484,
+    "lon": 34.998039
+  },
+  {
+    "id": "geoclip_0884",
+    "label": "GeoCLIP Reference 884",
+    "lat": 43.338243,
+    "lon": -1.609456
+  },
+  {
+    "id": "geoclip_0885",
+    "label": "GeoCLIP Reference 885",
+    "lat": 42.963426,
+    "lon": 17.125453
+  },
+  {
+    "id": "geoclip_0886",
+    "label": "GeoCLIP Reference 886",
+    "lat": 50.871086,
+    "lon": 0.554294
+  },
+  {
+    "id": "geoclip_0887",
+    "label": "GeoCLIP Reference 887",
+    "lat": 39.20874,
+    "lon": -94.551451
+  },
+  {
+    "id": "geoclip_0888",
+    "label": "GeoCLIP Reference 888",
+    "lat": 52.694166,
+    "lon": 4.753333
+  },
+  {
+    "id": "geoclip_0889",
+    "label": "GeoCLIP Reference 889",
+    "lat": 33.453956,
+    "lon": -88.789712
+  },
+  {
+    "id": "geoclip_0890",
+    "label": "GeoCLIP Reference 890",
+    "lat": 35.232986,
+    "lon": 128.60878
+  },
+  {
+    "id": "geoclip_0891",
+    "label": "GeoCLIP Reference 891",
+    "lat": 43.286605,
+    "lon": -2.988009
+  },
+  {
+    "id": "geoclip_0892",
+    "label": "GeoCLIP Reference 892",
+    "lat": 35.881279,
+    "lon": -106.301028
+  },
+  {
+    "id": "geoclip_0893",
+    "label": "GeoCLIP Reference 893",
+    "lat": 40.91519,
+    "lon": 14.058476
+  },
+  {
+    "id": "geoclip_0894",
+    "label": "GeoCLIP Reference 894",
+    "lat": 38.787435,
+    "lon": 22.256695
+  },
+  {
+    "id": "geoclip_0895",
+    "label": "GeoCLIP Reference 895",
+    "lat": -41.511324,
+    "lon": 173.95576
+  },
+  {
+    "id": "geoclip_0896",
+    "label": "GeoCLIP Reference 896",
+    "lat": 46.203385,
+    "lon": 6.134489
+  },
+  {
+    "id": "geoclip_0897",
+    "label": "GeoCLIP Reference 897",
+    "lat": 37.4555,
+    "lon": -122.248334
+  },
+  {
+    "id": "geoclip_0898",
+    "label": "GeoCLIP Reference 898",
+    "lat": 43.240544,
+    "lon": -86.264133
+  },
+  {
+    "id": "geoclip_0899",
+    "label": "GeoCLIP Reference 899",
+    "lat": 51.532569,
+    "lon": 5.939308
+  },
+  {
+    "id": "geoclip_0900",
+    "label": "GeoCLIP Reference 900",
+    "lat": 46.841465,
+    "lon": 29.632787
+  },
+  {
+    "id": "geoclip_0901",
+    "label": "GeoCLIP Reference 901",
+    "lat": 52.757905,
+    "lon": 0.396881
+  },
+  {
+    "id": "geoclip_0902",
+    "label": "GeoCLIP Reference 902",
+    "lat": 42.329968,
+    "lon": -71.104336
+  },
+  {
+    "id": "geoclip_0903",
+    "label": "GeoCLIP Reference 903",
+    "lat": 46.839216,
+    "lon": -114.063116
+  },
+  {
+    "id": "geoclip_0904",
+    "label": "GeoCLIP Reference 904",
+    "lat": 49.103095,
+    "lon": 17.840423
+  },
+  {
+    "id": "geoclip_0905",
+    "label": "GeoCLIP Reference 905",
+    "lat": 21.358465,
+    "lon": -101.931173
+  },
+  {
+    "id": "geoclip_0906",
+    "label": "GeoCLIP Reference 906",
+    "lat": -33.574001,
+    "lon": -70.409789
+  },
+  {
+    "id": "geoclip_0907",
+    "label": "GeoCLIP Reference 907",
+    "lat": 6.292008,
+    "lon": -75.567913
+  },
+  {
+    "id": "geoclip_0908",
+    "label": "GeoCLIP Reference 908",
+    "lat": 53.476029,
+    "lon": -2.252604
+  },
+  {
+    "id": "geoclip_0909",
+    "label": "GeoCLIP Reference 909",
+    "lat": 39.968333,
+    "lon": -74.9145
+  },
+  {
+    "id": "geoclip_0910",
+    "label": "GeoCLIP Reference 910",
+    "lat": 47.655827,
+    "lon": -122.206742
+  },
+  {
+    "id": "geoclip_0911",
+    "label": "GeoCLIP Reference 911",
+    "lat": 31.303121,
+    "lon": 120.614089
+  },
+  {
+    "id": "geoclip_0912",
+    "label": "GeoCLIP Reference 912",
+    "lat": 12.995023,
+    "lon": 80.257873
+  },
+  {
+    "id": "geoclip_0913",
+    "label": "GeoCLIP Reference 913",
+    "lat": 38.863777,
+    "lon": -77.321004
+  },
+  {
+    "id": "geoclip_0914",
+    "label": "GeoCLIP Reference 914",
+    "lat": 36.115516,
+    "lon": -115.172874
+  },
+  {
+    "id": "geoclip_0915",
+    "label": "GeoCLIP Reference 915",
+    "lat": 15.578726,
+    "lon": 73.738517
+  },
+  {
+    "id": "geoclip_0916",
+    "label": "GeoCLIP Reference 916",
+    "lat": 46.784308,
+    "lon": 23.588697
+  },
+  {
+    "id": "geoclip_0917",
+    "label": "GeoCLIP Reference 917",
+    "lat": 40.761333,
+    "lon": -73.977812
+  },
+  {
+    "id": "geoclip_0918",
+    "label": "GeoCLIP Reference 918",
+    "lat": 25.744758,
+    "lon": -80.211121
+  },
+  {
+    "id": "geoclip_0919",
+    "label": "GeoCLIP Reference 919",
+    "lat": 51.512234,
+    "lon": -0.116
+  },
+  {
+    "id": "geoclip_0920",
+    "label": "GeoCLIP Reference 920",
+    "lat": 52.5123,
+    "lon": 13.380178
+  },
+  {
+    "id": "geoclip_0921",
+    "label": "GeoCLIP Reference 921",
+    "lat": 18.239714,
+    "lon": -72.53943
+  },
+  {
+    "id": "geoclip_0922",
+    "label": "GeoCLIP Reference 922",
+    "lat": 43.684966,
+    "lon": -79.356769
+  },
+  {
+    "id": "geoclip_0923",
+    "label": "GeoCLIP Reference 923",
+    "lat": 55.993052,
+    "lon": -3.295297
+  },
+  {
+    "id": "geoclip_0924",
+    "label": "GeoCLIP Reference 924",
+    "lat": 41.810411,
+    "lon": 24.090185
+  },
+  {
+    "id": "geoclip_0925",
+    "label": "GeoCLIP Reference 925",
+    "lat": 37.790455,
+    "lon": -122.42649
+  },
+  {
+    "id": "geoclip_0926",
+    "label": "GeoCLIP Reference 926",
+    "lat": 42.476971,
+    "lon": -83.149214
+  },
+  {
+    "id": "geoclip_0927",
+    "label": "GeoCLIP Reference 927",
+    "lat": 29.739477,
+    "lon": -95.420456
+  },
+  {
+    "id": "geoclip_0928",
+    "label": "GeoCLIP Reference 928",
+    "lat": 44.269972,
+    "lon": 12.349126
+  },
+  {
+    "id": "geoclip_0929",
+    "label": "GeoCLIP Reference 929",
+    "lat": 1.281903,
+    "lon": 103.843696
+  },
+  {
+    "id": "geoclip_0930",
+    "label": "GeoCLIP Reference 930",
+    "lat": 41.01039,
+    "lon": 28.969488
+  },
+  {
+    "id": "geoclip_0931",
+    "label": "GeoCLIP Reference 931",
+    "lat": 53.468085,
+    "lon": 8.4381
+  },
+  {
+    "id": "geoclip_0932",
+    "label": "GeoCLIP Reference 932",
+    "lat": 40.960974,
+    "lon": 8.882446
+  },
+  {
+    "id": "geoclip_0933",
+    "label": "GeoCLIP Reference 933",
+    "lat": 53.532859,
+    "lon": -2.257518
+  },
+  {
+    "id": "geoclip_0934",
+    "label": "GeoCLIP Reference 934",
+    "lat": 46.879529,
+    "lon": 6.756334
+  },
+  {
+    "id": "geoclip_0935",
+    "label": "GeoCLIP Reference 935",
+    "lat": 24.445665,
+    "lon": 118.080196
+  },
+  {
+    "id": "geoclip_0936",
+    "label": "GeoCLIP Reference 936",
+    "lat": 52.524085,
+    "lon": 13.389668
+  },
+  {
+    "id": "geoclip_0937",
+    "label": "GeoCLIP Reference 937",
+    "lat": 45.252738,
+    "lon": 12.130279
+  },
+  {
+    "id": "geoclip_0938",
+    "label": "GeoCLIP Reference 938",
+    "lat": 33.993666,
+    "lon": -116.061334
+  },
+  {
+    "id": "geoclip_0939",
+    "label": "GeoCLIP Reference 939",
+    "lat": 41.944409,
+    "lon": -87.649365
+  },
+  {
+    "id": "geoclip_0940",
+    "label": "GeoCLIP Reference 940",
+    "lat": 56.842588,
+    "lon": -5.101776
+  },
+  {
+    "id": "geoclip_0941",
+    "label": "GeoCLIP Reference 941",
+    "lat": 40.726218,
+    "lon": -74.001953
+  },
+  {
+    "id": "geoclip_0942",
+    "label": "GeoCLIP Reference 942",
+    "lat": 40.661156,
+    "lon": -73.915409
+  },
+  {
+    "id": "geoclip_0943",
+    "label": "GeoCLIP Reference 943",
+    "lat": 32.427245,
+    "lon": -97.76508
+  },
+  {
+    "id": "geoclip_0944",
+    "label": "GeoCLIP Reference 944",
+    "lat": 46.922219,
+    "lon": 8.617744
+  },
+  {
+    "id": "geoclip_0945",
+    "label": "GeoCLIP Reference 945",
+    "lat": 56.649627,
+    "lon": -2.766775
+  },
+  {
+    "id": "geoclip_0946",
+    "label": "GeoCLIP Reference 946",
+    "lat": 49.402931,
+    "lon": 8.68628
+  },
+  {
+    "id": "geoclip_0947",
+    "label": "GeoCLIP Reference 947",
+    "lat": 48.853153,
+    "lon": 2.33865
+  },
+  {
+    "id": "geoclip_0948",
+    "label": "GeoCLIP Reference 948",
+    "lat": 46.785074,
+    "lon": -92.093281
+  },
+  {
+    "id": "geoclip_0949",
+    "label": "GeoCLIP Reference 949",
+    "lat": 43.719163,
+    "lon": 7.279053
+  },
+  {
+    "id": "geoclip_0950",
+    "label": "GeoCLIP Reference 950",
+    "lat": 48.636879,
+    "lon": -1.511993
+  },
+  {
+    "id": "geoclip_0951",
+    "label": "GeoCLIP Reference 951",
+    "lat": 41.689322,
+    "lon": 10.349121
+  },
+  {
+    "id": "geoclip_0952",
+    "label": "GeoCLIP Reference 952",
+    "lat": 47.540697,
+    "lon": -122.481187
+  },
+  {
+    "id": "geoclip_0953",
+    "label": "GeoCLIP Reference 953",
+    "lat": 35.423294,
+    "lon": 139.639649
+  },
+  {
+    "id": "geoclip_0954",
+    "label": "GeoCLIP Reference 954",
+    "lat": 30.323105,
+    "lon": 35.45238
+  },
+  {
+    "id": "geoclip_0955",
+    "label": "GeoCLIP Reference 955",
+    "lat": 18.771115,
+    "lon": 102.260742
+  },
+  {
+    "id": "geoclip_0956",
+    "label": "GeoCLIP Reference 956",
+    "lat": 51.387222,
+    "lon": -2.367939
+  },
+  {
+    "id": "geoclip_0957",
+    "label": "GeoCLIP Reference 957",
+    "lat": 38.559198,
+    "lon": -121.254794
+  },
+  {
+    "id": "geoclip_0958",
+    "label": "GeoCLIP Reference 958",
+    "lat": 14.614714,
+    "lon": 120.99068
+  },
+  {
+    "id": "geoclip_0959",
+    "label": "GeoCLIP Reference 959",
+    "lat": 44.643025,
+    "lon": -63.582193
+  },
+  {
+    "id": "geoclip_0960",
+    "label": "GeoCLIP Reference 960",
+    "lat": 40.261221,
+    "lon": -5.917553
+  },
+  {
+    "id": "geoclip_0961",
+    "label": "GeoCLIP Reference 961",
+    "lat": 50.062993,
+    "lon": 19.938297
+  },
+  {
+    "id": "geoclip_0962",
+    "label": "GeoCLIP Reference 962",
+    "lat": -39.010514,
+    "lon": -67.297782
+  },
+  {
+    "id": "geoclip_0963",
+    "label": "GeoCLIP Reference 963",
+    "lat": -34.915425,
+    "lon": -56.148397
+  },
+  {
+    "id": "geoclip_0964",
+    "label": "GeoCLIP Reference 964",
+    "lat": 40.732535,
+    "lon": -73.987555
+  },
+  {
+    "id": "geoclip_0965",
+    "label": "GeoCLIP Reference 965",
+    "lat": 37.55526,
+    "lon": 126.923503
+  },
+  {
+    "id": "geoclip_0966",
+    "label": "GeoCLIP Reference 966",
+    "lat": 52.108719,
+    "lon": 4.275054
+  },
+  {
+    "id": "geoclip_0967",
+    "label": "GeoCLIP Reference 967",
+    "lat": 46.495378,
+    "lon": 11.354026
+  },
+  {
+    "id": "geoclip_0968",
+    "label": "GeoCLIP Reference 968",
+    "lat": 47.445083,
+    "lon": -121.426606
+  },
+  {
+    "id": "geoclip_0969",
+    "label": "GeoCLIP Reference 969",
+    "lat": 51.070014,
+    "lon": -1.801071
+  },
+  {
+    "id": "geoclip_0970",
+    "label": "GeoCLIP Reference 970",
+    "lat": 38.888685,
+    "lon": -77.022117
+  },
+  {
+    "id": "geoclip_0971",
+    "label": "GeoCLIP Reference 971",
+    "lat": 44.238527,
+    "lon": 9.507465
+  },
+  {
+    "id": "geoclip_0972",
+    "label": "GeoCLIP Reference 972",
+    "lat": 57.1335,
+    "lon": 10.39983
+  },
+  {
+    "id": "geoclip_0973",
+    "label": "GeoCLIP Reference 973",
+    "lat": 48.302655,
+    "lon": 14.291446
+  },
+  {
+    "id": "geoclip_0974",
+    "label": "GeoCLIP Reference 974",
+    "lat": 43.747785,
+    "lon": -121.985321
+  },
+  {
+    "id": "geoclip_0975",
+    "label": "GeoCLIP Reference 975",
+    "lat": 9.016699,
+    "lon": -65.5167
+  },
+  {
+    "id": "geoclip_0976",
+    "label": "GeoCLIP Reference 976",
+    "lat": 40.423167,
+    "lon": -3.710632
+  },
+  {
+    "id": "geoclip_0977",
+    "label": "GeoCLIP Reference 977",
+    "lat": 47.932543,
+    "lon": -122.303806
+  },
+  {
+    "id": "geoclip_0978",
+    "label": "GeoCLIP Reference 978",
+    "lat": 16.46517,
+    "lon": 107.593231
+  },
+  {
+    "id": "geoclip_0979",
+    "label": "GeoCLIP Reference 979",
+    "lat": 52.257943,
+    "lon": 9.044408
+  },
+  {
+    "id": "geoclip_0980",
+    "label": "GeoCLIP Reference 980",
+    "lat": 48.852686,
+    "lon": 2.3544
+  },
+  {
+    "id": "geoclip_0981",
+    "label": "GeoCLIP Reference 981",
+    "lat": 40.759139,
+    "lon": -73.979262
+  },
+  {
+    "id": "geoclip_0982",
+    "label": "GeoCLIP Reference 982",
+    "lat": 59.32181,
+    "lon": 17.989543
+  },
+  {
+    "id": "geoclip_0983",
+    "label": "GeoCLIP Reference 983",
+    "lat": 55.433347,
+    "lon": 37.774772
+  },
+  {
+    "id": "geoclip_0984",
+    "label": "GeoCLIP Reference 984",
+    "lat": 43.211494,
+    "lon": -78.448219
+  },
+  {
+    "id": "geoclip_0985",
+    "label": "GeoCLIP Reference 985",
+    "lat": 48.306754,
+    "lon": 14.289919
+  },
+  {
+    "id": "geoclip_0986",
+    "label": "GeoCLIP Reference 986",
+    "lat": 45.044297,
+    "lon": -78.283252
+  },
+  {
+    "id": "geoclip_0987",
+    "label": "GeoCLIP Reference 987",
+    "lat": -29.90078,
+    "lon": -71.244766
+  },
+  {
+    "id": "geoclip_0988",
+    "label": "GeoCLIP Reference 988",
+    "lat": 38.934413,
+    "lon": -77.021981
+  },
+  {
+    "id": "geoclip_0989",
+    "label": "GeoCLIP Reference 989",
+    "lat": 47.521742,
+    "lon": -111.181002
+  },
+  {
+    "id": "geoclip_0990",
+    "label": "GeoCLIP Reference 990",
+    "lat": 37.980434,
+    "lon": -90.043988
+  },
+  {
+    "id": "geoclip_0991",
+    "label": "GeoCLIP Reference 991",
+    "lat": 40.721924,
+    "lon": -73.642816
+  },
+  {
+    "id": "geoclip_0992",
+    "label": "GeoCLIP Reference 992",
+    "lat": 47.621246,
+    "lon": -122.320892
+  },
+  {
+    "id": "geoclip_0993",
+    "label": "GeoCLIP Reference 993",
+    "lat": 33.663494,
+    "lon": -117.298617
+  },
+  {
+    "id": "geoclip_0994",
+    "label": "GeoCLIP Reference 994",
+    "lat": 24.595013,
+    "lon": 73.681244
+  },
+  {
+    "id": "geoclip_0995",
+    "label": "GeoCLIP Reference 995",
+    "lat": 44.051323,
+    "lon": -123.086185
+  },
+  {
+    "id": "geoclip_0996",
+    "label": "GeoCLIP Reference 996",
+    "lat": 41.389746,
+    "lon": 2.168297
+  },
+  {
+    "id": "geoclip_0997",
+    "label": "GeoCLIP Reference 997",
+    "lat": 40.75818,
+    "lon": -73.985924
+  },
+  {
+    "id": "geoclip_0998",
+    "label": "GeoCLIP Reference 998",
+    "lat": 31.254157,
+    "lon": 121.512308
+  },
+  {
+    "id": "geoclip_0999",
+    "label": "GeoCLIP Reference 999",
+    "lat": 46.499618,
+    "lon": 2.433868
+  },
+  {
+    "id": "geoclip_1000",
+    "label": "GeoCLIP Reference 1000",
+    "lat": 38.007897,
+    "lon": -78.48092
+  },
+  {
+    "id": "geoclip_1001",
+    "label": "GeoCLIP Reference 1001",
+    "lat": 51.555301,
+    "lon": -1.773719
+  },
+  {
+    "id": "geoclip_1002",
+    "label": "GeoCLIP Reference 1002",
+    "lat": -0.780005,
+    "lon": -91.153564
+  },
+  {
+    "id": "geoclip_1003",
+    "label": "GeoCLIP Reference 1003",
+    "lat": 41.403507,
+    "lon": 2.174327
+  },
+  {
+    "id": "geoclip_1004",
+    "label": "GeoCLIP Reference 1004",
+    "lat": 61.516223,
+    "lon": 23.663697
+  },
+  {
+    "id": "geoclip_1005",
+    "label": "GeoCLIP Reference 1005",
+    "lat": 39.160331,
+    "lon": -76.495206
+  },
+  {
+    "id": "geoclip_1006",
+    "label": "GeoCLIP Reference 1006",
+    "lat": 39.906444,
+    "lon": 116.390705
+  },
+  {
+    "id": "geoclip_1007",
+    "label": "GeoCLIP Reference 1007",
+    "lat": 50.896699,
+    "lon": -114.063481
+  },
+  {
+    "id": "geoclip_1008",
+    "label": "GeoCLIP Reference 1008",
+    "lat": 45.510873,
+    "lon": -73.563412
+  },
+  {
+    "id": "geoclip_1009",
+    "label": "GeoCLIP Reference 1009",
+    "lat": 28.554822,
+    "lon": 34.520947
+  },
+  {
+    "id": "geoclip_1010",
+    "label": "GeoCLIP Reference 1010",
+    "lat": 48.205999,
+    "lon": 16.363856
+  },
+  {
+    "id": "geoclip_1011",
+    "label": "GeoCLIP Reference 1011",
+    "lat": -38.742837,
+    "lon": 176.056594
+  },
+  {
+    "id": "geoclip_1012",
+    "label": "GeoCLIP Reference 1012",
+    "lat": 49.374165,
+    "lon": -123.214663
+  },
+  {
+    "id": "geoclip_1013",
+    "label": "GeoCLIP Reference 1013",
+    "lat": 10.294029,
+    "lon": -85.848648
+  },
+  {
+    "id": "geoclip_1014",
+    "label": "GeoCLIP Reference 1014",
+    "lat": -15.855805,
+    "lon": -71.104888
+  },
+  {
+    "id": "geoclip_1015",
+    "label": "GeoCLIP Reference 1015",
+    "lat": 40.610393,
+    "lon": -80.018497
+  },
+  {
+    "id": "geoclip_1016",
+    "label": "GeoCLIP Reference 1016",
+    "lat": 52.23999,
+    "lon": -106.763236
+  },
+  {
+    "id": "geoclip_1017",
+    "label": "GeoCLIP Reference 1017",
+    "lat": -24.79483,
+    "lon": -65.398239
+  },
+  {
+    "id": "geoclip_1018",
+    "label": "GeoCLIP Reference 1018",
+    "lat": 51.496761,
+    "lon": -0.172133
+  },
+  {
+    "id": "geoclip_1019",
+    "label": "GeoCLIP Reference 1019",
+    "lat": 37.877563,
+    "lon": 24.88326
+  },
+  {
+    "id": "geoclip_1020",
+    "label": "GeoCLIP Reference 1020",
+    "lat": 42.007468,
+    "lon": 21.456298
+  },
+  {
+    "id": "geoclip_1021",
+    "label": "GeoCLIP Reference 1021",
+    "lat": -30.036154,
+    "lon": -51.207103
+  },
+  {
+    "id": "geoclip_1022",
+    "label": "GeoCLIP Reference 1022",
+    "lat": 60.453672,
+    "lon": 22.260561
+  },
+  {
+    "id": "geoclip_1023",
+    "label": "GeoCLIP Reference 1023",
+    "lat": 38.570414,
+    "lon": -90.420023
+  },
+  {
+    "id": "geoclip_1024",
+    "label": "GeoCLIP Reference 1024",
+    "lat": 39.287666,
+    "lon": -76.619167
+  },
+  {
+    "id": "geoclip_1025",
+    "label": "GeoCLIP Reference 1025",
+    "lat": 39.125665,
+    "lon": 117.192535
+  },
+  {
+    "id": "geoclip_1026",
+    "label": "GeoCLIP Reference 1026",
+    "lat": 42.004758,
+    "lon": -91.700928
+  },
+  {
+    "id": "geoclip_1027",
+    "label": "GeoCLIP Reference 1027",
+    "lat": 34.2004,
+    "lon": -118.210594
+  },
+  {
+    "id": "geoclip_1028",
+    "label": "GeoCLIP Reference 1028",
+    "lat": 42.59508,
+    "lon": 0.545024
+  },
+  {
+    "id": "geoclip_1029",
+    "label": "GeoCLIP Reference 1029",
+    "lat": 45.03165,
+    "lon": 7.66694
+  },
+  {
+    "id": "geoclip_1030",
+    "label": "GeoCLIP Reference 1030",
+    "lat": 45.5756,
+    "lon": -122.128121
+  },
+  {
+    "id": "geoclip_1031",
+    "label": "GeoCLIP Reference 1031",
+    "lat": 50.15496,
+    "lon": -5.037918
+  },
+  {
+    "id": "geoclip_1032",
+    "label": "GeoCLIP Reference 1032",
+    "lat": 41.37392,
+    "lon": -81.847534
+  },
+  {
+    "id": "geoclip_1033",
+    "label": "GeoCLIP Reference 1033",
+    "lat": 41.131082,
+    "lon": -3.812127
+  },
+  {
+    "id": "geoclip_1034",
+    "label": "GeoCLIP Reference 1034",
+    "lat": 36.458292,
+    "lon": -114.521484
+  },
+  {
+    "id": "geoclip_1035",
+    "label": "GeoCLIP Reference 1035",
+    "lat": 36.176128,
+    "lon": -115.155601
+  },
+  {
+    "id": "geoclip_1036",
+    "label": "GeoCLIP Reference 1036",
+    "lat": 33.762699,
+    "lon": -118.137779
+  },
+  {
+    "id": "geoclip_1037",
+    "label": "GeoCLIP Reference 1037",
+    "lat": 39.770679,
+    "lon": -84.07427
+  },
+  {
+    "id": "geoclip_1038",
+    "label": "GeoCLIP Reference 1038",
+    "lat": 28.479555,
+    "lon": 33.949813
+  },
+  {
+    "id": "geoclip_1039",
+    "label": "GeoCLIP Reference 1039",
+    "lat": 56.338109,
+    "lon": -2.794507
+  },
+  {
+    "id": "geoclip_1040",
+    "label": "GeoCLIP Reference 1040",
+    "lat": 36.1613,
+    "lon": -112.710285
+  },
+  {
+    "id": "geoclip_1041",
+    "label": "GeoCLIP Reference 1041",
+    "lat": 32.811555,
+    "lon": -97.157893
+  },
+  {
+    "id": "geoclip_1042",
+    "label": "GeoCLIP Reference 1042",
+    "lat": 35.316786,
+    "lon": 139.535766
+  },
+  {
+    "id": "geoclip_1043",
+    "label": "GeoCLIP Reference 1043",
+    "lat": -34.522398,
+    "lon": -58.452758
+  },
+  {
+    "id": "geoclip_1044",
+    "label": "GeoCLIP Reference 1044",
+    "lat": 50.791901,
+    "lon": -1.092233
+  },
+  {
+    "id": "geoclip_1045",
+    "label": "GeoCLIP Reference 1045",
+    "lat": 57.001671,
+    "lon": -3.439922
+  },
+  {
+    "id": "geoclip_1046",
+    "label": "GeoCLIP Reference 1046",
+    "lat": 20.616666,
+    "lon": -105.25
+  },
+  {
+    "id": "geoclip_1047",
+    "label": "GeoCLIP Reference 1047",
+    "lat": 48.586416,
+    "lon": 7.755167
+  },
+  {
+    "id": "geoclip_1048",
+    "label": "GeoCLIP Reference 1048",
+    "lat": 40.47914,
+    "lon": -3.686728
+  },
+  {
+    "id": "geoclip_1049",
+    "label": "GeoCLIP Reference 1049",
+    "lat": 51.496293,
+    "lon": -0.176231
+  },
+  {
+    "id": "geoclip_1050",
+    "label": "GeoCLIP Reference 1050",
+    "lat": 37.552811,
+    "lon": -122.264485
+  },
+  {
+    "id": "geoclip_1051",
+    "label": "GeoCLIP Reference 1051",
+    "lat": 52.085024,
+    "lon": 5.122665
+  },
+  {
+    "id": "geoclip_1052",
+    "label": "GeoCLIP Reference 1052",
+    "lat": 41.150594,
+    "lon": -81.360132
+  },
+  {
+    "id": "geoclip_1053",
+    "label": "GeoCLIP Reference 1053",
+    "lat": 40.751892,
+    "lon": -73.984802
+  },
+  {
+    "id": "geoclip_1054",
+    "label": "GeoCLIP Reference 1054",
+    "lat": 34.68524,
+    "lon": 135.500736
+  },
+  {
+    "id": "geoclip_1055",
+    "label": "GeoCLIP Reference 1055",
+    "lat": 37.778075,
+    "lon": -122.51378
+  },
+  {
+    "id": "geoclip_1056",
+    "label": "GeoCLIP Reference 1056",
+    "lat": 51.4472,
+    "lon": 5.500577
+  },
+  {
+    "id": "geoclip_1057",
+    "label": "GeoCLIP Reference 1057",
+    "lat": 43.698172,
+    "lon": 7.27945
+  },
+  {
+    "id": "geoclip_1058",
+    "label": "GeoCLIP Reference 1058",
+    "lat": 25.101993,
+    "lon": 121.524079
+  },
+  {
+    "id": "geoclip_1059",
+    "label": "GeoCLIP Reference 1059",
+    "lat": 35.703055,
+    "lon": 139.76941
+  },
+  {
+    "id": "geoclip_1060",
+    "label": "GeoCLIP Reference 1060",
+    "lat": 26.924662,
+    "lon": 75.81842
+  },
+  {
+    "id": "geoclip_1061",
+    "label": "GeoCLIP Reference 1061",
+    "lat": 33.769147,
+    "lon": -118.191975
+  },
+  {
+    "id": "geoclip_1062",
+    "label": "GeoCLIP Reference 1062",
+    "lat": 37.413987,
+    "lon": -122.077696
+  },
+  {
+    "id": "geoclip_1063",
+    "label": "GeoCLIP Reference 1063",
+    "lat": 55.354696,
+    "lon": -131.693801
+  },
+  {
+    "id": "geoclip_1064",
+    "label": "GeoCLIP Reference 1064",
+    "lat": 36.648313,
+    "lon": -117.043361
+  },
+  {
+    "id": "geoclip_1065",
+    "label": "GeoCLIP Reference 1065",
+    "lat": 41.963483,
+    "lon": 12.795681
+  },
+  {
+    "id": "geoclip_1066",
+    "label": "GeoCLIP Reference 1066",
+    "lat": 43.059084,
+    "lon": -89.409743
+  },
+  {
+    "id": "geoclip_1067",
+    "label": "GeoCLIP Reference 1067",
+    "lat": 59.403598,
+    "lon": 17.943077
+  },
+  {
+    "id": "geoclip_1068",
+    "label": "GeoCLIP Reference 1068",
+    "lat": -33.883864,
+    "lon": 151.203058
+  },
+  {
+    "id": "geoclip_1069",
+    "label": "GeoCLIP Reference 1069",
+    "lat": 48.212234,
+    "lon": 16.402888
+  },
+  {
+    "id": "geoclip_1070",
+    "label": "GeoCLIP Reference 1070",
+    "lat": 45.441784,
+    "lon": 12.328274
+  },
+  {
+    "id": "geoclip_1071",
+    "label": "GeoCLIP Reference 1071",
+    "lat": 45.051777,
+    "lon": 6.305336
+  },
+  {
+    "id": "geoclip_1072",
+    "label": "GeoCLIP Reference 1072",
+    "lat": 22.407041,
+    "lon": 114.12177
+  },
+  {
+    "id": "geoclip_1073",
+    "label": "GeoCLIP Reference 1073",
+    "lat": 32.045678,
+    "lon": 34.745399
+  },
+  {
+    "id": "geoclip_1074",
+    "label": "GeoCLIP Reference 1074",
+    "lat": 52.205759,
+    "lon": 0.120361
+  },
+  {
+    "id": "geoclip_1075",
+    "label": "GeoCLIP Reference 1075",
+    "lat": 21.279995,
+    "lon": -157.826733
+  },
+  {
+    "id": "geoclip_1076",
+    "label": "GeoCLIP Reference 1076",
+    "lat": 55.945,
+    "lon": -3.188588
+  },
+  {
+    "id": "geoclip_1077",
+    "label": "GeoCLIP Reference 1077",
+    "lat": 35.553736,
+    "lon": 139.794416
+  },
+  {
+    "id": "geoclip_1078",
+    "label": "GeoCLIP Reference 1078",
+    "lat": 55.636872,
+    "lon": 13.280004
+  },
+  {
+    "id": "geoclip_1079",
+    "label": "GeoCLIP Reference 1079",
+    "lat": 51.861042,
+    "lon": 13.962678
+  },
+  {
+    "id": "geoclip_1080",
+    "label": "GeoCLIP Reference 1080",
+    "lat": 52.520294,
+    "lon": -1.890957
+  },
+  {
+    "id": "geoclip_1081",
+    "label": "GeoCLIP Reference 1081",
+    "lat": 39.859438,
+    "lon": -0.184269
+  },
+  {
+    "id": "geoclip_1082",
+    "label": "GeoCLIP Reference 1082",
+    "lat": 36.214738,
+    "lon": -86.613073
+  },
+  {
+    "id": "geoclip_1083",
+    "label": "GeoCLIP Reference 1083",
+    "lat": 41.899202,
+    "lon": 12.499973
+  },
+  {
+    "id": "geoclip_1084",
+    "label": "GeoCLIP Reference 1084",
+    "lat": 51.872781,
+    "lon": 1.010141
+  },
+  {
+    "id": "geoclip_1085",
+    "label": "GeoCLIP Reference 1085",
+    "lat": 51.606166,
+    "lon": 12.574333
+  },
+  {
+    "id": "geoclip_1086",
+    "label": "GeoCLIP Reference 1086",
+    "lat": 39.909012,
+    "lon": 119.60884
+  },
+  {
+    "id": "geoclip_1087",
+    "label": "GeoCLIP Reference 1087",
+    "lat": 47.49366,
+    "lon": 11.087265
+  },
+  {
+    "id": "geoclip_1088",
+    "label": "GeoCLIP Reference 1088",
+    "lat": 49.315611,
+    "lon": -123.139915
+  },
+  {
+    "id": "geoclip_1089",
+    "label": "GeoCLIP Reference 1089",
+    "lat": 42.32507,
+    "lon": -83.051099
+  },
+  {
+    "id": "geoclip_1090",
+    "label": "GeoCLIP Reference 1090",
+    "lat": 37.619925,
+    "lon": 127.068655
+  },
+  {
+    "id": "geoclip_1091",
+    "label": "GeoCLIP Reference 1091",
+    "lat": 36.131228,
+    "lon": -115.151009
+  },
+  {
+    "id": "geoclip_1092",
+    "label": "GeoCLIP Reference 1092",
+    "lat": 52.079835,
+    "lon": 4.315695
+  },
+  {
+    "id": "geoclip_1093",
+    "label": "GeoCLIP Reference 1093",
+    "lat": 35.162582,
+    "lon": -90.041542
+  },
+  {
+    "id": "geoclip_1094",
+    "label": "GeoCLIP Reference 1094",
+    "lat": 48.86082,
+    "lon": 2.393984
+  },
+  {
+    "id": "geoclip_1095",
+    "label": "GeoCLIP Reference 1095",
+    "lat": 50.257193,
+    "lon": 19.024286
+  },
+  {
+    "id": "geoclip_1096",
+    "label": "GeoCLIP Reference 1096",
+    "lat": 49.281549,
+    "lon": -123.07448
+  },
+  {
+    "id": "geoclip_1097",
+    "label": "GeoCLIP Reference 1097",
+    "lat": 33.758009,
+    "lon": -84.362307
+  },
+  {
+    "id": "geoclip_1098",
+    "label": "GeoCLIP Reference 1098",
+    "lat": 41.888276,
+    "lon": 2.870746
+  },
+  {
+    "id": "geoclip_1099",
+    "label": "GeoCLIP Reference 1099",
+    "lat": 51.5048,
+    "lon": -0.101487
+  },
+  {
+    "id": "geoclip_1100",
+    "label": "GeoCLIP Reference 1100",
+    "lat": 37.786483,
+    "lon": -80.30876
+  },
+  {
+    "id": "geoclip_1101",
+    "label": "GeoCLIP Reference 1101",
+    "lat": 51.078888,
+    "lon": 17.754166
+  },
+  {
+    "id": "geoclip_1102",
+    "label": "GeoCLIP Reference 1102",
+    "lat": -29.368711,
+    "lon": -50.786962
+  },
+  {
+    "id": "geoclip_1103",
+    "label": "GeoCLIP Reference 1103",
+    "lat": 34.374399,
+    "lon": -118.524112
+  },
+  {
+    "id": "geoclip_1104",
+    "label": "GeoCLIP Reference 1104",
+    "lat": 42.358353,
+    "lon": -71.063818
+  },
+  {
+    "id": "geoclip_1105",
+    "label": "GeoCLIP Reference 1105",
+    "lat": 44.816063,
+    "lon": 9.979577
+  },
+  {
+    "id": "geoclip_1106",
+    "label": "GeoCLIP Reference 1106",
+    "lat": 59.423829,
+    "lon": 10.487469
+  },
+  {
+    "id": "geoclip_1107",
+    "label": "GeoCLIP Reference 1107",
+    "lat": 43.648334,
+    "lon": -79.398254
+  },
+  {
+    "id": "geoclip_1108",
+    "label": "GeoCLIP Reference 1108",
+    "lat": 38.844591,
+    "lon": -106.212944
+  },
+  {
+    "id": "geoclip_1109",
+    "label": "GeoCLIP Reference 1109",
+    "lat": 43.536925,
+    "lon": 6.4548
+  },
+  {
+    "id": "geoclip_1110",
+    "label": "GeoCLIP Reference 1110",
+    "lat": 37.80385,
+    "lon": -122.32491
+  },
+  {
+    "id": "geoclip_1111",
+    "label": "GeoCLIP Reference 1111",
+    "lat": 35.694558,
+    "lon": 139.800832
+  },
+  {
+    "id": "geoclip_1112",
+    "label": "GeoCLIP Reference 1112",
+    "lat": 54.334666,
+    "lon": 10.153
+  },
+  {
+    "id": "geoclip_1113",
+    "label": "GeoCLIP Reference 1113",
+    "lat": 52.479026,
+    "lon": -1.934103
+  },
+  {
+    "id": "geoclip_1114",
+    "label": "GeoCLIP Reference 1114",
+    "lat": 33.909175,
+    "lon": -116.529922
+  },
+  {
+    "id": "geoclip_1115",
+    "label": "GeoCLIP Reference 1115",
+    "lat": 52.284961,
+    "lon": -2.34541
+  },
+  {
+    "id": "geoclip_1116",
+    "label": "GeoCLIP Reference 1116",
+    "lat": 34.024,
+    "lon": -84.335
+  },
+  {
+    "id": "geoclip_1117",
+    "label": "GeoCLIP Reference 1117",
+    "lat": 3.422825,
+    "lon": 101.79154
+  },
+  {
+    "id": "geoclip_1118",
+    "label": "GeoCLIP Reference 1118",
+    "lat": 46.098828,
+    "lon": -77.493782
+  },
+  {
+    "id": "geoclip_1119",
+    "label": "GeoCLIP Reference 1119",
+    "lat": 51.448518,
+    "lon": -0.003937
+  },
+  {
+    "id": "geoclip_1120",
+    "label": "GeoCLIP Reference 1120",
+    "lat": 63.730145,
+    "lon": -148.891981
+  },
+  {
+    "id": "geoclip_1121",
+    "label": "GeoCLIP Reference 1121",
+    "lat": 50.778763,
+    "lon": -1.250175
+  },
+  {
+    "id": "geoclip_1122",
+    "label": "GeoCLIP Reference 1122",
+    "lat": 46.736919,
+    "lon": 8.681288
+  },
+  {
+    "id": "geoclip_1123",
+    "label": "GeoCLIP Reference 1123",
+    "lat": -36.88637,
+    "lon": 175.82295
+  },
+  {
+    "id": "geoclip_1124",
+    "label": "GeoCLIP Reference 1124",
+    "lat": 45.363664,
+    "lon": 4.457874
+  },
+  {
+    "id": "geoclip_1125",
+    "label": "GeoCLIP Reference 1125",
+    "lat": 50.534812,
+    "lon": 9.684307
+  },
+  {
+    "id": "geoclip_1126",
+    "label": "GeoCLIP Reference 1126",
+    "lat": 6.234418,
+    "lon": -75.57312
+  },
+  {
+    "id": "geoclip_1127",
+    "label": "GeoCLIP Reference 1127",
+    "lat": 51.543,
+    "lon": 7.142
+  },
+  {
+    "id": "geoclip_1128",
+    "label": "GeoCLIP Reference 1128",
+    "lat": 28.292289,
+    "lon": -16.52086
+  },
+  {
+    "id": "geoclip_1129",
+    "label": "GeoCLIP Reference 1129",
+    "lat": 45.798833,
+    "lon": 4.8075
+  },
+  {
+    "id": "geoclip_1130",
+    "label": "GeoCLIP Reference 1130",
+    "lat": 20.381802,
+    "lon": -76.642856
+  },
+  {
+    "id": "geoclip_1131",
+    "label": "GeoCLIP Reference 1131",
+    "lat": 40.420303,
+    "lon": -3.705763
+  },
+  {
+    "id": "geoclip_1132",
+    "label": "GeoCLIP Reference 1132",
+    "lat": 27.952065,
+    "lon": 109.599995
+  },
+  {
+    "id": "geoclip_1133",
+    "label": "GeoCLIP Reference 1133",
+    "lat": 46.963273,
+    "lon": 7.460072
+  },
+  {
+    "id": "geoclip_1134",
+    "label": "GeoCLIP Reference 1134",
+    "lat": 54.914461,
+    "lon": -1.588711
+  },
+  {
+    "id": "geoclip_1135",
+    "label": "GeoCLIP Reference 1135",
+    "lat": 25.034555,
+    "lon": 121.564321
+  },
+  {
+    "id": "geoclip_1136",
+    "label": "GeoCLIP Reference 1136",
+    "lat": 9.666499,
+    "lon": -85.049972
+  },
+  {
+    "id": "geoclip_1137",
+    "label": "GeoCLIP Reference 1137",
+    "lat": 40.756493,
+    "lon": -73.845248
+  },
+  {
+    "id": "geoclip_1138",
+    "label": "GeoCLIP Reference 1138",
+    "lat": 46.769468,
+    "lon": -71.252667
+  },
+  {
+    "id": "geoclip_1139",
+    "label": "GeoCLIP Reference 1139",
+    "lat": 48.393079,
+    "lon": -4.484546
+  },
+  {
+    "id": "geoclip_1140",
+    "label": "GeoCLIP Reference 1140",
+    "lat": 38.784665,
+    "lon": -109.598751
+  },
+  {
+    "id": "geoclip_1141",
+    "label": "GeoCLIP Reference 1141",
+    "lat": -25.386146,
+    "lon": -49.236355
+  },
+  {
+    "id": "geoclip_1142",
+    "label": "GeoCLIP Reference 1142",
+    "lat": 41.502149,
+    "lon": -6.279029
+  },
+  {
+    "id": "geoclip_1143",
+    "label": "GeoCLIP Reference 1143",
+    "lat": 14.011444,
+    "lon": -16.743378
+  },
+  {
+    "id": "geoclip_1144",
+    "label": "GeoCLIP Reference 1144",
+    "lat": 37.648966,
+    "lon": -112.146978
+  },
+  {
+    "id": "geoclip_1145",
+    "label": "GeoCLIP Reference 1145",
+    "lat": 35.177596,
+    "lon": -93.587722
+  },
+  {
+    "id": "geoclip_1146",
+    "label": "GeoCLIP Reference 1146",
+    "lat": 51.502184,
+    "lon": -0.126224
+  },
+  {
+    "id": "geoclip_1147",
+    "label": "GeoCLIP Reference 1147",
+    "lat": 9.750678,
+    "lon": -82.834167
+  },
+  {
+    "id": "geoclip_1148",
+    "label": "GeoCLIP Reference 1148",
+    "lat": 18.42716,
+    "lon": -66.053463
+  },
+  {
+    "id": "geoclip_1149",
+    "label": "GeoCLIP Reference 1149",
+    "lat": 43.149782,
+    "lon": 1.392817
+  },
+  {
+    "id": "geoclip_1150",
+    "label": "GeoCLIP Reference 1150",
+    "lat": 37.7397,
+    "lon": -119.5648
+  },
+  {
+    "id": "geoclip_1151",
+    "label": "GeoCLIP Reference 1151",
+    "lat": 35.508603,
+    "lon": 11.083033
+  },
+  {
+    "id": "geoclip_1152",
+    "label": "GeoCLIP Reference 1152",
+    "lat": 51.503526,
+    "lon": -0.17975
+  },
+  {
+    "id": "geoclip_1153",
+    "label": "GeoCLIP Reference 1153",
+    "lat": 61.599946,
+    "lon": -149.309091
+  },
+  {
+    "id": "geoclip_1154",
+    "label": "GeoCLIP Reference 1154",
+    "lat": 37.181655,
+    "lon": 49.000396
+  },
+  {
+    "id": "geoclip_1155",
+    "label": "GeoCLIP Reference 1155",
+    "lat": 51.507994,
+    "lon": -0.260066
+  },
+  {
+    "id": "geoclip_1156",
+    "label": "GeoCLIP Reference 1156",
+    "lat": 48.130995,
+    "lon": 11.549828
+  },
+  {
+    "id": "geoclip_1157",
+    "label": "GeoCLIP Reference 1157",
+    "lat": 53.533333,
+    "lon": -113.617
+  },
+  {
+    "id": "geoclip_1158",
+    "label": "GeoCLIP Reference 1158",
+    "lat": 41.651655,
+    "lon": -8.438701
+  },
+  {
+    "id": "geoclip_1159",
+    "label": "GeoCLIP Reference 1159",
+    "lat": 52.518571,
+    "lon": 13.376122
+  },
+  {
+    "id": "geoclip_1160",
+    "label": "GeoCLIP Reference 1160",
+    "lat": 35.69705,
+    "lon": 139.771049
+  },
+  {
+    "id": "geoclip_1161",
+    "label": "GeoCLIP Reference 1161",
+    "lat": 42.503044,
+    "lon": -89.021156
+  },
+  {
+    "id": "geoclip_1162",
+    "label": "GeoCLIP Reference 1162",
+    "lat": 34.687851,
+    "lon": -84.082145
+  },
+  {
+    "id": "geoclip_1163",
+    "label": "GeoCLIP Reference 1163",
+    "lat": 37.759994,
+    "lon": -25.310955
+  },
+  {
+    "id": "geoclip_1164",
+    "label": "GeoCLIP Reference 1164",
+    "lat": 17.436475,
+    "lon": -88.136959
+  },
+  {
+    "id": "geoclip_1165",
+    "label": "GeoCLIP Reference 1165",
+    "lat": 35.57678,
+    "lon": 140.122921
+  },
+  {
+    "id": "geoclip_1166",
+    "label": "GeoCLIP Reference 1166",
+    "lat": -38.368915,
+    "lon": -73.91344
+  },
+  {
+    "id": "geoclip_1167",
+    "label": "GeoCLIP Reference 1167",
+    "lat": 41.879685,
+    "lon": -87.62176
+  },
+  {
+    "id": "geoclip_1168",
+    "label": "GeoCLIP Reference 1168",
+    "lat": 43.110622,
+    "lon": 92.665061
+  },
+  {
+    "id": "geoclip_1169",
+    "label": "GeoCLIP Reference 1169",
+    "lat": 51.781435,
+    "lon": -120.9375
+  },
+  {
+    "id": "geoclip_1170",
+    "label": "GeoCLIP Reference 1170",
+    "lat": -23.43593,
+    "lon": -58.851509
+  },
+  {
+    "id": "geoclip_1171",
+    "label": "GeoCLIP Reference 1171",
+    "lat": 22.619447,
+    "lon": 120.2925
+  },
+  {
+    "id": "geoclip_1172",
+    "label": "GeoCLIP Reference 1172",
+    "lat": 49.361973,
+    "lon": 0.06596
+  },
+  {
+    "id": "geoclip_1173",
+    "label": "GeoCLIP Reference 1173",
+    "lat": 58.40357,
+    "lon": 15.598497
+  },
+  {
+    "id": "geoclip_1174",
+    "label": "GeoCLIP Reference 1174",
+    "lat": 59.329821,
+    "lon": 18.074344
+  },
+  {
+    "id": "geoclip_1175",
+    "label": "GeoCLIP Reference 1175",
+    "lat": 44.9783,
+    "lon": 9.07711
+  },
+  {
+    "id": "geoclip_1176",
+    "label": "GeoCLIP Reference 1176",
+    "lat": 25.061343,
+    "lon": 121.55548
+  },
+  {
+    "id": "geoclip_1177",
+    "label": "GeoCLIP Reference 1177",
+    "lat": 41.920736,
+    "lon": -87.603821
+  },
+  {
+    "id": "geoclip_1178",
+    "label": "GeoCLIP Reference 1178",
+    "lat": 38.725027,
+    "lon": -9.159654
+  },
+  {
+    "id": "geoclip_1179",
+    "label": "GeoCLIP Reference 1179",
+    "lat": 19.007375,
+    "lon": 72.821438
+  },
+  {
+    "id": "geoclip_1180",
+    "label": "GeoCLIP Reference 1180",
+    "lat": 48.442753,
+    "lon": 2.176365
+  },
+  {
+    "id": "geoclip_1181",
+    "label": "GeoCLIP Reference 1181",
+    "lat": 58.352973,
+    "lon": -134.606037
+  },
+  {
+    "id": "geoclip_1182",
+    "label": "GeoCLIP Reference 1182",
+    "lat": 52.197333,
+    "lon": -113.233167
+  },
+  {
+    "id": "geoclip_1183",
+    "label": "GeoCLIP Reference 1183",
+    "lat": 55.420005,
+    "lon": -1.716613
+  },
+  {
+    "id": "geoclip_1184",
+    "label": "GeoCLIP Reference 1184",
+    "lat": 47.792313,
+    "lon": 12.460813
+  },
+  {
+    "id": "geoclip_1185",
+    "label": "GeoCLIP Reference 1185",
+    "lat": -33.621909,
+    "lon": -69.961109
+  },
+  {
+    "id": "geoclip_1186",
+    "label": "GeoCLIP Reference 1186",
+    "lat": 37.517419,
+    "lon": 15.064401
+  },
+  {
+    "id": "geoclip_1187",
+    "label": "GeoCLIP Reference 1187",
+    "lat": 40.549772,
+    "lon": -91.381994
+  },
+  {
+    "id": "geoclip_1188",
+    "label": "GeoCLIP Reference 1188",
+    "lat": 48.860352,
+    "lon": 2.338736
+  },
+  {
+    "id": "geoclip_1189",
+    "label": "GeoCLIP Reference 1189",
+    "lat": 33.732869,
+    "lon": -118.255634
+  },
+  {
+    "id": "geoclip_1190",
+    "label": "GeoCLIP Reference 1190",
+    "lat": 26.144035,
+    "lon": -81.79244
+  },
+  {
+    "id": "geoclip_1191",
+    "label": "GeoCLIP Reference 1191",
+    "lat": 44.054939,
+    "lon": -123.081861
+  },
+  {
+    "id": "geoclip_1192",
+    "label": "GeoCLIP Reference 1192",
+    "lat": 41.890585,
+    "lon": 12.492055
+  },
+  {
+    "id": "geoclip_1193",
+    "label": "GeoCLIP Reference 1193",
+    "lat": -37.170781,
+    "lon": 144.236927
+  },
+  {
+    "id": "geoclip_1194",
+    "label": "GeoCLIP Reference 1194",
+    "lat": 32.090609,
+    "lon": 34.779815
+  },
+  {
+    "id": "geoclip_1195",
+    "label": "GeoCLIP Reference 1195",
+    "lat": 52.254918,
+    "lon": 8.900127
+  },
+  {
+    "id": "geoclip_1196",
+    "label": "GeoCLIP Reference 1196",
+    "lat": 38.629745,
+    "lon": -90.168914
+  },
+  {
+    "id": "geoclip_1197",
+    "label": "GeoCLIP Reference 1197",
+    "lat": 47.51749,
+    "lon": -2.574577
+  },
+  {
+    "id": "geoclip_1198",
+    "label": "GeoCLIP Reference 1198",
+    "lat": 49.717166,
+    "lon": 17.910166
+  },
+  {
+    "id": "geoclip_1199",
+    "label": "GeoCLIP Reference 1199",
+    "lat": 37.835281,
+    "lon": -122.476041
+  },
+  {
+    "id": "geoclip_1200",
+    "label": "GeoCLIP Reference 1200",
+    "lat": 40.775144,
+    "lon": -73.876207
+  }
+]
