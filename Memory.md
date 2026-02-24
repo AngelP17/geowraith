@@ -145,6 +145,11 @@ Persistent project memory for high-signal decisions and context that should surv
   Status: VERIFIED (pipeline functional)
   Confidence: 0.98
   Note: Real-world accuracy remains unvalidated — synthetic benchmark only.
+- 2026-02-24T22:45Z [CODE] [MODELS] Expanded reference dataset from 1,200 to 10,000 coordinates for better geographic coverage; added top-K ensemble prediction (k=5) with outlier rejection; added confidence threshold (0.55) to reject low-quality matches.
+  Evidence: `backend/src/services/geoclipIndex.ts`, `backend/src/services/vectorSearch.ts`, `backend/src/services/predictPipeline.ts`, 148MB reference vector cache
+  Status: VERIFIED
+  Confidence: 0.92
+  Note: Aims to reduce wild misclassifications (e.g., Liverpool → Istanbul); real-world validation still needed.
 - 2026-02-24T21:44Z [CODE] [FRONTEND] Tailwind source scanning is explicitly constrained to `src/**` to prevent Vite build stalls from scanning backend/model artifacts.
   Evidence: `src/index.css`, `npm run build` success (~2s)
   Status: VERIFIED
@@ -173,3 +178,31 @@ Persistent project memory for high-signal decisions and context that should surv
   Evidence: `find src backend/src ... | xargs wc -l | sort -nr | head -n 20`, known issue KI-0013, headless WebGL fallback behavior
   Status: VERIFIED
   Confidence: 0.96
+- 2026-02-24T23:05Z [CODE] [FRONTEND] MapView lifecycle was rewritten to stabilize style switching and marker recreation across Standard/Satellite/3D transitions, with local fallback style when tile providers fail.
+  Evidence: `src/components/product/MapView.tsx`, `src/components/product/mapStyles.ts`, frontend lint/build pass
+  Status: VERIFIED
+  Confidence: 0.95
+- 2026-02-24T23:07Z [CODE] [MODELS] Backend now returns inference diagnostics (`embedding_source`, `reference_index_source`) and applies low-confidence gating for wide-radius ambiguous matches.
+  Evidence: `backend/src/services/predictPipeline.ts`, `backend/src/services/vectorSearch.ts`, `backend/src/types.ts`, backend lint/build/test pass
+  Status: VERIFIED
+  Confidence: 0.96
+- 2026-02-24T23:10Z [TOOL] [MODELS] Live API probe with `/Users/apinzon/Desktop/cape-town-aerial-view-greenpoint-stadium.jpg` returned Cape Town-near coordinates only after restarting backend process, confirming stale-process drift as an operational risk.
+  Evidence: pre-restart mismatch vs post-restart `/api/predict` payloads on 2026-02-24
+  Status: VERIFIED
+  Confidence: 0.98
+- 2026-02-24T23:12Z [CODE] [DETERMINISM] KI-0013 resolved: all active source files are <=300 LOC after splitting Contact, extended content, and reference generator modules.
+  Evidence: `find src backend/src ... | xargs wc -l | sort -nr | head -n 20` (max 297)
+  Status: VERIFIED
+  Confidence: 0.98
+- 2026-02-24T23:16Z [TOOL] [PERF] Updated synthetic benchmark on 10,000 references reports median ~8.84km / p95 ~116.25km; this is an internal consistency signal, not real-world validation.
+  Evidence: `cd backend && npm run benchmark:accuracy` (2026-02-24)
+  Status: VERIFIED
+  Confidence: 0.95
+- 2026-02-24T23:22Z [CODE] [FRONTEND] Removed built-in MapLibre controls to eliminate duplicate/non-functional map buttons; custom control layer is now the only map interaction surface.
+  Evidence: `src/components/product/MapView.tsx`, screenshot-aligned UX fix
+  Status: VERIFIED
+  Confidence: 0.98
+- 2026-02-24T23:23Z [CODE] [MODELS] Increased reference-dataset target to 50,000 coordinates; large-index cache persistence is now skipped above 20k vectors to avoid JSON string-size failures while keeping model-backed in-memory index active.
+  Evidence: `backend/src/scripts/buildReferenceDataset.ts`, `backend/package.json`, `backend/src/data/referenceVectors.ts`, `backend/src/services/geoclipIndex.ts`
+  Status: VERIFIED
+  Confidence: 0.95

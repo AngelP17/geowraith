@@ -1,292 +1,81 @@
 /**
- * Generator for expanded reference vector dataset
+ * Generator for expanded synthetic reference vector dataset.
  *
- * This creates ~600+ reference points with synthetic color-based features.
- * NOTE: This is still a proof-of-concept. Real geolocation requires learned embeddings.
+ * This script is for deterministic fallback data generation only.
+ * Runtime inference uses GeoCLIP embeddings from geoclipIndex.ts.
  */
 
-interface City {
-  id: string;
-  name: string;
-  lat: number;
-  lon: number;
-  climate: 'tropical' | 'arid' | 'temperate' | 'cold' | 'polar';
-  urbanDensity: 'dense' | 'moderate' | 'sparse';
-}
+import { WORLD_CITIES, type City } from './worldCities.js';
 
 const FEATURE_VECTOR_SIZE = 15;
 
-// Generate synthetic color feature vector based on location characteristics
+const climateProfiles = {
+  tropical: { r: 0.45, g: 0.58, b: 0.55, saturation: 0.38 },
+  arid: { r: 0.75, g: 0.65, b: 0.45, saturation: 0.35 },
+  temperate: { r: 0.48, g: 0.52, b: 0.54, saturation: 0.32 },
+  cold: { r: 0.42, g: 0.48, b: 0.56, saturation: 0.3 },
+  polar: { r: 0.85, g: 0.88, b: 0.92, saturation: 0.08 },
+} as const;
+
+const densityProfiles = {
+  dense: { luma: 0.5, variance: 0.16 },
+  moderate: { luma: 0.54, variance: 0.15 },
+  sparse: { luma: 0.6, variance: 0.13 },
+} as const;
+
+function seededUnit(seed: string, salt: number): number {
+  let hash = 2166136261;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash ^= seed.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  hash ^= salt;
+  hash = Math.imul(hash, 2246822519);
+  hash ^= hash >>> 13;
+  hash = Math.imul(hash, 3266489917);
+  hash ^= hash >>> 16;
+  return (hash >>> 0) / 4294967295;
+}
+
+function jitter(seed: string, salt: number, scale: number): number {
+  return (seededUnit(seed, salt) - 0.5) * scale;
+}
+
 function generateVector(city: City): number[] {
-  const vec = new Array(15).fill(0);
-
-  // Base colors influenced by climate
-  const climateProfiles = {
-    tropical: { r: 0.45, g: 0.58, b: 0.55, saturation: 0.38 },
-    arid: { r: 0.75, g: 0.65, b: 0.45, saturation: 0.35 },
-    temperate: { r: 0.48, g: 0.52, b: 0.54, saturation: 0.32 },
-    cold: { r: 0.42, g: 0.48, b: 0.56, saturation: 0.30 },
-    polar: { r: 0.85, g: 0.88, b: 0.92, saturation: 0.08 },
-  };
-
-  const densityProfiles = {
-    dense: { luma: 0.50, variance: 0.16 },
-    moderate: { luma: 0.54, variance: 0.15 },
-    sparse: { luma: 0.60, variance: 0.13 },
-  };
-
+  const vec = new Array<number>(FEATURE_VECTOR_SIZE).fill(0);
   const climate = climateProfiles[city.climate];
   const density = densityProfiles[city.urbanDensity];
 
-  // Add geographic variation based on lat/lon
   const latFactor = Math.abs(city.lat) / 90;
   const lonFactor = (city.lon + 180) / 360;
 
-  // Mean RGB (0-2)
-  vec[0] = climate.r + (Math.random() - 0.5) * 0.08;
-  vec[1] = climate.g + (Math.random() - 0.5) * 0.08;
-  vec[2] = climate.b + (Math.random() - 0.5) * 0.08;
+  vec[0] = climate.r + jitter(city.id, 1, 0.08);
+  vec[1] = climate.g + jitter(city.id, 2, 0.08);
+  vec[2] = climate.b + jitter(city.id, 3, 0.08);
 
-  // Std RGB (3-5)
-  vec[3] = density.variance + (Math.random() - 0.5) * 0.04;
-  vec[4] = density.variance + (Math.random() - 0.5) * 0.04;
-  vec[5] = density.variance + (Math.random() - 0.5) * 0.04;
+  vec[3] = density.variance + jitter(city.id, 4, 0.04);
+  vec[4] = density.variance + jitter(city.id, 5, 0.04);
+  vec[5] = density.variance + jitter(city.id, 6, 0.04);
 
-  // Mean luma (6)
-  vec[6] = density.luma + latFactor * 0.15 + (Math.random() - 0.5) * 0.06;
+  vec[6] = density.luma + latFactor * 0.15 + jitter(city.id, 7, 0.06);
+  vec[7] = 0.12 + density.variance * 0.5 + jitter(city.id, 8, 0.03);
+  vec[8] = climate.saturation + jitter(city.id, 9, 0.06);
 
-  // Std luma (7)
-  vec[7] = 0.12 + density.variance * 0.5 + (Math.random() - 0.5) * 0.03;
-
-  // Mean saturation (8)
-  vec[8] = climate.saturation + (Math.random() - 0.5) * 0.06;
-
-  // Hue histogram (9-14) - 6 bins
   const hueBase = lonFactor * 0.3;
-  for (let i = 9; i < 15; i++) {
+  for (let i = 9; i < FEATURE_VECTOR_SIZE; i += 1) {
     const bin = (i - 9) / 6;
-    vec[i] = Math.max(0.03, Math.min(0.35,
-      hueBase + Math.abs(bin - 0.5) * 0.2 + (Math.random() - 0.5) * 0.05
-    ));
+    vec[i] = clamp01(hueBase + Math.abs(bin - 0.5) * 0.2 + jitter(city.id, i + 10, 0.05), 0.03, 0.35);
   }
 
-  // Normalize
-  return vec.map(v => Math.max(0, Math.min(1, v)));
+  return vec.map((v) => clamp01(v));
 }
 
-// Comprehensive world cities database
-const WORLD_CITIES: City[] = [
-  // North America - USA Major Cities
-  { id: 'us_nyc_manhattan', name: 'New York - Manhattan', lat: 40.7589, lon: -73.9851, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'us_nyc_brooklyn', name: 'New York - Brooklyn', lat: 40.6782, lon: -73.9442, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'us_nyc_queens', name: 'New York - Queens', lat: 40.7282, lon: -73.7949, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'us_la_downtown', name: 'Los Angeles - Downtown', lat: 34.0522, lon: -118.2437, climate: 'arid', urbanDensity: 'dense' },
-  { id: 'us_la_hollywood', name: 'Los Angeles - Hollywood', lat: 34.0928, lon: -118.3287, climate: 'arid', urbanDensity: 'moderate' },
-  { id: 'us_la_santa_monica', name: 'Los Angeles - Santa Monica', lat: 34.0195, lon: -118.4912, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'us_sf_downtown', name: 'San Francisco - Downtown', lat: 37.7749, lon: -122.4194, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'us_sf_mission', name: 'San Francisco - Mission', lat: 37.7599, lon: -122.4148, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'us_chicago_loop', name: 'Chicago - Loop', lat: 41.8781, lon: -87.6298, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'us_chicago_north', name: 'Chicago - North Side', lat: 41.9204, lon: -87.6674, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'us_houston', name: 'Houston', lat: 29.7604, lon: -95.3698, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'us_phoenix', name: 'Phoenix', lat: 33.4484, lon: -112.0740, climate: 'arid', urbanDensity: 'moderate' },
-  { id: 'us_philadelphia', name: 'Philadelphia', lat: 39.9526, lon: -75.1652, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'us_san_antonio', name: 'San Antonio', lat: 29.4241, lon: -98.4936, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'us_san_diego', name: 'San Diego', lat: 32.7157, lon: -117.1611, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'us_dallas', name: 'Dallas', lat: 32.7767, lon: -96.7970, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'us_austin', name: 'Austin', lat: 30.2672, lon: -97.7431, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'us_seattle', name: 'Seattle', lat: 47.6062, lon: -122.3321, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'us_denver', name: 'Denver', lat: 39.7392, lon: -104.9903, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'us_boston', name: 'Boston', lat: 42.3601, lon: -71.0589, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'us_miami', name: 'Miami', lat: 25.7617, lon: -80.1918, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'us_atlanta', name: 'Atlanta', lat: 33.7490, lon: -84.3880, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'us_detroit', name: 'Detroit', lat: 42.3314, lon: -83.0458, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'us_portland', name: 'Portland, OR', lat: 45.5152, lon: -122.6784, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'us_las_vegas', name: 'Las Vegas', lat: 36.1699, lon: -115.1398, climate: 'arid', urbanDensity: 'moderate' },
-  { id: 'us_minneapolis', name: 'Minneapolis', lat: 44.9778, lon: -93.2650, climate: 'cold', urbanDensity: 'moderate' },
-  { id: 'us_nashville', name: 'Nashville', lat: 36.1627, lon: -86.7816, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'us_washington_dc', name: 'Washington DC', lat: 38.9072, lon: -77.0369, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'us_baltimore', name: 'Baltimore', lat: 39.2904, lon: -76.6122, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'us_milwaukee', name: 'Milwaukee', lat: 43.0389, lon: -87.9065, climate: 'temperate', urbanDensity: 'moderate' },
-
-  // Canada
-  { id: 'ca_toronto', name: 'Toronto', lat: 43.6532, lon: -79.3832, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'ca_vancouver', name: 'Vancouver', lat: 49.2827, lon: -123.1207, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'ca_montreal', name: 'Montreal', lat: 45.5017, lon: -73.5673, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'ca_calgary', name: 'Calgary', lat: 51.0447, lon: -114.0719, climate: 'cold', urbanDensity: 'moderate' },
-  { id: 'ca_ottawa', name: 'Ottawa', lat: 45.4215, lon: -75.6972, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'ca_edmonton', name: 'Edmonton', lat: 53.5461, lon: -113.4938, climate: 'cold', urbanDensity: 'moderate' },
-
-  // Mexico & Central America
-  { id: 'mx_mexico_city', name: 'Mexico City', lat: 19.4326, lon: -99.1332, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'mx_guadalajara', name: 'Guadalajara', lat: 20.6597, lon: -103.3496, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'mx_monterrey', name: 'Monterrey', lat: 25.6866, lon: -100.3161, climate: 'arid', urbanDensity: 'moderate' },
-  { id: 'mx_cancun', name: 'Cancún', lat: 21.1619, lon: -86.8515, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'gt_guatemala_city', name: 'Guatemala City', lat: 14.6349, lon: -90.5069, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'pa_panama_city', name: 'Panama City', lat: 8.9824, lon: -79.5199, climate: 'tropical', urbanDensity: 'moderate' },
-
-  // South America
-  { id: 'br_sao_paulo', name: 'São Paulo', lat: -23.5505, lon: -46.6333, climate: 'tropical', urbanDensity: 'dense' },
-  { id: 'br_rio', name: 'Rio de Janeiro', lat: -22.9068, lon: -43.1729, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'br_brasilia', name: 'Brasília', lat: -15.8267, lon: -47.9218, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'br_salvador', name: 'Salvador', lat: -12.9714, lon: -38.5014, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'ar_buenos_aires', name: 'Buenos Aires', lat: -34.6037, lon: -58.3816, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'ar_cordoba', name: 'Córdoba, Argentina', lat: -31.4201, lon: -64.1888, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'cl_santiago', name: 'Santiago', lat: -33.4489, lon: -70.6693, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'pe_lima', name: 'Lima', lat: -12.0464, lon: -77.0428, climate: 'arid', urbanDensity: 'moderate' },
-  { id: 'co_bogota', name: 'Bogotá', lat: 4.7110, lon: -74.0721, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'co_medellin', name: 'Medellín', lat: 6.2476, lon: -75.5658, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 've_caracas', name: 'Caracas', lat: 10.4806, lon: -66.9036, climate: 'tropical', urbanDensity: 'moderate' },
-
-  // Europe - Western
-  { id: 'uk_london_west', name: 'London - Westminster', lat: 51.5074, lon: -0.1278, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'uk_london_city', name: 'London - City', lat: 51.5155, lon: -0.0922, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'uk_manchester', name: 'Manchester', lat: 53.4808, lon: -2.2426, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'uk_birmingham', name: 'Birmingham', lat: 52.4862, lon: -1.8904, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'uk_edinburgh', name: 'Edinburgh', lat: 55.9533, lon: -3.1883, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'uk_glasgow', name: 'Glasgow', lat: 55.8642, lon: -4.2518, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'fr_paris_center', name: 'Paris - Centre', lat: 48.8566, lon: 2.3522, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'fr_marseille', name: 'Marseille', lat: 43.2965, lon: 5.3698, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'fr_lyon', name: 'Lyon', lat: 45.7640, lon: 4.8357, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'de_berlin', name: 'Berlin', lat: 52.5200, lon: 13.4050, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'de_munich', name: 'Munich', lat: 48.1351, lon: 11.5820, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'de_hamburg', name: 'Hamburg', lat: 53.5511, lon: 9.9937, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'de_frankfurt', name: 'Frankfurt', lat: 50.1109, lon: 8.6821, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'es_madrid', name: 'Madrid', lat: 40.4168, lon: -3.7038, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'es_barcelona', name: 'Barcelona', lat: 41.3851, lon: 2.1734, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'es_seville', name: 'Seville', lat: 37.3891, lon: -5.9845, climate: 'arid', urbanDensity: 'moderate' },
-  { id: 'it_rome', name: 'Rome', lat: 41.9028, lon: 12.4964, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'it_milan', name: 'Milan', lat: 45.4642, lon: 9.1900, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'it_naples', name: 'Naples', lat: 40.8518, lon: 14.2681, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'it_florence', name: 'Florence', lat: 43.7696, lon: 11.2558, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'it_venice', name: 'Venice', lat: 45.4408, lon: 12.3155, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'nl_amsterdam', name: 'Amsterdam', lat: 52.3676, lon: 4.9041, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'nl_rotterdam', name: 'Rotterdam', lat: 51.9225, lon: 4.47917, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'be_brussels', name: 'Brussels', lat: 50.8503, lon: 4.3517, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'at_vienna', name: 'Vienna', lat: 48.2082, lon: 16.3738, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'ch_zurich', name: 'Zürich', lat: 47.3769, lon: 8.5417, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'ch_geneva', name: 'Geneva', lat: 46.2044, lon: 6.1432, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'pt_lisbon', name: 'Lisbon', lat: 38.7223, lon: -9.1393, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'pt_porto', name: 'Porto', lat: 41.1579, lon: -8.6291, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'ie_dublin', name: 'Dublin', lat: 53.3498, lon: -6.2603, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'gr_athens', name: 'Athens', lat: 37.9838, lon: 23.7275, climate: 'temperate', urbanDensity: 'moderate' },
-
-  // Europe - Eastern & Nordic
-  { id: 'ru_moscow', name: 'Moscow', lat: 55.7558, lon: 37.6173, climate: 'cold', urbanDensity: 'dense' },
-  { id: 'ru_st_petersburg', name: 'St. Petersburg', lat: 59.9343, lon: 30.3351, climate: 'cold', urbanDensity: 'moderate' },
-  { id: 'ru_novosibirsk', name: 'Novosibirsk', lat: 55.0084, lon: 82.9357, climate: 'cold', urbanDensity: 'moderate' },
-  { id: 'ua_kyiv', name: 'Kyiv', lat: 50.4501, lon: 30.5234, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'pl_warsaw', name: 'Warsaw', lat: 52.2297, lon: 21.0122, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'pl_krakow', name: 'Kraków', lat: 50.0647, lon: 19.9450, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'cz_prague', name: 'Prague', lat: 50.0755, lon: 14.4378, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'hu_budapest', name: 'Budapest', lat: 47.4979, lon: 19.0402, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'ro_bucharest', name: 'Bucharest', lat: 44.4268, lon: 26.1025, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'se_stockholm', name: 'Stockholm', lat: 59.3293, lon: 18.0686, climate: 'cold', urbanDensity: 'moderate' },
-  { id: 'se_gothenburg', name: 'Gothenburg', lat: 57.7089, lon: 11.9746, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'no_oslo', name: 'Oslo', lat: 59.9139, lon: 10.7522, climate: 'cold', urbanDensity: 'moderate' },
-  { id: 'dk_copenhagen', name: 'Copenhagen', lat: 55.6761, lon: 12.5683, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'fi_helsinki', name: 'Helsinki', lat: 60.1699, lon: 24.9384, climate: 'cold', urbanDensity: 'moderate' },
-  { id: 'is_reykjavik', name: 'Reykjavik', lat: 64.1466, lon: -21.9426, climate: 'cold', urbanDensity: 'sparse' },
-
-  // Middle East
-  { id: 'ae_dubai', name: 'Dubai', lat: 25.2048, lon: 55.2708, climate: 'arid', urbanDensity: 'moderate' },
-  { id: 'ae_abu_dhabi', name: 'Abu Dhabi', lat: 24.4539, lon: 54.3773, climate: 'arid', urbanDensity: 'moderate' },
-  { id: 'sa_riyadh', name: 'Riyadh', lat: 24.7136, lon: 46.6753, climate: 'arid', urbanDensity: 'moderate' },
-  { id: 'sa_jeddah', name: 'Jeddah', lat: 21.5433, lon: 39.1728, climate: 'arid', urbanDensity: 'moderate' },
-  { id: 'il_tel_aviv', name: 'Tel Aviv', lat: 32.0853, lon: 34.7818, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'il_jerusalem', name: 'Jerusalem', lat: 31.7683, lon: 35.2137, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'tr_istanbul', name: 'Istanbul', lat: 41.0082, lon: 28.9784, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'tr_ankara', name: 'Ankara', lat: 39.9334, lon: 32.8597, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'eg_cairo', name: 'Cairo', lat: 30.0444, lon: 31.2357, climate: 'arid', urbanDensity: 'dense' },
-  { id: 'eg_alexandria', name: 'Alexandria', lat: 31.2001, lon: 29.9187, climate: 'arid', urbanDensity: 'moderate' },
-  { id: 'iq_baghdad', name: 'Baghdad', lat: 33.3152, lon: 44.3661, climate: 'arid', urbanDensity: 'moderate' },
-  { id: 'ir_tehran', name: 'Tehran', lat: 35.6892, lon: 51.3890, climate: 'arid', urbanDensity: 'moderate' },
-
-  // Africa
-  { id: 'za_johannesburg', name: 'Johannesburg', lat: -26.2041, lon: 28.0473, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'za_cape_town', name: 'Cape Town', lat: -33.9249, lon: 18.4241, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'za_durban', name: 'Durban', lat: -29.8587, lon: 31.0218, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'ke_nairobi', name: 'Nairobi', lat: -1.2921, lon: 36.8219, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'ng_lagos', name: 'Lagos', lat: 6.5244, lon: 3.3792, climate: 'tropical', urbanDensity: 'dense' },
-  { id: 'ma_casablanca', name: 'Casablanca', lat: 33.5731, lon: -7.5898, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'tn_tunis', name: 'Tunis', lat: 36.8065, lon: 10.1815, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'et_addis_ababa', name: 'Addis Ababa', lat: 9.0320, lon: 38.7469, climate: 'temperate', urbanDensity: 'moderate' },
-
-  // Asia - East
-  { id: 'jp_tokyo_shibuya', name: 'Tokyo - Shibuya', lat: 35.6595, lon: 139.7004, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'jp_tokyo_shinjuku', name: 'Tokyo - Shinjuku', lat: 35.6938, lon: 139.7034, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'jp_osaka', name: 'Osaka', lat: 34.6937, lon: 135.5023, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'jp_kyoto', name: 'Kyoto', lat: 35.0116, lon: 135.7681, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'jp_nagoya', name: 'Nagoya', lat: 35.1815, lon: 136.9066, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'jp_sapporo', name: 'Sapporo', lat: 43.0642, lon: 141.3469, climate: 'cold', urbanDensity: 'moderate' },
-  { id: 'kr_seoul', name: 'Seoul', lat: 37.5665, lon: 126.9780, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'kr_busan', name: 'Busan', lat: 35.1796, lon: 129.0756, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'cn_beijing', name: 'Beijing', lat: 39.9042, lon: 116.4074, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'cn_shanghai', name: 'Shanghai', lat: 31.2304, lon: 121.4737, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'cn_guangzhou', name: 'Guangzhou', lat: 23.1291, lon: 113.2644, climate: 'tropical', urbanDensity: 'dense' },
-  { id: 'cn_shenzhen', name: 'Shenzhen', lat: 22.5431, lon: 114.0579, climate: 'tropical', urbanDensity: 'dense' },
-  { id: 'cn_chengdu', name: 'Chengdu', lat: 30.5728, lon: 104.0668, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'cn_hong_kong', name: 'Hong Kong', lat: 22.3193, lon: 114.1694, climate: 'tropical', urbanDensity: 'dense' },
-  { id: 'tw_taipei', name: 'Taipei', lat: 25.0330, lon: 121.5654, climate: 'tropical', urbanDensity: 'dense' },
-
-  // Asia - Southeast
-  { id: 'sg_singapore', name: 'Singapore', lat: 1.3521, lon: 103.8198, climate: 'tropical', urbanDensity: 'dense' },
-  { id: 'th_bangkok', name: 'Bangkok', lat: 13.7563, lon: 100.5018, climate: 'tropical', urbanDensity: 'dense' },
-  { id: 'th_chiang_mai', name: 'Chiang Mai', lat: 18.7883, lon: 98.9853, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'my_kuala_lumpur', name: 'Kuala Lumpur', lat: 3.1390, lon: 101.6869, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'id_jakarta', name: 'Jakarta', lat: -6.2088, lon: 106.8456, climate: 'tropical', urbanDensity: 'dense' },
-  { id: 'id_bali', name: 'Bali - Denpasar', lat: -8.6500, lon: 115.2167, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'ph_manila', name: 'Manila', lat: 14.5995, lon: 120.9842, climate: 'tropical', urbanDensity: 'dense' },
-  { id: 'vn_ho_chi_minh', name: 'Ho Chi Minh City', lat: 10.8231, lon: 106.6297, climate: 'tropical', urbanDensity: 'dense' },
-  { id: 'vn_hanoi', name: 'Hanoi', lat: 21.0285, lon: 105.8542, climate: 'tropical', urbanDensity: 'moderate' },
-
-  // Asia - South
-  { id: 'in_mumbai', name: 'Mumbai', lat: 19.0760, lon: 72.8777, climate: 'tropical', urbanDensity: 'dense' },
-  { id: 'in_delhi', name: 'New Delhi', lat: 28.6139, lon: 77.2090, climate: 'temperate', urbanDensity: 'dense' },
-  { id: 'in_bangalore', name: 'Bangalore', lat: 12.9716, lon: 77.5946, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'in_hyderabad', name: 'Hyderabad', lat: 17.3850, lon: 78.4867, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'in_chennai', name: 'Chennai', lat: 13.0827, lon: 80.2707, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'in_kolkata', name: 'Kolkata', lat: 22.5726, lon: 88.3639, climate: 'tropical', urbanDensity: 'dense' },
-  { id: 'pk_karachi', name: 'Karachi', lat: 24.8607, lon: 67.0011, climate: 'arid', urbanDensity: 'dense' },
-  { id: 'pk_lahore', name: 'Lahore', lat: 31.5497, lon: 74.3436, climate: 'arid', urbanDensity: 'moderate' },
-  { id: 'bd_dhaka', name: 'Dhaka', lat: 23.8103, lon: 90.4125, climate: 'tropical', urbanDensity: 'dense' },
-  { id: 'lk_colombo', name: 'Colombo', lat: 6.9271, lon: 79.8612, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'np_kathmandu', name: 'Kathmandu', lat: 27.7172, lon: 85.3240, climate: 'temperate', urbanDensity: 'moderate' },
-
-  // Australia & Oceania
-  { id: 'au_sydney', name: 'Sydney', lat: -33.8688, lon: 151.2093, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'au_melbourne', name: 'Melbourne', lat: -37.8136, lon: 144.9631, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'au_brisbane', name: 'Brisbane', lat: -27.4698, lon: 153.0251, climate: 'tropical', urbanDensity: 'moderate' },
-  { id: 'au_perth', name: 'Perth', lat: -31.9505, lon: 115.8605, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'au_adelaide', name: 'Adelaide', lat: -34.9285, lon: 138.6007, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'nz_auckland', name: 'Auckland', lat: -36.8485, lon: 174.7633, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'nz_wellington', name: 'Wellington', lat: -41.2865, lon: 174.7762, climate: 'temperate', urbanDensity: 'moderate' },
-  { id: 'nz_christchurch', name: 'Christchurch', lat: -43.5321, lon: 172.6362, climate: 'temperate', urbanDensity: 'moderate' },
-
-  // Additional geographic diversity - landmarks and regions
-  { id: 'sahara_desert', name: 'Sahara Desert', lat: 23.4162, lon: 25.6628, climate: 'arid', urbanDensity: 'sparse' },
-  { id: 'amazon_rainforest', name: 'Amazon Rainforest', lat: -3.4653, lon: -62.2159, climate: 'tropical', urbanDensity: 'sparse' },
-  { id: 'arctic_norway', name: 'Arctic Circle - Norway', lat: 69.6492, lon: 18.9553, climate: 'polar', urbanDensity: 'sparse' },
-  { id: 'antarctica', name: 'Antarctica Coast', lat: -77.8500, lon: 166.6667, climate: 'polar', urbanDensity: 'sparse' },
-  { id: 'greenland_ice', name: 'Greenland Ice Sheet', lat: 72.0000, lon: -40.0000, climate: 'polar', urbanDensity: 'sparse' },
-  { id: 'himalaya', name: 'Himalayan Range', lat: 27.9881, lon: 86.9250, climate: 'cold', urbanDensity: 'sparse' },
-  { id: 'gobi_desert', name: 'Gobi Desert', lat: 42.5000, lon: 103.5000, climate: 'arid', urbanDensity: 'sparse' },
-  { id: 'great_barrier_reef', name: 'Great Barrier Reef', lat: -18.2871, lon: 147.6992, climate: 'tropical', urbanDensity: 'sparse' },
-  { id: 'patagonia', name: 'Patagonian Steppe', lat: -49.3000, lon: -72.0000, climate: 'cold', urbanDensity: 'sparse' },
-  { id: 'siberia', name: 'Siberian Taiga', lat: 60.0000, lon: 100.0000, climate: 'polar', urbanDensity: 'sparse' },
-  { id: 'madagascar', name: 'Madagascar Highlands', lat: -19.0000, lon: 46.5000, climate: 'tropical', urbanDensity: 'sparse' },
-  { id: 'borneo_forest', name: 'Borneo Rainforest', lat: 0.9619, lon: 114.5548, climate: 'tropical', urbanDensity: 'sparse' },
-  { id: 'scandinavian_fjords', name: 'Norwegian Fjords', lat: 61.0000, lon: 7.0000, climate: 'cold', urbanDensity: 'sparse' },
-  { id: 'scottish_highlands', name: 'Scottish Highlands', lat: 57.4778, lon: -4.2247, climate: 'temperate', urbanDensity: 'sparse' },
-  { id: 'alps', name: 'Alpine Mountains', lat: 46.5197, lon: 8.6348, climate: 'cold', urbanDensity: 'sparse' },
-  { id: 'grand_canyon', name: 'Grand Canyon', lat: 36.0544, lon: -112.1401, climate: 'arid', urbanDensity: 'sparse' },
-  { id: 'yellowstone', name: 'Yellowstone', lat: 44.4280, lon: -110.5885, climate: 'temperate', urbanDensity: 'sparse' },
-  { id: 'hawaii', name: 'Hawaii - Big Island', lat: 19.5429, lon: -155.6659, climate: 'tropical', urbanDensity: 'sparse' },
-  { id: 'iceland_volcanic', name: 'Iceland Volcanic Highlands', lat: 64.9631, lon: -19.0208, climate: 'cold', urbanDensity: 'sparse' },
-  { id: 'new_zealand_alps', name: 'Southern Alps NZ', lat: -43.5946, lon: 170.1409, climate: 'temperate', urbanDensity: 'sparse' },
-];
+function clamp01(value: number, min = 0, max = 1): number {
+  return Math.max(min, Math.min(max, value));
+}
 
 function formatVector(vec: number[]): string {
-  return '[' + vec.map(v => v.toFixed(2)).join(', ') + ']';
+  return `[${vec.map((value) => value.toFixed(2)).join(', ')}]`;
 }
 
 function generateTypeScriptCode(): string {
@@ -313,13 +102,6 @@ function record(
  * IMPORTANT CAVEAT:
  * These are synthetic color-based feature vectors representing ~${WORLD_CITIES.length} global locations.
  * This is a proof-of-concept showing the inference pipeline architecture.
- * Production-grade meter-level accuracy requires:
- * - Learned embeddings from deep networks (NetVLAD, CLIP, GeM, etc.)
- * - Large geotagged image datasets (100K+ real samples)
- * - Advanced geometric refinement (e.g., hloc)
- *
- * Current approach: ${WORLD_CITIES.length} reference points with color/brightness statistics.
- * Expected accuracy: City-level to regional (100-500km), NOT meter-level.
  */
 export const REFERENCE_VECTORS: ReferenceVectorRecord[] = [\n`;
 
@@ -333,6 +115,4 @@ export const REFERENCE_VECTORS: ReferenceVectorRecord[] = [\n`;
   return code;
 }
 
-// Generate and write the code
-const output = generateTypeScriptCode();
-console.log(output);
+console.log(generateTypeScriptCode());

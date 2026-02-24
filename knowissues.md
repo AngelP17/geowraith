@@ -118,14 +118,14 @@ Living list of known issues, gaps, and risks. Keep this concise, factual, and cu
 - First Seen: 2026-02-24
 - Last Updated: 2026-02-24
 - Area: `backend/src/services/clipExtractor.ts`, `backend/src/services/geoclipIndex.ts`, `backend/src/services/vectorSearch.ts`
-- Description: Original local inference used placeholder references and produced coarse global estimates. GeoCLIP ONNX integration with 1,200 sampled references and cached vector index is now implemented.
-- Reproduction: Run `cd backend && npm run benchmark:accuracy` and inspect summary metrics.
-- Expected: Meter-level to sub-100m accuracy for broad, real-world imagery coverage.
-- Actual: Synthetic benchmark behavior is now strong, but real-world labeled-image accuracy is still unverified in this task.
-- Impact: Production-grade meter-level claims remain pending external labeled-image validation.
-- Workaround: Use EXIF geotagged images for exact coordinates; treat non-EXIF predictions as approximate.
-- Resolution: GeoCLIP model path integrated, 1,200 coordinate references added, and runtime index cache implemented; external real-image benchmark remains pending.
-- Evidence: `backend/src/services/clipExtractor.ts`, `backend/src/services/geoclipIndex.ts`, `backend/src/data/geoclipCoordinates.json`, `npm run benchmark:accuracy` (7200 samples): median 0m, p95 18,051m, mean 2,565m.
+- Description: GeoCLIP ONNX integration now runs with 10,000 sampled references and a consensus aggregator, but real-world accuracy is still image-dependent and not meter-level validated.
+- Reproduction: Run `cd backend && npm run benchmark:accuracy` and test with real images (e.g., Liverpool photos should not return Istanbul).
+- Expected: Better locality on recognizable landmarks, explicit `low_confidence` on ambiguous images, and no silent fallback masking.
+- Actual: 10,000-reference cache, tighter clustering (90km), and `low_confidence` gating are implemented; real-world benchmark across labeled images is still pending.
+- Impact: Wild misclassifications are reduced when the updated backend process is running, but final accuracy claims remain PARTIAL until broader labeled-image validation is completed.
+- Workaround: Use `accurate` mode and verify `diagnostics.embedding_source === 'geoclip'`; restart backend after code updates to avoid stale-process behavior.
+- Resolution: Expanded coordinate index to 10,000, added diagnostics in API response, introduced status gating for wide-radius/low-confidence predictions.
+- Evidence: `backend/src/services/geoclipIndex.ts`, `backend/src/services/vectorSearch.ts`, `backend/src/services/predictPipeline.ts`, live probe with `/Users/apinzon/Desktop/cape-town-aerial-view-greenpoint-stadium.jpg` on 2026-02-24.
 
 ## KI-0008: CLIP preprocessing crashed `/api/predict` with 500 errors
 - Status: resolved
@@ -218,16 +218,46 @@ Living list of known issues, gaps, and risks. Keep this concise, factual, and cu
 - Evidence: `src/components/product/mapStyles.ts`, `src/components/product/MapView.tsx`, `npm run lint` ✓, `npm run build` ✓, provider endpoint checks (OSM/Esri 200) on 2026-02-24.
 
 ## KI-0013: Multiple source files exceed 300 LOC modularity limit
-- Status: open
+- Status: resolved
 - Severity: medium
 - First Seen: 2026-02-24
 - Last Updated: 2026-02-24
-- Area: `src/components/sections/Contact.tsx`, `src/data/extendedContent.ts`, `backend/src/data/generateReferenceVectors.ts`
+- Area: `src/components/sections/contact/*`, `src/data/extendedContent*.ts`, `backend/src/data/generateReferenceVectors.ts`
 - Description: Project policy defines a hard 300 LOC limit for code files (except docs/generated), but several committed source files exceed this threshold.
 - Reproduction: `find src backend/src -type f \\( -name '*.ts' -o -name '*.tsx' -o -name '*.js' \\) -print0 | xargs -0 wc -l | sort -nr | head -n 20`
 - Expected: All source files <=300 LOC unless generated/documentation exceptions apply.
-- Actual: `Contact.tsx` (465), `extendedContent.ts` (409), `generateReferenceVectors.ts` (338).
+- Actual: Largest active file is now `src/components/product/MapView.tsx` at 297 LOC; previously offending files were split.
 - Impact: Violates modularity gate in project Definition of Done and increases maintenance complexity.
 - Workaround: none
-- Resolution: pending refactor into smaller modules.
-- Evidence: line-count command output captured on 2026-02-24.
+- Resolution: Split `Contact.tsx` into `sections/contact/*`, split `extendedContent.ts` into part files, and modularized `generateReferenceVectors.ts` with `worldCities.ts`.
+- Evidence: line-count audit on 2026-02-24 shows all code files <=300 LOC.
+
+## KI-0014: Running backend process can drift from latest local code
+- Status: mitigated
+- Severity: high
+- First Seen: 2026-02-24
+- Last Updated: 2026-02-24
+- Area: local runtime operations (`backend` process lifecycle)
+- Description: `npm run dev` for backend does not auto-watch/reload; long-lived process may keep serving old inference logic after code edits.
+- Reproduction: Change `predictPipeline.ts`, then call existing `localhost:8080/api/predict` without restarting backend; response shape/behavior can still match old code.
+- Expected: Live API behavior matches latest checked-out code.
+- Actual: Stale process can continue serving old logic (example: old Algeria output remained until backend restart).
+- Impact: False-negative validation and user-visible mismatch between claimed fixes and runtime behavior.
+- Workaround: restart backend after backend code changes.
+- Resolution: Mitigated operationally; full fix would require watch mode or managed restart script.
+- Evidence: Live probe mismatch before restart and corrected Cape Town prediction after fresh backend start on 2026-02-24.
+
+## KI-0015: Duplicate/non-functional map controls from mixed control layers
+- Status: resolved
+- Severity: medium
+- First Seen: 2026-02-24
+- Last Updated: 2026-02-24
+- Area: `src/components/product/MapView.tsx`
+- Description: Built-in MapLibre controls (navigation + scale) overlapped with custom map controls, creating duplicate buttons and inconsistent behavior.
+- Reproduction: Open Product map view in browser; observe duplicate zoom/scale controls on both left and right sides.
+- Expected: Single, consistent control set with predictable behavior.
+- Actual: Duplicate control clusters caused UX confusion and partial control mismatch.
+- Impact: Operators cannot trust map control behavior during analysis.
+- Workaround: none
+- Resolution: Removed built-in MapLibre `NavigationControl` and `ScaleControl`; retained custom React controls only.
+- Evidence: `src/components/product/MapView.tsx`, frontend build/lint pass on 2026-02-24.

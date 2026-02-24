@@ -11,12 +11,13 @@ interface CoordinateRecord {
   lon: number;
 }
 
-const CHUNK_SIZE = 96;
-const CACHE_VERSION = 'v1-geoclip-1200';
+const CHUNK_SIZE = 256;
+const CACHE_VERSION = 'v1-geoclip-50000-model-v2';
 const COORDINATES_FILE = path.resolve(process.cwd(), 'src/data/geoclipCoordinates.json');
-const CACHE_FILE = path.resolve(process.cwd(), '.cache/geoclip/referenceVectors.1200.json');
+const CACHE_FILE = path.resolve(process.cwd(), '.cache/geoclip/referenceVectors.50000.json');
 
 let indexPromise: Promise<ReferenceVectorRecord[]> | null = null;
+let indexSource: 'model' | 'cache' | 'fallback' | 'unknown' = 'unknown';
 
 function isFiniteCoordinate(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -99,17 +100,17 @@ async function loadIndexFromCache(): Promise<ReferenceVectorRecord[] | null> {
 }
 
 async function saveIndexToCache(vectors: ReferenceVectorRecord[]): Promise<void> {
+  if (vectors.length > 20_000) {
+    // Very large indexes can exceed JS string limits when serialized as JSON.
+    return;
+  }
   await mkdir(path.dirname(CACHE_FILE), { recursive: true });
   await writeFile(
     CACHE_FILE,
-    JSON.stringify(
-      {
-        version: CACHE_VERSION,
-        vectors,
-      },
-      null,
-      2
-    )
+    JSON.stringify({
+      version: CACHE_VERSION,
+      vectors,
+    })
   );
 }
 
@@ -136,7 +137,12 @@ async function buildReferenceIndex(): Promise<ReferenceVectorRecord[]> {
     }
   }
 
-  await saveIndexToCache(vectors);
+  try {
+    await saveIndexToCache(vectors);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.warn('[GeoCLIP] Unable to persist reference cache, continuing with in-memory index:', error);
+  }
   return vectors;
 }
 
@@ -174,13 +180,17 @@ export async function getReferenceVectors(): Promise<ReferenceVectorRecord[]> {
     indexPromise = (async () => {
       const cached = await loadIndexFromCache();
       if (cached && cached.length > 0) {
+        indexSource = 'cache';
         return cached;
       }
       try {
-        return await buildReferenceIndex();
+        const vectors = await buildReferenceIndex();
+        indexSource = 'model';
+        return vectors;
       } catch (error) {
         // eslint-disable-next-line no-console
         console.warn('[GeoCLIP] Failed to build model-backed reference index, using fallback:', error);
+        indexSource = 'fallback';
         return buildFallbackIndex();
       }
     })();
@@ -193,4 +203,9 @@ export async function warmupReferenceIndex(): Promise<void> {
   const vectors = await getReferenceVectors();
   // eslint-disable-next-line no-console
   console.log(`[GeoCLIP] Reference index ready with ${vectors.length} vectors`);
+}
+
+/** Current source used for the in-memory reference index. */
+export function getReferenceIndexSource(): 'model' | 'cache' | 'fallback' | 'unknown' {
+  return indexSource;
 }

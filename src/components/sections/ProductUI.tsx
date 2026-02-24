@@ -145,9 +145,13 @@ export const ProductUI: React.FC = () => {
         controller.signal
       );
       setResult(res);
+      if (res.status === 'low_confidence') {
+        setWarningMsg(res.notes ?? 'Low-confidence prediction. Try another image or landmarks.');
+      } else {
+        setWarningMsg('');
+      }
       setPhase('complete');
       setErrorMsg('');
-      setWarningMsg('');
     } catch (err) {
       if (controller.signal.aborted) {
         return;

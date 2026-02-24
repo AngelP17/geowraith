@@ -2,7 +2,7 @@
  * Build a local GeoCLIP coordinate catalog from the GeoCLIP 100K gallery.
  *
  * Usage:
- *   npx tsx src/scripts/buildReferenceDataset.ts --target=1200
+ *   npx tsx src/scripts/buildReferenceDataset.ts --target=50000
  */
 
 import { readFile, writeFile } from 'node:fs/promises';
@@ -17,7 +17,7 @@ interface CoordinateRecord {
 
 const SOURCE_FILE = path.resolve(process.cwd(), '.cache/geoclip/coordinates_100K.json');
 const OUTPUT_FILE = path.resolve(process.cwd(), 'src/data/geoclipCoordinates.json');
-const DEFAULT_TARGET = 1200;
+const DEFAULT_TARGET = 50000;
 
 function parseTarget(argv: string[]): number {
   const raw = argv.find((arg) => arg.startsWith('--target='))?.split('=')[1];

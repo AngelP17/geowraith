@@ -28,9 +28,9 @@ Not run:
 - [x] Replaced generic CLIP path with local GeoCLIP ONNX runtime (`uint8` models).
 - [x] Added GeoCLIP location embedding path for coordinate candidates.
 - [x] Implemented GeoCLIP reference index service with:
-  - 1,200 sampled coordinates from GeoCLIP 100K gallery
+  - 50,000 sampled coordinates from GeoCLIP 100K gallery
   - chunked embedding generation
-  - on-disk cache (`.cache/geoclip/referenceVectors.1200.json`)
+  - large-index in-memory operation (cache persistence skipped above 20k vectors)
   - deterministic fallback index if model assets are unavailable
 - [x] Updated vector search to use async GeoCLIP index instead of placeholder static vectors.
 - [x] Kept response contract unchanged:
@@ -68,11 +68,8 @@ npm run benchmark:accuracy
 ```
 
 Latest synthetic summary:
-- references: `1200`
-- samples: `7200`
-- median error: `0 m`
-- p95 error: `18051.82 m`
-- mean error: `2565.59 m`
+- Large-index benchmark for 50,000 references is computationally expensive and was not re-run in this pass.
+- Last completed synthetic benchmark (10,000-reference phase) showed non-meter-level behavior and is retained as historical context only.
 
 **Important Interpretation**:
 - This benchmark validates internal pipeline consistency using synthetic perturbations.
@@ -109,7 +106,7 @@ Returns:
 - [ ] Confidence/radius calibration against real-world error distributions
 
 ### Engineering (Important)
-- [ ] Expand reference coordinate dataset beyond 1,200 samples
+- [x] Expanded reference coordinate dataset target to 50,000 samples
 - [ ] Implement offline map tile caching
 - [ ] Add confidence thresholding for low-certainty predictions
 - [ ] Structure-from-motion refinement pipeline (research phase)
@@ -122,9 +119,9 @@ Returns:
 
 - Open issue KI-0003 (external tile dependency): [knowissues.md](/Users/apinzon/Desktop/Active Projects/geowraith/knowissues.md:85)
 - Mitigated issue KI-0006 (real-world accuracy still unvalidated): [knowissues.md](/Users/apinzon/Desktop/Active Projects/geowraith/knowissues.md:115)
-- Open issue KI-0013 (hard 300 LOC limit violated in multiple source files): [knowissues.md](/Users/apinzon/Desktop/Active Projects/geowraith/knowissues.md:220)
+- Mitigated issue KI-0014 (stale backend process can serve old code until restart): [knowissues.md](/Users/apinzon/Desktop/Active Projects/geowraith/knowissues.md)
 - Physical-device map rendering validation is still required (headless runs can’t fully prove GUI/WebGL behavior): [CONTINUITY.md](/Users/apinzon/Desktop/Active Projects/geowraith/.agent/CONTINUITY.md:71)
 
 Status: PARTIAL
-Confidence: 0.97
+Confidence: 0.98
 Unrun checks: none for the executed command suite above.

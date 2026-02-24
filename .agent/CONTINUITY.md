@@ -60,6 +60,17 @@
 - 2026-02-24T22:21Z [TOOL] [DETERMINISM] Executed full validation sweep: backend dataset build (`npm run build:dataset`) ✓, offline-mode tests (`GEOWRAITH_OFFLINE=1 npm run test`) ✓, benchmark (`npm run benchmark:accuracy`) ✓, frontend/backend lint+build ✓, backend tests ✓, health checks (`:3001`, `:8080/health`) ✓, browser live smoke (`live-smoke-multi.js`) ✓.
 - 2026-02-24T22:21Z [CODE] [DOCS] Added KI-0013 for modularity gate drift: multiple source files exceed 300 LOC hard limit.
 - 2026-02-24T22:25Z [CODE] [DOCS] Updated `mvp.md` with explicit "Remaining blockers" section (KI-0003, KI-0006, KI-0013, physical-device validation) and status footer (`PARTIAL`, confidence `0.97`).
+- 2026-02-24T23:05Z [CODE] [FRONTEND] Rewrote `MapView` lifecycle to stabilize marker/style transitions, add queued base-style switching, and degrade to local fallback style when tile providers fail.
+- 2026-02-24T23:07Z [CODE] [MODELS] Updated backend inference contract with diagnostics (`embedding_source`, `reference_index_source`) and improved low-confidence gating using tighter spatial clustering + wide-radius rejection.
+- 2026-02-24T23:08Z [CODE] [DETERMINISM] Resolved KI-0013 modularity drift by splitting oversized files (`Contact.tsx`, `extendedContent.ts`, `generateReferenceVectors.ts`), with max source LOC now 297.
+- 2026-02-24T23:11Z [TOOL] [VERIFICATION] Re-ran gates after fixes: frontend `npm run lint` ✓, frontend `npm run build` ✓, backend `npm run lint` ✓, backend `npm run build` ✓, backend `npm run test` ✓.
+- 2026-02-24T23:12Z [TOOL] [VERIFICATION] Live API probe using `/Users/apinzon/Desktop/cape-town-aerial-view-greenpoint-stadium.jpg` returned Cape Town-near coordinates after restarting backend (`status: ok`, `embedding_source: geoclip`, `reference_index_source: cache`).
+- 2026-02-24T23:16Z [TOOL] [PERF] Re-ran synthetic benchmark after clustering/gating updates on 10k references: median ~8.84km, p95 ~116.25km, mean ~30.54km (`samples=10000`); still PARTIAL for real-world accuracy.
+- 2026-02-24T23:22Z [CODE] [FRONTEND] Removed MapLibre built-in controls from `MapView` to eliminate duplicate/non-functional map buttons and keep only custom control handlers.
+- 2026-02-24T23:23Z [CODE] [MODELS] Increased dataset target to 50,000 samples (`build:dataset` default/script + reference constant + cache version/file updates) and regenerated `backend/src/data/geoclipCoordinates.json`.
+- 2026-02-24T23:24Z [CODE] [MODELS] Patched `geoclipIndex` to avoid fallback regression when large cache serialization fails; in-memory model index now remains active and cache persistence is skipped for >20k vectors.
+- 2026-02-24T23:25Z [TOOL] [VERIFICATION] Re-ran frontend/backend gates after fixes: frontend lint/build ✓, backend lint/build/test ✓; runtime probe now returns `low_confidence` with GeoCLIP diagnostics on ambiguous synthetic image (`embedding_source=model`, `reference_index_source=model`).
+- 2026-02-24T23:31Z [TOOL] [VERIFICATION] Final sweep after 50k target + map-control cleanup: frontend lint/build ✓, backend lint/build/test ✓; runtime probe confirms diagnostics path (`embedding_source: geoclip`, `reference_index_source: model`) and `low_confidence` behavior for ambiguous input.
 
 ## DISCOVERIES
 - 2026-02-24T16:47Z [TOOL] `.agent/CONTINUITY.md` did not exist at task start.
@@ -71,6 +82,8 @@
 - 2026-02-24T22:01Z [TOOL] User-provided screenshot showed valid live inference output (coordinates + request id) while map pane failed, isolating the primary runtime fault to frontend MapView rendering logic rather than backend recognition.
 - 2026-02-24T22:12Z [TOOL] Headless Playwright environments continue to report WebGL-unavailable fallback for MapLibre rendering, so map visual verification remains browser/GUI dependent even when API smoke checks pass.
 - 2026-02-24T22:21Z [TOOL] Full line-count audit shows active source files beyond 300 LOC policy (`Contact.tsx`, `extendedContent.ts`, `generateReferenceVectors.ts`), preventing strict Definition-of-Done compliance despite passing runtime/build checks.
+- 2026-02-24T23:10Z [TOOL] Existing long-lived backend process on `:8080` served stale pre-fix behavior until restart; this produced user-visible mismatch (Algeria output) despite updated workspace code.
+- 2026-02-24T23:12Z [TOOL] Fresh backend start (`cd backend && npm run dev`) loaded GeoCLIP sessions and 10,000-reference cache successfully, and corrected Cape Town probe output to South Africa-near coordinates.
 
 ## OUTCOMES
 - 2026-02-24T16:47Z [CODE] Repository now has a continuity ledger and stronger safeguards against content drift and false completion claims.
@@ -86,5 +99,9 @@
 - 2026-02-24T22:01Z [CODE] [FRONTEND] MapView now avoids marker-state race on initialization, and live mode no longer silently masks API failures behind demo fallback behavior.
 - 2026-02-24T22:03Z [USER] Requested documentation be updated to reflect work-in-progress status rather than positioning as complete GeoSpy alternative.
 - 2026-02-24T22:03Z [CODE] [DOCS] Updated README.md, mvp.md, GEOCLIP_REMAINING_TASKS.md, backend/README.md, and Memory.md to clarify MVP status, accuracy limitations, and unvalidated real-world performance.
+- 2026-02-24T22:45Z [CODE] [MODELS] Implemented accuracy improvements: 10,000 reference coordinates (was 1,200), top-K ensemble prediction with outlier rejection, confidence threshold rejection for low-quality matches.
+- 2026-02-24T22:45Z [CODE] [FRONTEND] Fixed 3D map mode switching by properly recreating marker after style change with delay for stable loading.
+- 2026-02-24T22:45Z [TOOL] [VERIFICATION] Rebuilt dataset with 10,000 samples, regenerated 148MB vector cache, all tests pass (backend 5/5, frontend build/lint).
 - 2026-02-24T22:12Z [CODE] [FRONTEND] Map UI now degrades with explicit map-data error messaging under tile/source failure conditions and uses a more reliable raster standard basemap.
 - 2026-02-24T22:21Z [CODE] Runtime and integration gates are green end-to-end in this environment; strict “finalized” status remains PARTIAL until 300 LOC modularity drift and physical-device map validation are completed.
+- 2026-02-24T23:12Z [CODE] KI-0013 is now resolved (all source files <=300 LOC), leaving KI-0003 (offline tiles), KI-0006 (real-world benchmark), and physical-device validation as remaining completion blockers.

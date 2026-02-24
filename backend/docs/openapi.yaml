@@ -64,8 +64,10 @@ paths:
                     type: string
                   status:
                     type: string
+                    enum: [ok, low_confidence]
                   mode:
                     type: string
+                    enum: [fast, accurate]
                   location:
                     type: object
                     properties:
@@ -96,6 +98,15 @@ paths:
                           type: number
                         similarity:
                           type: number
+                  diagnostics:
+                    type: object
+                    properties:
+                      embedding_source:
+                        type: string
+                        enum: [geoclip, fallback]
+                      reference_index_source:
+                        type: string
+                        enum: [model, cache, fallback, unknown]
         '400':
           description: Bad request
           content:

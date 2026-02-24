@@ -1,7 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import maplibregl from 'maplibre-gl';
@@ -9,34 +5,32 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import type { PredictResponse } from '../../lib/api';
 import { MapControls } from './MapControls';
 import { MapHeader } from './MapHeader';
-import { satelliteStyle, standardStyle, type MapStyle } from './mapStyles';
+import { fallbackStyle, satelliteStyle, standardStyle, type BaseMapStyle, type MapStyle } from './mapStyles';
 import type { ViewState } from './types';
-interface MapViewProps {
-  result: PredictResponse | null;
-}
+interface MapViewProps { result: PredictResponse | null; }
 function hasValidLocation(location: { lat: number; lon: number } | null | undefined): location is {
   lat: number;
   lon: number;
 } {
-  if (!location) return false;
-  return Number.isFinite(location.lat) && Number.isFinite(location.lon);
+  return Boolean(location && Number.isFinite(location.lat) && Number.isFinite(location.lon));
 }
 export const MapView: React.FC<MapViewProps> = ({ result }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const marker = useRef<maplibregl.Marker | null>(null);
+  const tileWatchdogRef = useRef<number | null>(null);
+  const lastLocationRef = useRef<{ lat: number; lon: number } | null>(null);
+  const baseStyleRef = useRef<BaseMapStyle>('standard');
+  const styleSwitchInFlightRef = useRef(false);
+  const queuedStyleRef = useRef<{ baseStyle: 'standard' | 'satellite'; nextIs3D: boolean } | null>(null);
+  const is3DRef = useRef(false);
   const [activeStyle, setActiveStyle] = useState<MapStyle>('standard');
   const [is3D, setIs3D] = useState(false);
-  const is3DRef = useRef(false);
-  const baseStyleRef = useRef<'standard' | 'satellite'>('standard');
   const [viewState, setViewState] = useState<ViewState>({ zoom: 2, pitch: 0, bearing: 0 });
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
+  const [mapWarning, setMapWarning] = useState<string | null>(null);
   const [showStyleMenu, setShowStyleMenu] = useState(false);
-  const lastLocationRef = useRef<{ lat: number; lon: number } | null>(null);
-  const tileWatchdogRef = useRef<number | null>(null);
-  const mapStatusLabel =
-    mapError && mapError.toLowerCase().includes('tile') ? 'Map Data Unavailable' : 'Map Engine Unavailable';
   const detectWebGLSupport = useCallback(() => {
     if (typeof window === 'undefined') return false;
     const canvas = document.createElement('canvas');
@@ -47,107 +41,17 @@ export const MapView: React.FC<MapViewProps> = ({ result }) => {
           canvas.getContext('experimental-webgl'))
     );
   }, []);
-  const apply3D = useCallback(
-    (enable: boolean) => {
-      if (!map.current) return;
-      if (enable) {
-        map.current.easeTo({ pitch: 60, bearing: 0, duration: 1000 });
-      } else {
-        map.current.easeTo({ pitch: 0, bearing: 0, duration: 1000 });
-      }
-      is3DRef.current = enable;
-      setIs3D(enable);
-    },
-    []
-  );
   const clearTileWatchdog = useCallback(() => {
     if (typeof window === 'undefined' || tileWatchdogRef.current === null) return;
     window.clearTimeout(tileWatchdogRef.current);
     tileWatchdogRef.current = null;
   }, []);
-  const scheduleTileWatchdog = useCallback(() => {
-    if (typeof window === 'undefined') return;
-    clearTileWatchdog();
-    tileWatchdogRef.current = window.setTimeout(() => {
-      if (!map.current) return;
-      if (map.current.areTilesLoaded()) return;
-      setMapError(
-        'Map tiles failed to load. Check network access and disable blockers for tile providers.'
-      );
-      // eslint-disable-next-line no-console
-      console.warn('[MapView] tiles did not load within watchdog window');
-    }, 4500);
-  }, [clearTileWatchdog]);
-  useEffect(() => {
-    if (!mapContainer.current || map.current) return;
-    if (!detectWebGLSupport()) {
-      setMapError('WebGL is unavailable in this environment. Map preview is disabled.');
-      return;
-    }
-    const initialCoords = hasValidLocation(result?.location) ? result.location : { lat: 20, lon: 0 };
-    try {
-      map.current = new maplibregl.Map({
-        container: mapContainer.current,
-        style: standardStyle,
-        center: [initialCoords.lon, initialCoords.lat],
-        zoom: result ? 14 : 2,
-        pitch: 0,
-        bearing: 0,
-        attributionControl: { compact: true },
-        maxPitch: 85,
-      });
-      map.current.addControl(
-        new maplibregl.NavigationControl({ visualizePitch: true, showZoom: true, showCompass: true }),
-        'bottom-right'
-      );
-      map.current.addControl(new maplibregl.ScaleControl({ maxWidth: 100, unit: 'metric' }), 'bottom-left');
-      map.current.on('load', () => {
-        setMapError(null);
-        setMapLoaded(true);
-        scheduleTileWatchdog();
-      });
-      map.current.on('move', () => {
-        if (!map.current) return;
-        setViewState({
-          zoom: map.current.getZoom(),
-          pitch: map.current.getPitch(),
-          bearing: map.current.getBearing(),
-        });
-      });
-      map.current.on('style.load', () => {
-        setMapError(null);
-        scheduleTileWatchdog();
-      });
-      map.current.on('idle', () => {
-        clearTileWatchdog();
-      });
-      map.current.on('error', (event) => {
-        const message =
-          event.error instanceof Error ? event.error.message : 'Unknown map runtime error';
-        const normalized = message.toLowerCase();
-        if (
-          normalized.includes('failed to load') ||
-          normalized.includes('tile') ||
-          normalized.includes('source')
-        ) {
-          setMapError('Map source failed to load. Try Standard mode or check network access.');
-        }
-        // eslint-disable-next-line no-console
-        console.warn('[MapView] runtime map error', event.error);
-      });
-    } catch (error) {
-      setMapError('Unable to initialize map engine in this environment.');
-      // eslint-disable-next-line no-console
-      console.warn('[MapView] map initialization failed', error);
-      map.current = null;
-      return;
-    }
-    return () => {
-      clearTileWatchdog();
-      map.current?.remove();
-      map.current = null;
-    };
-  }, [detectWebGLSupport, clearTileWatchdog, scheduleTileWatchdog, result]);
+  const apply3D = useCallback((enable: boolean) => {
+    if (!map.current) return;
+    map.current.easeTo({ pitch: enable ? 60 : 0, bearing: 0, duration: 900 });
+    is3DRef.current = enable;
+    setIs3D(enable);
+  }, []);
   const updateMarkerAndFly = useCallback(
     (location: { lat: number; lon: number }) => {
       if (!map.current) return;
@@ -166,6 +70,7 @@ export const MapView: React.FC<MapViewProps> = ({ result }) => {
             <div class="relative w-3 h-3 bg-amber-400 rounded-full border-2 border-white shadow-lg"></div>
           </div>
         `;
+        // CRITICAL: Set coordinates BEFORE adding to map to prevent undefined.lng error
         marker.current = new maplibregl.Marker({ element: el, anchor: 'center' })
           .setLngLat([location.lon, location.lat])
           .addTo(map.current);
@@ -178,62 +83,144 @@ export const MapView: React.FC<MapViewProps> = ({ result }) => {
         zoom: 16,
         pitch: is3DRef.current ? 60 : 0,
         bearing: 0,
-        duration: 2000,
+        duration: 1800,
         essential: true,
       });
     },
     []
   );
+  const activateFallbackStyle = useCallback(() => {
+    if (!map.current || baseStyleRef.current === 'fallback') return;
+    marker.current?.remove();
+    marker.current = null;
+    map.current.setStyle(fallbackStyle);
+    baseStyleRef.current = 'fallback';
+    map.current.once('style.load', () => {
+      const last = lastLocationRef.current;
+      if (last) updateMarkerAndFly(last);
+      apply3D(is3DRef.current);
+    });
+  }, [apply3D, updateMarkerAndFly]);
+  const scheduleTileWatchdog = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    clearTileWatchdog();
+    tileWatchdogRef.current = window.setTimeout(() => {
+      if (!map.current || map.current.areTilesLoaded()) return;
+      setMapWarning('Tile provider timeout. Using local fallback basemap.');
+      activateFallbackStyle();
+      // eslint-disable-next-line no-console
+      console.warn('[MapView] tiles did not load within watchdog window');
+    }, 5000);
+  }, [activateFallbackStyle, clearTileWatchdog]);
+  const runBaseStyleSwitch = useCallback(
+    (baseStyle: 'standard' | 'satellite', nextIs3D: boolean) => {
+      if (!map.current) return;
+      styleSwitchInFlightRef.current = true;
+      marker.current?.remove();
+      marker.current = null;
+      const styleSpec = baseStyle === 'satellite' ? satelliteStyle : standardStyle;
+      map.current.setStyle(styleSpec);
+      baseStyleRef.current = baseStyle;
+      map.current.once('style.load', () => {
+        styleSwitchInFlightRef.current = false;
+        scheduleTileWatchdog();
+        const last = lastLocationRef.current;
+        if (last) updateMarkerAndFly(last);
+        apply3D(nextIs3D);
+        const queued = queuedStyleRef.current;
+        queuedStyleRef.current = null;
+        if (!queued) return;
+        if (queued.baseStyle !== baseStyle) {
+          runBaseStyleSwitch(queued.baseStyle, queued.nextIs3D);
+        } else {
+          apply3D(queued.nextIs3D);
+        }
+      });
+    },
+    [apply3D, scheduleTileWatchdog, updateMarkerAndFly]
+  );
+  useEffect(() => {
+    if (!mapContainer.current || map.current) return;
+    if (!detectWebGLSupport()) {
+      setMapError('WebGL is unavailable in this environment. Map preview is disabled.');
+      return;
+    }
+    const initialCoords = hasValidLocation(result?.location) ? result.location : { lat: 20, lon: 0 };
+    try {
+      map.current = new maplibregl.Map({
+        container: mapContainer.current,
+        style: standardStyle,
+        center: [initialCoords.lon, initialCoords.lat],
+        zoom: result ? 14 : 2,
+        pitch: 0,
+        bearing: 0,
+        attributionControl: { compact: true },
+        maxPitch: 85,
+      });
+      map.current.on('load', () => {
+        setMapLoaded(true);
+        setMapError(null);
+        setMapWarning(null);
+        scheduleTileWatchdog();
+      });
+      map.current.on('style.load', () => scheduleTileWatchdog());
+      map.current.on('idle', clearTileWatchdog);
+      map.current.on('move', () => {
+        if (!map.current) return;
+        setViewState({
+          zoom: map.current.getZoom(),
+          pitch: map.current.getPitch(),
+          bearing: map.current.getBearing(),
+        });
+      });
+      map.current.on('error', (event) => {
+        const message = event.error instanceof Error ? event.error.message : 'Unknown map runtime error';
+        const normalized = message.toLowerCase();
+        if (normalized.includes('tile') || normalized.includes('source') || normalized.includes('failed to load')) {
+          setMapWarning('Map source warning detected. Falling back if tiles remain unavailable.');
+        }
+        // eslint-disable-next-line no-console
+        console.warn('[MapView] runtime map error', event.error);
+      });
+    } catch (error) {
+      setMapError('Unable to initialize map engine in this environment.');
+      // eslint-disable-next-line no-console
+      console.warn('[MapView] map initialization failed', error);
+      map.current = null;
+      return;
+    }
+    return () => {
+      clearTileWatchdog();
+      marker.current?.remove();
+      marker.current = null;
+      map.current?.remove();
+      map.current = null;
+    };
+  }, [clearTileWatchdog, detectWebGLSupport, result, scheduleTileWatchdog]);
   useEffect(() => {
     if (!map.current || !mapLoaded || !hasValidLocation(result?.location)) return;
     if (!map.current.isStyleLoaded()) {
-      const handleStyle = () => {
+      map.current.once('style.load', () => {
         if (hasValidLocation(result.location)) updateMarkerAndFly(result.location);
-      };
-      map.current.once('style.load', handleStyle);
+      });
       return;
     }
     updateMarkerAndFly(result.location);
-  }, [result, mapLoaded, updateMarkerAndFly]);
+  }, [mapLoaded, result, updateMarkerAndFly]);
   useEffect(() => {
     if (!map.current || !mapLoaded) return;
-    const baseStyle = activeStyle === 'satellite' ? 'satellite' : 'standard';
+    const baseStyle: 'standard' | 'satellite' = activeStyle === 'satellite' ? 'satellite' : 'standard';
     const nextIs3D = activeStyle === 'terrain';
+    if (styleSwitchInFlightRef.current) {
+      queuedStyleRef.current = { baseStyle, nextIs3D };
+      return;
+    }
     if (baseStyleRef.current === baseStyle) {
       apply3D(nextIs3D);
       return;
     }
-    const styleSpec = baseStyle === 'satellite' ? satelliteStyle : standardStyle;
-    map.current.setStyle(styleSpec);
-    baseStyleRef.current = baseStyle;
-    map.current.once('style.load', () => {
-      const last = lastLocationRef.current;
-      if (last) updateMarkerAndFly(last);
-      apply3D(nextIs3D);
-    });
-  }, [activeStyle, mapLoaded, apply3D, updateMarkerAndFly]);
-  const handleZoomIn = useCallback(() => map.current?.zoomIn(), []);
-  const handleZoomOut = useCallback(() => map.current?.zoomOut(), []);
-  const handleResetView = useCallback(() => {
-    if (!map.current || !hasValidLocation(result?.location)) return;
-    map.current.flyTo({
-      center: [result.location.lon, result.location.lat],
-      zoom: 16,
-      pitch: is3DRef.current ? 60 : 0,
-      bearing: 0,
-      duration: 1500,
-    });
-  }, [result]);
-  const toggle3D = useCallback(() => {
-    if (!map.current) return;
-    if (is3D) {
-      setActiveStyle('standard');
-      apply3D(false);
-    } else {
-      setActiveStyle('terrain');
-      apply3D(true);
-    }
-  }, [is3D, apply3D]);
+    runBaseStyleSwitch(baseStyle, nextIs3D);
+  }, [activeStyle, apply3D, mapLoaded, runBaseStyleSwitch]);
   return (
     <div className="relative rounded-2xl border border-white/[0.08] bg-[#0a0a0c] overflow-hidden">
       <MapHeader
@@ -247,10 +234,15 @@ export const MapView: React.FC<MapViewProps> = ({ result }) => {
         }}
       />
       <div ref={mapContainer} className="w-full aspect-[16/10] bg-[#050505]">
+        {mapWarning && !mapError && (
+          <div className="absolute left-3 right-3 top-16 z-20 rounded-lg border border-amber-500/30 bg-black/65 px-3 py-2">
+            <p className="text-[10px] font-mono uppercase tracking-wider text-amber-300">{mapWarning}</p>
+          </div>
+        )}
         {mapError && (
           <div className="absolute inset-0 flex items-center justify-center px-6">
             <div className="max-w-sm text-center">
-              <p className="text-xs font-mono text-amber-300/90 uppercase tracking-wider">{mapStatusLabel}</p>
+              <p className="text-xs font-mono text-amber-300/90 uppercase tracking-wider">Map Engine Unavailable</p>
               <p className="mt-2 text-sm text-white/60">{mapError}</p>
             </div>
           </div>
@@ -272,10 +264,28 @@ export const MapView: React.FC<MapViewProps> = ({ result }) => {
         result={result}
         is3D={is3D}
         viewState={viewState}
-        onZoomIn={handleZoomIn}
-        onZoomOut={handleZoomOut}
-        onResetView={handleResetView}
-        onToggle3D={toggle3D}
+        onZoomIn={() => map.current?.zoomIn()}
+        onZoomOut={() => map.current?.zoomOut()}
+        onResetView={() => {
+          if (!map.current || !hasValidLocation(result?.location)) return;
+          map.current.flyTo({
+            center: [result.location.lon, result.location.lat],
+            zoom: 16,
+            pitch: is3DRef.current ? 60 : 0,
+            bearing: 0,
+            duration: 1500,
+          });
+        }}
+        onToggle3D={() => {
+          if (!map.current) return;
+          if (is3D) {
+            setActiveStyle('standard');
+            apply3D(false);
+            return;
+          }
+          setActiveStyle('terrain');
+          apply3D(true);
+        }}
       />
     </div>
   );

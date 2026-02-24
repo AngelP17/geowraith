@@ -2,10 +2,11 @@ import crypto from 'node:crypto';
 import { config } from '../config.js';
 import { ApiError } from '../errors.js';
 import type { PredictRequest, PredictResponse } from '../types.js';
+import { clamp } from '../utils/math.js';
+import { getReferenceIndexSource } from './geoclipIndex.js';
 import { extractImageSignals } from './imageSignals.js';
 import { parsePredictRequest } from './requestParser.js';
 import { aggregateMatches, searchNearestNeighbors } from './vectorSearch.js';
-import { clamp } from '../utils/math.js';
 
 /** Run GeoWraith local inference pipeline and return API response payload. */
 export async function runPredictPipeline(body: PredictRequest): Promise<PredictResponse> {
@@ -13,15 +14,12 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
   const parsed = parsePredictRequest(body);
 
   if (parsed.imageBuffer.length > config.maxImageBytes) {
-    throw new ApiError(
-      400,
-      'invalid_input',
-      `Image exceeds max size (${config.maxImageBytes} bytes)`
-    );
+    throw new ApiError(400, 'invalid_input', `Image exceeds max size (${config.maxImageBytes} bytes)`);
   }
 
   const signals = await extractImageSignals(parsed.imageBuffer);
   const requestId = crypto.randomUUID();
+  const referenceIndexSource = getReferenceIndexSource();
 
   if (signals.exifLocation) {
     return {
@@ -35,31 +33,58 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
       },
       confidence: 0.99,
       elapsed_ms: Date.now() - startedAt,
-      notes:
-        'Exact EXIF GPS metadata detected. Returning embedded coordinates from uploaded image.',
+      notes: 'Exact EXIF GPS metadata detected. Returning embedded coordinates from uploaded image.',
       top_matches: [],
+      diagnostics: {
+        embedding_source: signals.embeddingSource,
+        reference_index_source: referenceIndexSource,
+      },
     };
   }
 
-  const k = parsed.mode === 'fast' ? 3 : 5;
+  const k = parsed.mode === 'fast' ? 8 : 20;
   const matches = await searchNearestNeighbors(signals.vector, k);
   const aggregated = aggregateMatches(matches);
 
+  const usesFallback = signals.embeddingSource === 'fallback' || referenceIndexSource === 'fallback';
+  const fallbackPenalty = usesFallback ? 0.55 : 1;
+  const confidence = clamp(aggregated.confidence * fallbackPenalty, 0, 1);
+  const isWideRadius = aggregated.location.radius_m > 300_000;
+  const status: PredictResponse['status'] =
+    confidence >= 0.5 && !isWideRadius ? 'ok' : 'low_confidence';
+
+  const notes = [
+    'Approximate location from local visual-signal nearest-neighbor search.',
+    'Accuracy depends on reference coverage and landmark visibility.',
+  ];
+  if (signals.embeddingSource === 'fallback') {
+    notes.push('Warning: GeoCLIP image embedding unavailable; deterministic fallback embedding used.');
+  }
+  if (referenceIndexSource === 'fallback') {
+    notes.push('Warning: GeoCLIP reference index unavailable; fallback coordinate vectors used.');
+  }
+  if (isWideRadius) {
+    notes.push('Warning: Candidate spread is very large; result is low confidence.');
+  }
+
   return {
     request_id: requestId,
-    status: 'ok',
+    status,
     mode: parsed.mode,
     location: aggregated.location,
-    confidence: clamp(aggregated.confidence, 0, 1),
+    confidence,
     elapsed_ms: Date.now() - startedAt,
-    notes:
-      'Approximate location from local visual-signal nearest-neighbor search. Accuracy depends on reference coverage.',
-    top_matches: matches.map((match) => ({
+    notes: notes.join(' '),
+    top_matches: matches.slice(0, 8).map((match) => ({
       id: match.id,
       label: match.label,
       lat: match.lat,
       lon: match.lon,
       similarity: Number(match.similarity.toFixed(4)),
     })),
+    diagnostics: {
+      embedding_source: signals.embeddingSource,
+      reference_index_source: referenceIndexSource,
+    },
   };
 }

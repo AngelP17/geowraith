@@ -8,7 +8,7 @@ export interface PredictRequest {
 
 export interface PredictResponse {
   request_id: string;
-  status: 'ok';
+  status: 'ok' | 'low_confidence';
   mode: 'fast' | 'accurate';
   location: {
     lat: number;
@@ -18,6 +18,10 @@ export interface PredictResponse {
   confidence: number;
   elapsed_ms: number;
   notes?: string;
+  diagnostics?: {
+    embedding_source: 'geoclip' | 'fallback';
+    reference_index_source: 'model' | 'cache' | 'fallback' | 'unknown';
+  };
 }
 
 interface ErrorResponse {

@@ -181,6 +181,7 @@ export async function extractImageSignals(imageBuffer: Buffer): Promise<ImageSig
   ]);
 
   let vector: number[];
+  let embeddingSource: ImageSignals['embeddingSource'] = 'geoclip';
   try {
     vector = await extractCLIPEmbedding(imageBuffer);
   } catch (error) {
@@ -190,6 +191,7 @@ export async function extractImageSignals(imageBuffer: Buffer): Promise<ImageSig
       error
     );
     vector = expandVector(computeImageVector(decoded.pixels), FEATURE_VECTOR_SIZE);
+    embeddingSource = 'fallback';
   }
 
   if (vector.length !== FEATURE_VECTOR_SIZE) {
@@ -208,5 +210,6 @@ export async function extractImageSignals(imageBuffer: Buffer): Promise<ImageSig
     },
     vector,
     exifLocation,
+    embeddingSource,
   };
 }

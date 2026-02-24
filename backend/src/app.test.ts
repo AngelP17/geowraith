@@ -87,7 +87,8 @@ test('POST /api/predict returns prediction payload for valid image', async () =>
     location: { lat: number; lon: number; radius_m: number };
   };
 
-  assert.equal(data.status, 'ok');
+  // Status can be 'ok' or 'low_confidence' depending on match quality
+  assert.ok(data.status === 'ok' || data.status === 'low_confidence', `unexpected status: ${data.status}`);
   assert.equal(typeof data.location.lat, 'number');
   assert.equal(typeof data.location.lon, 'number');
   assert.equal(typeof data.location.radius_m, 'number');

@@ -318,6 +318,19 @@ All new components follow the established GeoWraith design system:
 ### Spacing
 - Container: `max-w-6xl mx-auto`
 - Padding: `px-5 md:px-[120px]`
+
+---
+
+## Addendum (2026-02-24T23:12Z)
+
+- Rewrote `src/components/product/MapView.tsx` to stabilize marker lifecycle and style switching in Standard/Satellite/3D modes.
+- Added local fallback map style in `src/components/product/mapStyles.ts` so blank-map tile failures degrade with explicit warning instead of hard failure.
+- Updated live-flow warning behavior in `src/components/sections/ProductUI.tsx` to surface backend `low_confidence` responses directly to operators.
+
+Verification:
+- `npm run lint` ✅
+- `npm run build` ✅
+- Live API probe with Cape Town sample returned South Africa-near coordinates after backend restart (`/api/predict`).
 - Section spacing: `py-24 md:py-32`
 
 **Verification:** PARTIAL (static code review only). **Confidence:** 0.62.

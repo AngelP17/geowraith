@@ -6,6 +6,7 @@
 import type { StyleSpecification } from 'maplibre-gl';
 
 export type MapStyle = 'standard' | 'satellite' | 'terrain';
+export type BaseMapStyle = 'standard' | 'satellite' | 'fallback';
 
 const OSM_TILES = [
   'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -66,6 +67,20 @@ export const satelliteStyle: StyleSpecification = {
       id: 'satellite-base',
       type: 'raster',
       source: 'satellite',
+    },
+  ],
+};
+
+export const fallbackStyle: StyleSpecification = {
+  version: 8,
+  sources: {},
+  layers: [
+    {
+      id: 'fallback-background',
+      type: 'background',
+      paint: {
+        'background-color': '#0d1117',
+      },
     },
   ],
 };

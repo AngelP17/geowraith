@@ -24,13 +24,17 @@ export interface PredictTopMatch {
 
 export interface PredictResponse {
   request_id: string;
-  status: 'ok';
+  status: 'ok' | 'low_confidence';
   mode: PredictMode;
   location: PredictLocation;
   confidence: number;
   elapsed_ms: number;
   notes: string;
   top_matches?: PredictTopMatch[];
+  diagnostics?: {
+    embedding_source: 'geoclip' | 'fallback';
+    reference_index_source: 'model' | 'cache' | 'fallback' | 'unknown';
+  };
 }
 
 export interface ErrorResponse {
@@ -59,6 +63,7 @@ export interface ImageSignals {
   meta: ImageMeta;
   vector: number[];
   exifLocation: ImageGpsLocation | null;
+  embeddingSource: 'geoclip' | 'fallback';
 }
 
 export interface ReferenceVectorRecord {

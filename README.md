@@ -14,7 +14,7 @@ It aims to become a privacy-preserving, owner-controlled alternative to commerci
 GeoWraith is a **visual place recognition + geometric refinement system** composed of:
 
 - A deterministic local inference and search core with GeoCLIP ONNX embeddings (MVP implemented)
-- A local GeoCLIP reference index (1,200 sampled coordinates + cache) (MVP baseline — accuracy not yet validated on real-world imagery)
+- A local GeoCLIP reference index (50,000 sampled coordinates + in-memory index) (accuracy still requires real-world validation)
 - Potential meter-level refinement using structure-from-motion (future research)
 - A modern web interface (React/Vite/TypeScript)
 - A host-first Node/Express API service for local inference
@@ -139,7 +139,7 @@ npm run benchmark:accuracy
 npm run build:dataset
 ```
 
-**Demo mode:** If the backend is not running, the Product UI falls back to demo data.
+**Demo mode:** Demo and Live API are explicit operator modes. Live mode now surfaces request failures instead of silently switching to demo output.
 
 ---
 
@@ -168,7 +168,7 @@ GeoCLIP model-backed mode expects local assets in `backend/.cache/geoclip/`:
 ## Current Limitations
 
 - **Accuracy**: The synthetic benchmark shows promising results, but real-world accuracy on diverse imagery remains unvalidated. Meter-level precision is a target, not a current guarantee.
-- **Reference Dataset**: Currently uses 1,200 sampled coordinates. Broader geographic coverage requires expansion.
+- **Reference Dataset**: Currently targets 50,000 sampled coordinates from GeoCLIP 100K; broader coverage and labeled-image validation are still in progress.
 - **Offline Maps**: Map tiles require internet connectivity (offline tile caching not yet implemented).
 
 ---
