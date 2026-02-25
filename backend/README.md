@@ -26,6 +26,11 @@ npm run build
 npm run test
 npm run benchmark:accuracy
 npm run build:dataset
+npm run build:gallery
+npm run build:gallery:local
+npm run build:gallery:csv
+npm run build:gallery:real
+npm run benchmark:validation
 ```
 
 ## Endpoints
@@ -42,8 +47,11 @@ API contract: `backend/docs/openapi.yaml`
 - Remote `image_url` fetches are intentionally blocked for local-first behavior.
 - **Accuracy limitations**: Synthetic benchmarks do not guarantee real-world performance. The 50,000 reference target improves coverage but is still not a substitute for labeled real-image validation.
 - `benchmark:accuracy` uses synthetic perturbations; real-world labeled-image validation is pending.
+- `build:gallery:local` generates a tiny local sample gallery for pipeline checks only (not real-world accuracy).
+- `build:gallery:csv` builds a validation gallery from local photos + CSV metadata (recommended).
+- `build:gallery:real` downloads a small landmark set from Wikimedia (rate-limited; try `--dry-run` first).
 - GeoCLIP assets expected in `.cache/geoclip/`:
-  - `vision_model_uint8.onnx`
+  - `vision_model_q4.onnx`
   - `location_model_uint8.onnx`
   - `coordinates_100K.json`
 

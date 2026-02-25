@@ -2,7 +2,10 @@ import { ApiError } from '../errors.js';
 import type { AggregatedResult, VectorMatch } from '../types.js';
 import { haversineMeters } from '../utils/geo.js';
 import { clamp, cosineSimilarity, softmax } from '../utils/math.js';
-import { getReferenceVectors } from './geoclipIndex.js';
+import { getReferenceVectors, getHNSWIndex } from './geoclipIndex.js';
+
+/** Flag to control which search method is used. */
+export const USE_ANN_SEARCH = true;
 
 const CLUSTER_RADIUS_M = 90_000;
 const MAX_CLUSTER_CANDIDATES = 6;
@@ -12,7 +15,10 @@ function toScore(similarity: number): number {
   return clamp((similarity + 1) / 2, 0, 1);
 }
 
-/** Run local nearest-neighbor search over the embedded reference vector catalog. */
+/**
+ * Run brute-force nearest-neighbor search over all reference vectors.
+ * O(N) complexity - accurate but slower for large indexes.
+ */
 export async function searchNearestNeighbors(queryVector: number[], k: number): Promise<VectorMatch[]> {
   const referenceVectors = await getReferenceVectors();
   const matches = referenceVectors
@@ -28,6 +34,35 @@ export async function searchNearestNeighbors(queryVector: number[], k: number): 
   }
 
   return matches;
+}
+
+/**
+ * Run approximate nearest-neighbor search using HNSW index.
+ * O(log N) complexity - fast with minimal accuracy tradeoff.
+ */
+export async function searchNearestNeighborsANN(queryVector: number[], k: number): Promise<VectorMatch[]> {
+  const index = await getHNSWIndex();
+  const matches = index.search(queryVector, k);
+
+  if (matches.length === 0) {
+    throw new ApiError(500, 'index_error', 'HNSW index returned no matches');
+  }
+
+  return matches;
+}
+
+/**
+ * Search using the configured method (ANN by default, brute-force if disabled).
+ */
+export async function searchNearestNeighborsWithFallback(
+  queryVector: number[],
+  k: number,
+  useAnn = USE_ANN_SEARCH
+): Promise<VectorMatch[]> {
+  if (useAnn) {
+    return searchNearestNeighborsANN(queryVector, k);
+  }
+  return searchNearestNeighbors(queryVector, k);
 }
 
 function pickConsensusCluster(matches: VectorMatch[]): VectorMatch[] {

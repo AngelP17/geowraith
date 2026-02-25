@@ -261,3 +261,114 @@ Living list of known issues, gaps, and risks. Keep this concise, factual, and cu
 - Workaround: none
 - Resolution: Removed built-in MapLibre `NavigationControl` and `ScaleControl`; retained custom React controls only.
 - Evidence: `src/components/product/MapView.tsx`, frontend build/lint pass on 2026-02-24.
+
+## KI-0016: GeoCLIP model files missing - using fallback embeddings
+- Status: resolved
+- Severity: high
+- First Seen: 2026-02-25
+- Last Updated: 2026-02-25
+- Area: `backend/.cache/geoclip/`, `backend/src/services/clipExtractor.ts`
+- Description: The GeoCLIP ONNX models required for accurate inference were not present in the repository. Backend fell back to deterministic color-histogram embeddings.
+- Reproduction: Start backend without models; observe `[imageSignals] GeoCLIP extraction failed, using deterministic fallback embedding` in logs.
+- Expected: Backend loads vision_model and location_model ONNX files for proper GeoCLIP embeddings.
+- Actual: Models missing, fallback embeddings provided low accuracy.
+- Impact: Very poor geolocation accuracy (thousands of km error).
+- Workaround: none
+- Resolution: Downloaded location_model_uint8.onnx (9.1MB) and vision_model_q4.onnx (189MB) from Xenova/geoclip-large-patch14 HuggingFace repo to `.cache/geoclip/`.
+- Evidence: `ls -la .cache/geoclip/` shows both models; backend tests pass with `[GeoCLIP] ONNX sessions loaded in 214ms`.
+
+## KI-0017: Coordinate dataset missing - cannot build reference index
+- Status: resolved
+- Severity: high
+- First Seen: 2026-02-25
+- Last Updated: 2026-02-25
+- Area: `backend/src/scripts/buildReferenceDataset.ts`, `.cache/geoclip/coordinates_100K.json`
+- Description: The 100K coordinate gallery required for building the reference dataset was not present. buildReferenceDataset.ts failed.
+- Reproduction: Run `npm run build:dataset` without coordinates_100K.json file.
+- Expected: Dataset builds successfully from 100K source coordinates.
+- Actual: Script failed with `ENOENT: coordinates_100K.json not found`.
+- Impact: Could not generate reference coordinate catalog for vector search.
+- Workaround: none
+- Resolution: Added deterministic generator (`generateCoordinates100K.ts`) and wired `buildReferenceDataset.ts` to auto-regenerate when source is missing or invalid (seeded for reproducibility).
+- Evidence: `npm run build:dataset` now regenerates coordinates and writes 50K sampled refs successfully (2026-02-25).
+
+## KI-0018: Brute-force vector search has poor latency at scale
+- Status: resolved
+- Severity: medium
+- First Seen: 2026-02-25
+- Last Updated: 2026-02-25
+- Area: `backend/src/services/vectorSearch.ts`
+- Description: Cosine similarity search iterates over all 50K reference vectors for every request (~58ms per query), won't scale to larger indexes.
+- Reproduction: Run `npm run benchmark:search` and observe brute-force latency.
+- Expected: Sub-millisecond search with approximate nearest neighbors.
+- Actual: 58ms per query with brute-force, linear growth with index size.
+- Impact: Limited throughput, poor scalability.
+- Workaround: none
+- Resolution: Implemented HNSW (Hierarchical Navigable Small World) ANN search using hnswlib-node with 500-700x speedup (0.08ms per query).
+- Evidence: `backend/src/services/annIndex.ts`, performance benchmark shows 743x speedup at k=5.
+
+## KI-0019: Real-world validation dataset is still small and volatile
+- Status: mitigated
+- Severity: high
+- First Seen: 2026-02-25
+- Last Updated: 2026-02-25
+- Area: `backend/src/benchmarks/validationBenchmark.ts`, `backend/src/scripts/smartBlendValidation.ts`
+- Description: Real-world accuracy depends on a limited landmark dataset. Coverage is small and results are volatile.
+- Reproduction: Run `npm run smartblend` followed by `npm run benchmark:validation`.
+- Expected: Stable accuracy claims backed by large geotagged datasets.
+- Actual: SmartBlend assembled 27 landmark photos (Openverse PD/CC0 + cached). Accuracy remains coarse and unstable.
+- Impact: Accuracy claims must stay conservative and tied to the latest report.
+- Workaround: Expand dataset to 50+ images via SmartBlend/CSV and rerun validation regularly.
+- Resolution:
+  - SmartBlend pipeline uses Openverse PD/CC0 first, with cached fallbacks.
+  - `buildGalleryFromCSV.ts` allows local expansion.
+  - Validation report generated on 27 images.
+- Evidence:
+  - `npm run smartblend -- --min-images=30 --max-retries=3 --strategy=auto --seed=1337 --allow-unverified`
+  - `npm run benchmark:validation` → report at `backend/.cache/validation_gallery/benchmark_report.json`
+  - Results documented in `ACCURACY_ASSESSMENT.md`
+
+## KI-0020: HNSW cached index returned no matches
+- Status: resolved
+- Severity: high
+- First Seen: 2026-02-25
+- Last Updated: 2026-02-25
+- Area: `backend/src/services/annIndex.ts`, `backend/src/services/geoclipIndex.ts`
+- Description: When loading HNSW index from disk cache, the `vectors` array was not populated, causing search to return empty results and throw 'HNSW index returned no matches' error.
+- Reproduction: Run backend tests after HNSW index is cached - test fails with 500 error.
+- Expected: HNSW search returns matches when index is loaded from cache.
+- Actual: Empty results because `this.vectors` array was empty in HNSWIndex class.
+- Impact: API returned 500 errors after first successful run.
+- Workaround: Delete `.cache/geoclip/hnsw_index.*.bin` before each run.
+- Resolution: Modified `annIndex.ts` loadIndex() to accept optional vectors parameter and store them. Modified `geoclipIndex.ts` to pass vectors when loading from cache.
+- Evidence: Backend tests now pass (5/5) with `[HNSW] Loaded cached index with 50000 vectors` message.
+
+## KI-0021: Wikimedia rate limits affect batch downloads
+- Status: mitigated
+- Severity: low
+- First Seen: 2026-02-25
+- Last Updated: 2026-02-25
+- Area: `backend/src/scripts/multiSourceDownloader.ts`
+- Description: Wikimedia Commons applies rate limiting (HTTP 429) when downloading multiple images rapidly. The multi-source downloader handles this with configurable delays.
+- Reproduction: Run `npm run download:images -- --count=30 --delay=500` → some requests may return HTTP 429.
+- Expected: Download all requested images.
+- Actual: With short delays, some downloads fail; with 3s delays, works reliably.
+- Impact: Downloads require polite timing (3s delay recommended).
+- Workaround: Use `npm run download:images -- --count=30 --delay=3000` for reliable downloads.
+- Resolution: mitigated (downloader supports configurable delays; SmartBlend now prefers Openverse PD/CC0 and cached fallbacks)
+- Evidence: SmartBlend assembled 27-image dataset and validation completed (`backend/.cache/validation_gallery/benchmark_report.json`).
+
+## KI-0022: City scraper yields low success rate and Openverse returns HTTP 401
+- Status: open
+- Severity: medium
+- First Seen: 2026-02-25
+- Last Updated: 2026-02-25
+- Area: `backend/src/scripts/scrapeCityImages.ts`, `backend/src/scripts/city/*`
+- Description: City-level dataset scraping produces many failed downloads and Openverse requests return HTTP 401 in this workspace.
+- Reproduction: `npm run scrape:city -- --city="Istanbul" --count=150 --sources=wikimedia`
+- Expected: 100+ usable images per city.
+- Actual: 14/150 downloads succeeded for Istanbul in current run.
+- Impact: City-level training dataset remains small and noisy.
+- Workaround: Use Wikimedia only, reduce count, or provide own CSV/photo datasets.
+- Resolution: pending (needs improved source coverage or authenticated Openverse access).
+- Evidence: `backend/.cache/city_datasets/istanbul/metadata.csv` and scrape summary output on 2026-02-25.

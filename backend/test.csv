@@ -1,0 +1,6 @@
+filename,lat,lon,label,accuracy_radius
+table_mountain.jpg,-33.9628,18.4098,"Table Mountain, Cape Town",30
+mount_fuji.jpg,35.3606,138.7274,"Mount Fuji",30
+forbidden_city.jpg,39.9163,116.3972,"Forbidden City, Beijing",30
+eiffel_tower.jpg,48.8584,2.2945,"Eiffel Tower, Paris",30
+chichen_itza.jpg,20.6843,-88.5678,"Chichen Itza",30

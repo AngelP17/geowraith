@@ -1,0 +1,2 @@
+filename,lat,lon,label,accuracy_radius,source_method
+big_ben.jpg,51.5007,-0.1246,"Big Ben, London",30,existing

@@ -154,7 +154,7 @@ The backend returns EXIF GPS coordinates when present, otherwise an approximate 
 Remote image URL fetches are blocked to preserve local-first operation.
 
 GeoCLIP model-backed mode expects local assets in `backend/.cache/geoclip/`:
-- `vision_model_uint8.onnx`
+- `vision_model_q4.onnx`
 - `location_model_uint8.onnx`
 - `coordinates_100K.json` (for rebuilding coordinate samples)
 

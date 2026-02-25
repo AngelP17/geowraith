@@ -11,8 +11,10 @@ import ort from 'onnxruntime-node';
 import sharp from 'sharp';
 import { FEATURE_VECTOR_SIZE } from '../data/referenceVectors.js';
 
-const MODEL_DIR = path.resolve(process.cwd(), '.cache/geoclip');
-const VISION_MODEL = path.join(MODEL_DIR, 'vision_model_uint8.onnx');
+// Resolve model dir from repo root (one level up from backend/)
+const MODEL_DIR = path.resolve(process.cwd(), '..', '.cache/geoclip');
+// Use available quantized models (q4 for vision, uint8 for location)
+const VISION_MODEL = path.join(MODEL_DIR, 'vision_model_q4.onnx');
 const LOCATION_MODEL = path.join(MODEL_DIR, 'location_model_uint8.onnx');
 
 const IMAGE_SIZE = 224;
@@ -28,7 +30,7 @@ async function ensureModelFiles(): Promise<void> {
     await access(LOCATION_MODEL);
   } catch (error) {
     throw new Error(
-      `GeoCLIP model files are missing under ${MODEL_DIR}. Download vision_model_uint8.onnx and location_model_uint8.onnx before enabling model-backed inference.`,
+      `GeoCLIP model files are missing under ${MODEL_DIR}. Download vision_model_q4.onnx and location_model_uint8.onnx before enabling model-backed inference.`,
       { cause: error }
     );
   }
@@ -150,7 +152,7 @@ export async function warmupCLIP(): Promise<void> {
 /** Get current model info for diagnostics. */
 export function getModelInfo(): { name: string; embeddingSize: number } {
   return {
-    name: 'GeoCLIP-Large-Patch14 (ONNX uint8)',
+    name: 'GeoCLIP-Large-Patch14 (ONNX q4 vision + uint8 location)',
     embeddingSize: FEATURE_VECTOR_SIZE,
   };
 }

@@ -10,12 +10,26 @@
     "lint": "tsc --noEmit -p tsconfig.json",
     "test": "tsx --test src/**/*.test.ts",
     "benchmark:accuracy": "tsx src/benchmarks/accuracyBenchmark.ts",
-    "build:dataset": "tsx src/scripts/buildReferenceDataset.ts --target=50000"
+    "benchmark:search": "tsx src/benchmarks/searchPerformance.ts",
+    "benchmark:validation": "tsx src/benchmarks/validationBenchmark.ts",
+    "build:dataset": "tsx src/scripts/buildReferenceDataset.ts",
+    "build:gallery": "tsx src/scripts/buildValidationGallery.ts",
+    "build:gallery:local": "tsx src/scripts/buildLocalValidationGallery.ts",
+    "build:gallery:real": "tsx src/scripts/downloadRealValidationImages.ts",
+    "build:gallery:csv": "tsx src/scripts/buildGalleryFromCSV.ts",
+    "source:images": "tsx src/scripts/sourcePublicDomainImages.ts",
+    "generate:csv-template": "tsx src/scripts/generateCSVTemplate.ts",
+    "smartblend": "tsx src/scripts/smartBlendValidation.ts",
+    "smartblend:expand": "tsx src/scripts/expandValidationSet.ts",
+    "download:images": "tsx src/scripts/multiSourceDownloader.ts",
+    "scrape:city": "tsx src/scripts/scrapeCityImages.ts"
   },
   "dependencies": {
     "@xenova/transformers": "^2.17.2",
     "exifr": "^7.1.3",
     "express": "^4.21.2",
+    "hnswlib-node": "^3.0.0",
+    "node-fetch": "^3.3.2",
     "onnxruntime-node": "^1.22.0",
     "sharp": "^0.34.4"
   },

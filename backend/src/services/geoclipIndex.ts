@@ -3,6 +3,7 @@ import path from 'node:path';
 import { FEATURE_VECTOR_SIZE } from '../data/referenceVectors.js';
 import type { ReferenceVectorRecord } from '../types.js';
 import { embedGeoLocations } from './clipExtractor.js';
+import { HNSWIndex } from './annIndex.js';
 
 interface CoordinateRecord {
   id: string;
@@ -12,12 +13,25 @@ interface CoordinateRecord {
 }
 
 const CHUNK_SIZE = 256;
-const CACHE_VERSION = 'v1-geoclip-50000-model-v2';
+const TARGET_COORDINATES = 100000;
+const CACHE_VERSION = `v1-geoclip-${TARGET_COORDINATES}-model-v2`;
 const COORDINATES_FILE = path.resolve(process.cwd(), 'src/data/geoclipCoordinates.json');
-const CACHE_FILE = path.resolve(process.cwd(), '.cache/geoclip/referenceVectors.50000.json');
+const CACHE_FILE = path.resolve(process.cwd(), `.cache/geoclip/referenceVectors.${TARGET_COORDINATES}.json`);
+const HNSW_INDEX_FILE = path.resolve(process.cwd(), `.cache/geoclip/hnsw_index.${CACHE_VERSION}.bin`);
+
+/** HNSW index configuration. */
+const HNSW_CONFIG = {
+  M: 16,
+  efConstruction: 200,
+  efSearch: 64,
+};
 
 let indexPromise: Promise<ReferenceVectorRecord[]> | null = null;
 let indexSource: 'model' | 'cache' | 'fallback' | 'unknown' = 'unknown';
+
+/** Global HNSW index instance. */
+let hnswIndex: HNSWIndex | null = null;
+let hnswIndexPromise: Promise<HNSWIndex> | null = null;
 
 function isFiniteCoordinate(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -208,4 +222,57 @@ export async function warmupReferenceIndex(): Promise<void> {
 /** Current source used for the in-memory reference index. */
 export function getReferenceIndexSource(): 'model' | 'cache' | 'fallback' | 'unknown' {
   return indexSource;
+}
+
+/**
+ * Get or build the HNSW ANN index.
+ * Loads from disk cache if available, otherwise builds from reference vectors.
+ */
+export async function getHNSWIndex(): Promise<HNSWIndex> {
+  if (hnswIndex?.ready) {
+    return hnswIndex;
+  }
+
+  if (!hnswIndexPromise) {
+    hnswIndexPromise = (async () => {
+      // Load reference vectors first to verify index size
+      const vectors = await getReferenceVectors();
+
+      // Try to load existing HNSW index from disk
+      const cachedIndex = new HNSWIndex(HNSW_CONFIG);
+      const loaded = await cachedIndex.loadIndex(HNSW_INDEX_FILE, vectors.length, vectors);
+      if (loaded) {
+        // eslint-disable-next-line no-console
+        console.log(`[HNSW] Loaded cached index with ${cachedIndex.size} vectors`);
+        hnswIndex = cachedIndex;
+        return cachedIndex;
+      }
+
+      // Build new index from reference vectors
+      const newIndex = new HNSWIndex(HNSW_CONFIG);
+      await newIndex.buildIndex(vectors);
+
+      // Save to cache for future runs
+      try {
+        await mkdir(path.dirname(HNSW_INDEX_FILE), { recursive: true });
+        await newIndex.saveIndex(HNSW_INDEX_FILE);
+        // eslint-disable-next-line no-console
+        console.log(`[HNSW] Built and cached index with ${vectors.length} vectors`);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.warn('[HNSW] Failed to save index cache:', error);
+      }
+
+      hnswIndex = newIndex;
+      return newIndex;
+    })();
+  }
+
+  return hnswIndexPromise;
+}
+
+/** Invalidate HNSW index cache (useful for testing). */
+export function invalidateHNSWIndex(): void {
+  hnswIndex = null;
+  hnswIndexPromise = null;
 }

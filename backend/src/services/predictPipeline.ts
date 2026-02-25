@@ -6,7 +6,7 @@ import { clamp } from '../utils/math.js';
 import { getReferenceIndexSource } from './geoclipIndex.js';
 import { extractImageSignals } from './imageSignals.js';
 import { parsePredictRequest } from './requestParser.js';
-import { aggregateMatches, searchNearestNeighbors } from './vectorSearch.js';
+import { aggregateMatches, searchNearestNeighborsWithFallback } from './vectorSearch.js';
 
 /** Run GeoWraith local inference pipeline and return API response payload. */
 export async function runPredictPipeline(body: PredictRequest): Promise<PredictResponse> {
@@ -19,9 +19,8 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
 
   const signals = await extractImageSignals(parsed.imageBuffer);
   const requestId = crypto.randomUUID();
-  const referenceIndexSource = getReferenceIndexSource();
-
   if (signals.exifLocation) {
+    const referenceIndexSource = getReferenceIndexSource();
     return {
       request_id: requestId,
       status: 'ok',
@@ -43,7 +42,8 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
   }
 
   const k = parsed.mode === 'fast' ? 8 : 20;
-  const matches = await searchNearestNeighbors(signals.vector, k);
+  const matches = await searchNearestNeighborsWithFallback(signals.vector, k, true);
+  const referenceIndexSource = getReferenceIndexSource();
   const aggregated = aggregateMatches(matches);
 
   const usesFallback = signals.embeddingSource === 'fallback' || referenceIndexSource === 'fallback';

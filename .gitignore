@@ -3,4 +3,8 @@ node_modules
 dist
 backend/dist
 backend/.cache
+.cache/validation_gallery/
 Projects
+.cache/geoclip/onnx/
+.cache/geoclip/*.onnx
+location_model_uint8.onnx

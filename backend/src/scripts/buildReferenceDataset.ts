@@ -6,7 +6,10 @@
  */
 
 import { readFile, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
+import { generateCoordinates100K } from './generateCoordinates100K.js';
+import { GEOCLIP_REFERENCE_COORDINATES } from '../data/referenceVectors.js';
 
 interface CoordinateRecord {
   id: string;
@@ -17,7 +20,7 @@ interface CoordinateRecord {
 
 const SOURCE_FILE = path.resolve(process.cwd(), '.cache/geoclip/coordinates_100K.json');
 const OUTPUT_FILE = path.resolve(process.cwd(), 'src/data/geoclipCoordinates.json');
-const DEFAULT_TARGET = 50000;
+const DEFAULT_TARGET = GEOCLIP_REFERENCE_COORDINATES;
 
 function parseTarget(argv: string[]): number {
   const raw = argv.find((arg) => arg.startsWith('--target='))?.split('=')[1];
@@ -64,7 +67,20 @@ function sampleCoordinates(allPairs: unknown[], target: number): CoordinateRecor
 
 async function main() {
   const target = parseTarget(process.argv.slice(2));
-  const sourceRaw = await readFile(SOURCE_FILE, 'utf8');
+  let sourceRaw: string;
+  try {
+    if (!existsSync(SOURCE_FILE)) {
+      throw new Error('missing');
+    }
+    sourceRaw = await readFile(SOURCE_FILE, 'utf8');
+    JSON.parse(sourceRaw);
+  } catch {
+    // eslint-disable-next-line no-console
+    console.warn('[BuildDataset] Source catalog missing or invalid. Regenerating deterministically...');
+    await generateCoordinates100K({ targetCount: 100_000, seed: 1337, outputFile: SOURCE_FILE });
+    sourceRaw = await readFile(SOURCE_FILE, 'utf8');
+  }
+
   const source = JSON.parse(sourceRaw) as unknown[];
   if (!Array.isArray(source)) {
     throw new Error('invalid source format: expected an array');
