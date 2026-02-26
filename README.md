@@ -107,21 +107,26 @@ GeoWraith:
 
 ## Quick Start (Under 60 Seconds)
 
-### Frontend
+### Option 1: One-Command Start (Both Services)
 
+```bash
+npm install
+cd backend && npm install && cd ..
+./start.sh
+```
+
+This starts both backend (port 8080) and frontend (port 3001) with live logs.
+Press `Ctrl+C` to stop both services.
+
+### Option 2: Manual Start
+
+**Frontend:**
 ```bash
 npm install
 npm run dev
 ```
 
-**Standard checks (host):**
-```bash
-npm run build
-npm run lint
-```
-
-### Backend (Local Inference API)
-
+**Backend (separate terminal):**
 ```bash
 cd backend
 npm install
@@ -129,6 +134,7 @@ npm run dev
 ```
 
 API will be available at `http://localhost:8080`.
+Frontend at `http://localhost:3001/`.
 
 Optional environment variables (see `backend/.env.example`):
 - `MAPILLARY_ACCESS_TOKEN` enables Mapillary reference retrieval for `/api/predict/sfm`.

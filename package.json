@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "smartblend": "tsx backend/src/scripts/smartBlendValidation.ts"
+    "smartblend": "tsx backend/src/scripts/smartBlendValidation.ts",
+    "start": "./start.sh",
+    "start:services": "./start.sh"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",

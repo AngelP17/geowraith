@@ -93,16 +93,19 @@ Large outliers exist (max ~12,972 km). Results are coarse regional accuracy, not
 # Install dependencies
 cd /Users/apinzon/Desktop/Active Projects/geowraith
 npm install
-cd backend && npm install
+cd backend && npm install && cd ..
+
+# Quick start (both services)
+./start.sh
+
+# Or manual start
+npm run dev          # Frontend (port 3001)
+cd backend && npm run watch  # Backend with auto-reload (port 8080)
 
 # Build reference dataset (one-time)
-npm run build:dataset
+cd backend && npm run build:dataset
 
-# Start development
-npm run dev          # Frontend
-cd backend && npm run watch  # Backend with auto-reload
-
-# Or production build
+# Production build
 npm run build
 cd backend && npm run build && npm start
 ```
