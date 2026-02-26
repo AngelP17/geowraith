@@ -65,5 +65,9 @@ API contract: `backend/docs/openapi.yaml`
 
 `POST /api/predict` now includes:
 - `status`: `ok` or `low_confidence`
+- `location_visibility`: `visible` or `withheld`
+- `location_reason`: why location was withheld (`model_fallback_active`, `candidate_spread_too_wide`, `confidence_below_actionable_threshold`)
 - `diagnostics.embedding_source`: `geoclip` or `fallback`
 - `diagnostics.reference_index_source`: `model`, `cache`, `fallback`, or `unknown`
+
+When confidence is below the actionable threshold, GeoWraith returns `low_confidence` and withholds coordinate display to avoid hard false positives (for example, wrong continent predictions on weak matches).

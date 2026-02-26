@@ -29,6 +29,8 @@ export interface PredictResponse {
   status: 'ok' | 'low_confidence';
   mode: PredictMode;
   location: PredictLocation;
+  location_visibility: 'visible' | 'withheld';
+  location_reason?: string;
   confidence: number;
   confidence_tier: ConfidenceTier;
   elapsed_ms: number;

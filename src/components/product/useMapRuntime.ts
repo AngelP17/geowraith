@@ -234,6 +234,13 @@ export function useMapRuntime(result: PredictResponse | null): UseMapRuntimeResu
   }, [mapLoaded, result, updateMarkerAndFly]);
   useEffect(() => {
     if (!map.current || !mapLoaded) return;
+    if (hasValidLocation(result?.location)) return;
+    marker.current?.remove();
+    marker.current = null;
+    lastLocationRef.current = null;
+  }, [mapLoaded, result]);
+  useEffect(() => {
+    if (!map.current || !mapLoaded) return;
     const baseStyle: BaseMapStyle = isOffline ? 'offline' : activeStyle === 'satellite' ? 'satellite' : 'standard';
     const nextIs3D = activeStyle === 'terrain';
     if (styleSwitchInFlightRef.current) {

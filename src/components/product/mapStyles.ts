@@ -8,10 +8,8 @@ import type { StyleSpecification } from 'maplibre-gl';
 export type MapStyle = 'standard' | 'satellite' | 'terrain';
 export type BaseMapStyle = 'standard' | 'satellite' | 'offline' | 'fallback';
 
-const OSM_TILES = [
-  'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
-  'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
-  'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
+const ESRI_STREET_TILES = [
+  'https://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
 ];
 
 const ESRI_SATELLITE_TILES = [
@@ -21,7 +19,7 @@ const ESRI_SATELLITE_TILES = [
 export const STYLE_CONFIG: Record<MapStyle, { label: string; description: string }> = {
   standard: {
     label: 'STANDARD',
-    description: 'OpenStreetMap raster base map',
+    description: 'Esri street map base',
   },
   satellite: {
     label: 'SATELLITE',
@@ -36,18 +34,18 @@ export const STYLE_CONFIG: Record<MapStyle, { label: string; description: string
 export const standardStyle: StyleSpecification = {
   version: 8,
   sources: {
-    osm: {
+    streets: {
       type: 'raster',
-      tiles: OSM_TILES,
+      tiles: ESRI_STREET_TILES,
       tileSize: 256,
-      attribution: '© OpenStreetMap contributors',
+      attribution: 'Tiles © Esri',
     },
   },
   layers: [
     {
-      id: 'osm-base',
+      id: 'street-base',
       type: 'raster',
-      source: 'osm',
+      source: 'streets',
     },
   ],
 };

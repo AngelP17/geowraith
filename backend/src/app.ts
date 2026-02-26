@@ -30,6 +30,7 @@ export function createApp() {
       service: 'geowraith-backend',
       version: '0.2.0',
       offline_mode: config.offlineMode,
+      sfm_enabled: config.sfmEnabled,
       engine: 'local-visual-signal-v1',
     });
   });

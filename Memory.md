@@ -508,6 +508,14 @@ Persistent project memory for high-signal decisions and context that should surv
   Evidence: `STATUS.md` updated to "RELEASE SCOPE STABLE", component matrix marks SfM as deferred, route stability noted as `503 feature_disabled` while disabled.
   Status: VERIFIED
   Confidence: 0.98
+- 2026-02-26T20:14:22Z [CODE] [MODELS] Low-confidence predictions now report wider uncertainty (minimum 250km radius) and explicit weak-margin warning to reduce false precision.
+  Evidence: `backend/src/services/predictPipeline.ts`, backend lint/test pass.
+  Status: VERIFIED
+  Confidence: 0.96
+- 2026-02-26T20:14:22Z [CODE] [DETERMINISM] Standard map tiles switched to Esri World Street for better availability at previously failing tile coordinates.
+  Evidence: `src/components/product/mapStyles.ts`, HTTP 200 tile probe for z16/27157/51896 on Esri endpoint.
+  Status: VERIFIED
+  Confidence: 0.95
 - 2026-02-26T20:00Z [CODE] [DETERMINISM] **TRUE 100% IMPLEMENTATION - FINAL**
   
   ## Fixed All Gaps:

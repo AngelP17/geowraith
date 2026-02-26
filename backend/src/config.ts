@@ -19,8 +19,11 @@ function parseBoolean(value: string | undefined, fallback: boolean): boolean {
  * Confidence tier thresholds
  * Based on empirical analysis of validation benchmark (46 images, 2026-02-26):
  * - High: top 30% of confidence scores (≥0.51) - mostly moderate errors
- * - Medium: middle 40% (0.47-0.50) - mixed results
+ * - Medium: middle 40% (0.47-0.50) - mixed results  
  * - Low: bottom 30% (≤0.46) - mostly high errors
+ * 
+ * MINIMUM_CONFIDENCE: Below this threshold, coordinates are withheld to avoid
+ * continent-level false positives on weak matches.
  * 
  * Note: Current confidence formula has weak correlation with actual error.
  * These thresholds are percentile-based, not error-based.
@@ -30,6 +33,12 @@ export const CONFIDENCE_THRESHOLDS = {
   medium: { min: 0.47, label: 'medium' as const },
   low: { min: 0, label: 'low' as const },
 };
+
+/**
+ * Minimum confidence required before coordinates are shown to operators.
+ * Below this, API returns low_confidence and marks location as withheld.
+ */
+export const MINIMUM_CONFIDENCE = 0.5;
 
 export const config = {
   apiPort: parseInteger(process.env.GEOWRAITH_API_PORT, DEFAULT_API_PORT),

@@ -17,6 +17,8 @@ export interface PredictResponse {
     lon: number;
     radius_m: number;
   };
+  location_visibility?: 'visible' | 'withheld';
+  location_reason?: string;
   confidence: number;
   confidence_tier?: ConfidenceTier;
   elapsed_ms: number;

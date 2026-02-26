@@ -48,6 +48,10 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
   );
 
   const isLowConfidence = result?.status === 'low_confidence';
+  const isLocationWithheld = Boolean(
+    result && (result.location_visibility === 'withheld' || result.status === 'low_confidence')
+  );
+  const canDisplayLocation = Boolean(result && !isLocationWithheld);
 
   // Get model status display
   const getModelStatus = () => {
@@ -152,17 +156,24 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
                 <MapPin className={`w-4 h-4 ${result ? 'text-amber-400' : 'text-white/20'}`} />
                 <span className="text-xs font-mono text-white/40 uppercase tracking-wider">Coordinates</span>
               </div>
-              {result && (
+              {canDisplayLocation && (
                 <button onClick={onCopy} className="p-1.5 rounded hover:bg-white/10 text-white/40 hover:text-white transition-colors">
                   {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </button>
               )}
             </div>
             <AnimatePresence mode="wait">
-              {result ? (
+              {canDisplayLocation && result ? (
                 <motion.div key="coords" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                   <p className="text-2xl font-mono text-white tracking-tight">{formatCoords(result.location.lat, result.location.lon)}</p>
                   <p className="text-xs font-mono text-white/40 mt-1">±{Math.round(result.location.radius_m)}m accuracy radius</p>
+                </motion.div>
+              ) : result ? (
+                <motion.div key="withheld" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                  <p className="text-sm font-mono text-amber-400 tracking-tight uppercase">Location Withheld</p>
+                  <p className="text-xs font-mono text-white/40 mt-1">
+                    Confidence is below the actionable threshold. Upload a clearer landmark image.
+                  </p>
                 </motion.div>
               ) : (
                 <motion.p key="placeholder" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-white/20 font-mono">--° --' --.&quot; N, --° --' --.&quot; E</motion.p>
@@ -280,7 +291,7 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
               <span className="text-[10px] font-mono text-white/30 uppercase">Map View</span>
               <span className="text-[10px] font-mono text-white/40">Standard · Satellite · 3D</span>
             </div>
-            <MapView result={result} />
+            <MapView result={canDisplayLocation ? result : null} />
           </div>
         </div>
       </div>

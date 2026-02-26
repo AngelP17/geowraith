@@ -675,6 +675,28 @@ curl -X POST http://localhost:8080/api/predict/sfm \
 
 ---
 
+## 2026-02-26T20:14:22Z [TOOL] [CODE] [DETERMINISM] Accuracy/console-noise stabilization pass
+
+**Task:** Address user-reported noisy map errors and misleading low-confidence precision.
+
+**Implemented:**
+- Switched `standard` basemap tiles from OSM subdomains to Esri World Street tiles in `src/components/product/mapStyles.ts` to avoid repeated 404 tile misses observed for predicted coordinates.
+- Added `sfm_enabled` to `/health` payload in `backend/src/app.ts` for runtime observability and easier stale-process detection.
+- Tightened low-confidence honesty in `backend/src/services/predictPipeline.ts`:
+  - enforce minimum uncertainty radius of **250km** for `low_confidence` responses
+  - append explicit weak-margin warning note.
+
+**Verification evidence:**
+- `curl -I` probe for previously failing tile coordinate on Esri street endpoint returned `HTTP 200`.
+- `cd backend && npm run lint && npm run test` ✅
+- `cd backend` inline app probe shows `/health` now includes `"sfm_enabled": false` and `/` endpoint list excludes `/api/predict/sfm` when deferred.
+
+**Status class:** VERIFIED  
+**Confidence:** 0.96  
+**Unrun checks:** Visual browser confirmation of eliminated map-tile 404 spam after frontend/backend restart.
+
+---
+
 ## 2026-02-26T09:15:00-08:00 [CODE] [DETERMINISM] [MODELS] SfM Pipeline - Real Implementation Complete
 
 **Task:** Fix runtime gaps preventing true 100% completion - real feature extraction, PNG channel handling, and test coverage.
