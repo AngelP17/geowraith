@@ -84,6 +84,7 @@ test('POST /api/predict returns prediction payload for valid image', async () =>
   const data = (await response.json()) as {
     status: string;
     confidence: number;
+    confidence_tier: 'high' | 'medium' | 'low';
     location: { lat: number; lon: number; radius_m: number };
   };
 
@@ -93,4 +94,8 @@ test('POST /api/predict returns prediction payload for valid image', async () =>
   assert.equal(typeof data.location.lon, 'number');
   assert.equal(typeof data.location.radius_m, 'number');
   assert.ok(data.confidence >= 0 && data.confidence <= 1);
+  assert.ok(
+    ['high', 'medium', 'low'].includes(data.confidence_tier),
+    `unexpected confidence_tier: ${data.confidence_tier}`
+  );
 });

@@ -15,8 +15,25 @@ function parseBoolean(value: string | undefined, fallback: boolean): boolean {
   return fallback;
 }
 
+/**
+ * Confidence tier thresholds
+ * Based on empirical analysis of validation benchmark (46 images, 2026-02-26):
+ * - High: top 30% of confidence scores (≥0.51) - mostly moderate errors
+ * - Medium: middle 40% (0.47-0.50) - mixed results
+ * - Low: bottom 30% (≤0.46) - mostly high errors
+ * 
+ * Note: Current confidence formula has weak correlation with actual error.
+ * These thresholds are percentile-based, not error-based.
+ */
+export const CONFIDENCE_THRESHOLDS = {
+  high: { min: 0.51, label: 'high' as const },
+  medium: { min: 0.47, label: 'medium' as const },
+  low: { min: 0, label: 'low' as const },
+};
+
 export const config = {
   apiPort: parseInteger(process.env.GEOWRAITH_API_PORT, DEFAULT_API_PORT),
   maxImageBytes: parseInteger(process.env.GEOWRAITH_MAX_IMAGE_BYTES, DEFAULT_MAX_IMAGE_BYTES),
   offlineMode: parseBoolean(process.env.GEOWRAITH_OFFLINE, true),
+  sfmEnabled: parseBoolean(process.env.GEOWRAITH_ENABLE_SFM, false),
 };

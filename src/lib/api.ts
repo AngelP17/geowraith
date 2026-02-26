@@ -6,6 +6,8 @@ export interface PredictRequest {
   };
 }
 
+export type ConfidenceTier = 'high' | 'medium' | 'low';
+
 export interface PredictResponse {
   request_id: string;
   status: 'ok' | 'low_confidence';
@@ -16,6 +18,7 @@ export interface PredictResponse {
     radius_m: number;
   };
   confidence: number;
+  confidence_tier?: ConfidenceTier;
   elapsed_ms: number;
   notes?: string;
   diagnostics?: {

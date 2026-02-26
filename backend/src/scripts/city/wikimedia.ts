@@ -1,4 +1,5 @@
 import type { CityBatchResult, CityImage } from './types.js';
+import { withRetry, sleep } from './retry.js';
 
 interface WikimediaResponse {
   query?: {
@@ -23,60 +24,78 @@ interface WikimediaResponse {
   error?: unknown;
 }
 
+// Rate limiting: 1 request per 2 seconds for Wikimedia
+const WIKIMEDIA_RATE_LIMIT_MS = 2000;
+let lastWikimediaRequest = 0;
+
+async function enforceRateLimit(): Promise<void> {
+  const now = Date.now();
+  const timeSinceLastRequest = now - lastWikimediaRequest;
+  if (timeSinceLastRequest < WIKIMEDIA_RATE_LIMIT_MS) {
+    const delay = WIKIMEDIA_RATE_LIMIT_MS - timeSinceLastRequest;
+    await sleep(delay);
+  }
+  lastWikimediaRequest = Date.now();
+}
+
 export async function fetchWikimediaImages(
   category: string,
   limit: number,
   timeoutMs: number,
   cmcontinue?: string
 ): Promise<CityBatchResult> {
-  const url = buildWikimediaUrl(category, limit, cmcontinue);
-  const response = await fetch(url, {
-    headers: {
-      'User-Agent': 'GeoWraith City Scraper (research project)',
-      'Accept': 'application/json',
-    },
-    signal: AbortSignal.timeout(timeoutMs),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Wikimedia HTTP ${response.status}`);
-  }
-
-  const payload = await response.json() as WikimediaResponse;
-  if (payload.error) {
-    throw new Error('Wikimedia API returned error');
-  }
-
-  const pages = payload.query?.pages ?? {};
-  const images: CityImage[] = [];
-
-  for (const pageId of Object.keys(pages)) {
-    const page = pages[pageId];
-    const info = page?.imageinfo?.[0];
-    if (!info) {
-      continue;
-    }
-    if (!isLikelyImage(page?.title, info.mime)) {
-      continue;
-    }
-    const url = info.thumburl || info.url;
-    if (!url) {
-      continue;
-    }
-    images.push({
-      title: page?.title ?? category,
-      url,
-      width: info.thumbwidth ?? info.width ?? 0,
-      height: info.thumbheight ?? info.height ?? 0,
-      size: info.size ?? 0,
-      source: 'wikimedia',
+  return withRetry(async () => {
+    await enforceRateLimit();
+    const url = buildWikimediaUrl(category, limit, cmcontinue);
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'GeoWraith City Scraper (research project; contact: geowraith@example.com)',
+        'Accept': 'application/json',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+      signal: AbortSignal.timeout(timeoutMs),
     });
-  }
 
-  return {
-    images,
-    continueToken: payload.continue?.gcmcontinue,
-  };
+    if (!response.ok) {
+      throw new Error(`Wikimedia HTTP ${response.status}`);
+    }
+
+    const payload = await response.json() as WikimediaResponse;
+    if (payload.error) {
+      throw new Error('Wikimedia API returned error');
+    }
+
+    const pages = payload.query?.pages ?? {};
+    const images: CityImage[] = [];
+
+    for (const pageId of Object.keys(pages)) {
+      const page = pages[pageId];
+      const info = page?.imageinfo?.[0];
+      if (!info) {
+        continue;
+      }
+      if (!isLikelyImage(page?.title, info.mime)) {
+        continue;
+      }
+      const url = info.thumburl || info.url;
+      if (!url) {
+        continue;
+      }
+      images.push({
+        title: page?.title ?? category,
+        url,
+        width: info.thumbwidth ?? info.width ?? 0,
+        height: info.thumbheight ?? info.height ?? 0,
+        size: info.size ?? 0,
+        source: 'wikimedia',
+      });
+    }
+
+    return {
+      images,
+      continueToken: payload.continue?.gcmcontinue,
+    };
+  }, 'Wikimedia category fetch', { maxRetries: 3, baseDelayMs: 2000 });
 }
 
 function buildWikimediaUrl(category: string, limit: number, cmcontinue?: string): string {
@@ -90,6 +109,7 @@ function buildWikimediaUrl(category: string, limit: number, cmcontinue?: string)
     iiprop: 'url|size|mime',
     iiurlwidth: '800',
     format: 'json',
+    origin: '*',
   });
   if (cmcontinue) {
     params.set('gcmcontinue', cmcontinue);
@@ -103,56 +123,60 @@ export async function fetchWikimediaSearchImages(
   timeoutMs: number,
   gsroffset?: number
 ): Promise<CityBatchResult> {
-  const url = buildWikimediaSearchUrl(query, limit, gsroffset);
-  const response = await fetch(url, {
-    headers: {
-      'User-Agent': 'GeoWraith City Scraper (research project)',
-      'Accept': 'application/json',
-    },
-    signal: AbortSignal.timeout(timeoutMs),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Wikimedia search HTTP ${response.status}`);
-  }
-
-  const payload = await response.json() as WikimediaResponse;
-  if (payload.error) {
-    throw new Error('Wikimedia search API returned error');
-  }
-
-  const pages = payload.query?.pages ?? {};
-  const images: CityImage[] = [];
-
-  for (const pageId of Object.keys(pages)) {
-    const page = pages[pageId];
-    const info = page?.imageinfo?.[0];
-    if (!info) {
-      continue;
-    }
-    if (!isLikelyImage(page?.title, info.mime)) {
-      continue;
-    }
-    const url = info.thumburl || info.url;
-    if (!url) {
-      continue;
-    }
-    images.push({
-      title: page?.title ?? query,
-      url,
-      width: info.thumbwidth ?? info.width ?? 0,
-      height: info.thumbheight ?? info.height ?? 0,
-      size: info.size ?? 0,
-      source: 'wikimedia_search',
+  return withRetry(async () => {
+    await enforceRateLimit();
+    const url = buildWikimediaSearchUrl(query, limit, gsroffset);
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'GeoWraith City Scraper (research project; contact: geowraith@example.com)',
+        'Accept': 'application/json',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+      signal: AbortSignal.timeout(timeoutMs),
     });
-  }
 
-  const nextOffset = payload.continue?.gsroffset;
+    if (!response.ok) {
+      throw new Error(`Wikimedia search HTTP ${response.status}`);
+    }
 
-  return {
-    images,
-    continueToken: Number.isFinite(nextOffset) ? String(nextOffset) : undefined,
-  };
+    const payload = await response.json() as WikimediaResponse;
+    if (payload.error) {
+      throw new Error('Wikimedia search API returned error');
+    }
+
+    const pages = payload.query?.pages ?? {};
+    const images: CityImage[] = [];
+
+    for (const pageId of Object.keys(pages)) {
+      const page = pages[pageId];
+      const info = page?.imageinfo?.[0];
+      if (!info) {
+        continue;
+      }
+      if (!isLikelyImage(page?.title, info.mime)) {
+        continue;
+      }
+      const url = info.thumburl || info.url;
+      if (!url) {
+        continue;
+      }
+      images.push({
+        title: page?.title ?? query,
+        url,
+        width: info.thumbwidth ?? info.width ?? 0,
+        height: info.thumbheight ?? info.height ?? 0,
+        size: info.size ?? 0,
+        source: 'wikimedia_search',
+      });
+    }
+
+    const nextOffset = payload.continue?.gsroffset;
+
+    return {
+      images,
+      continueToken: Number.isFinite(nextOffset) ? String(nextOffset) : undefined,
+    };
+  }, 'Wikimedia search fetch', { maxRetries: 3, baseDelayMs: 2000 });
 }
 
 function buildWikimediaSearchUrl(query: string, limit: number, gsroffset?: number): string {
@@ -166,6 +190,7 @@ function buildWikimediaSearchUrl(query: string, limit: number, gsroffset?: numbe
     iiprop: 'url|size|mime',
     iiurlwidth: '800',
     format: 'json',
+    origin: '*',
   });
   if (gsroffset && Number.isFinite(gsroffset)) {
     params.set('gsroffset', String(gsroffset));

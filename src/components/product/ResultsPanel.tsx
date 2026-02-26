@@ -6,6 +6,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MapPin, Target, Clock, Copy, CheckCircle2, AlertTriangle, Cpu, Database } from 'lucide-react';
+import { ConfidenceIndicator } from './ConfidenceIndicator';
 import { Mode, AnalysisPhase } from './types';
 import type { PredictResponse } from '../../lib/api';
 import { formatCoords } from './utils';
@@ -169,12 +170,28 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
             </AnimatePresence>
           </div>
 
+          {/* Confidence Indicator */}
+          <AnimatePresence>
+            {result && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+              >
+                <ConfidenceIndicator 
+                  confidence={result.confidence} 
+                  tier={result.confidence_tier || 'medium'} 
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Stats Grid */}
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
               <div className="flex items-center gap-2 mb-2">
                 <Target className="w-3.5 h-3.5 text-white/20" />
-                <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider">Confidence</span>
+                <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider">Confidence Score</span>
               </div>
               <AnimatePresence mode="wait">
                 {result ? (

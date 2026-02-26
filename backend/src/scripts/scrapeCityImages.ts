@@ -7,12 +7,13 @@
  *   npx tsx src/scripts/scrapeCityImages.ts --city="Istanbul" --count=1000
  */
 
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import path from 'node:path';
 import { fetchOpenverseImages } from './city/openverse.js';
 import { fetchWikimediaImages, fetchWikimediaSearchImages } from './city/wikimedia.js';
-import { saveImage } from './city/downloader.js';
+import { fetchFlickrImages } from './city/flickr.js';
+import { downloadImage, saveMetadata } from './city/downloader.js';
 import type { CityImage, CityScrapeConfig } from './city/types.js';
 import { CITY_CATEGORIES, getSearchQueries } from './city/config.js';
 
@@ -22,15 +23,13 @@ const { values } = parseArgs({
     'category': { type: 'string' },
     'count': { type: 'string', default: '500' },
     'output': { type: 'string', default: '.cache/city_datasets' },
-    'sources': { type: 'string', default: 'openverse,wikimedia' },
+    'sources': { type: 'string', default: 'openverse,wikimedia,flickr' },
     'licenses': { type: 'string', default: 'cc0,pdm' },
     'dry-run': { type: 'boolean', default: false },
   },
 });
 
 const FETCH_TIMEOUT_MS = 30000;
-const DOWNLOAD_TIMEOUT_MS = 30000;
-
 async function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -91,6 +90,7 @@ async function collectImages(config: CityScrapeConfig): Promise<CityImage[]> {
   let wikiContinue: string | undefined;
   let openverseNext: string | undefined;
   const searchOffsets = new Map<string, string | undefined>();
+  let flickrQueryIndex = 0;
   const seenUrls = new Set<string>();
   const seenTitles = new Set<string>();
   let batchCount = 0;
@@ -156,6 +156,22 @@ async function collectImages(config: CityScrapeConfig): Promise<CityImage[]> {
       }
     }
 
+    if (config.sources.includes('flickr')) {
+      try {
+        const flickrQuery = searchQueries[flickrQueryIndex % searchQueries.length] ?? config.cityName;
+        const result = await fetchFlickrImages(
+          flickrQuery,
+          remaining,
+          FETCH_TIMEOUT_MS
+        );
+        batch = batch.concat(result.images);
+        flickrQueryIndex += 1;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.warn(`[CityScraper] Flickr fetch failed: ${message}`);
+      }
+    }
+
     if (batch.length === 0) {
       console.log('no more images');
       break;
@@ -190,20 +206,7 @@ async function collectImages(config: CityScrapeConfig): Promise<CityImage[]> {
   return collected.slice(0, config.count);
 }
 
-async function writeMetadata(config: CityScrapeConfig, records: Array<{
-  filename: string;
-  title: string;
-  source: string;
-  width: number;
-  height: number;
-  size: number;
-}>): Promise<void> {
-  const csvLines = ['filename,title,source,width,height,size'];
-  for (const record of records) {
-    csvLines.push(`${record.filename},"${record.title}","${record.source}",${record.width},${record.height},${record.size}`);
-  }
-  await writeFile(path.join(config.outputDir, 'metadata.csv'), csvLines.join('\n'));
-}
+
 
 async function main() {
   const config = getConfig();
@@ -241,21 +244,27 @@ async function main() {
 
     process.stdout.write(`[${i + 1}/${images.length}] ${img.title.substring(0, 40)}... `);
 
-    const result = await saveImage(img, outputPath, DOWNLOAD_TIMEOUT_MS);
-    if (result.saved) {
-      metadata.push({
-        filename,
-        title: img.title,
-        source: img.source,
-        width: img.width,
-        height: img.height,
-        size: result.size || img.size,
-      });
-      successCount += 1;
-      console.log('✓');
-    } else {
+    try {
+      const result = await downloadImage(img, config.imagesDir, i);
+      if (result.success) {
+        metadata.push({
+          filename: result.filename || filename,
+          title: img.title,
+          source: img.source,
+          width: img.width,
+          height: img.height,
+          size: result.size || img.size,
+        });
+        successCount += 1;
+        console.log('✓');
+      } else {
+        failCount += 1;
+        console.log(`✗ ${result.error || ''}`);
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       failCount += 1;
-      console.log('✗');
+      console.log(`✗ ${message}`);
     }
 
     if (i < images.length - 1) {
@@ -263,7 +272,7 @@ async function main() {
     }
   }
 
-  await writeMetadata(config, metadata);
+  await saveMetadata(config.imagesDir, metadata);
 
   console.log('\n╔════════════════════════════════════════════════════════════╗');
   console.log('║                    SCRAPE SUMMARY                          ║');

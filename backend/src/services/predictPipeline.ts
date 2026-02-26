@@ -1,12 +1,19 @@
 import crypto from 'node:crypto';
-import { config } from '../config.js';
+import { config, CONFIDENCE_THRESHOLDS } from '../config.js';
 import { ApiError } from '../errors.js';
-import type { PredictRequest, PredictResponse } from '../types.js';
+import type { ConfidenceTier, PredictRequest, PredictResponse } from '../types.js';
 import { clamp } from '../utils/math.js';
 import { getReferenceIndexSource } from './geoclipIndex.js';
 import { extractImageSignals } from './imageSignals.js';
 import { parsePredictRequest } from './requestParser.js';
 import { aggregateMatches, searchNearestNeighborsWithFallback } from './vectorSearch.js';
+
+/** Determine confidence tier based on empirical thresholds. */
+function getConfidenceTier(confidence: number): ConfidenceTier {
+  if (confidence >= CONFIDENCE_THRESHOLDS.high.min) return 'high';
+  if (confidence >= CONFIDENCE_THRESHOLDS.medium.min) return 'medium';
+  return 'low';
+}
 
 /** Run GeoWraith local inference pipeline and return API response payload. */
 export async function runPredictPipeline(body: PredictRequest): Promise<PredictResponse> {
@@ -31,6 +38,7 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
         radius_m: 25,
       },
       confidence: 0.99,
+      confidence_tier: 'high',
       elapsed_ms: Date.now() - startedAt,
       notes: 'Exact EXIF GPS metadata detected. Returning embedded coordinates from uploaded image.',
       top_matches: [],
@@ -73,6 +81,7 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
     mode: parsed.mode,
     location: aggregated.location,
     confidence,
+    confidence_tier: getConfidenceTier(confidence),
     elapsed_ms: Date.now() - startedAt,
     notes: notes.join(' '),
     top_matches: matches.slice(0, 8).map((match) => ({

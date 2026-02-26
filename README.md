@@ -130,6 +130,11 @@ npm run dev
 
 API will be available at `http://localhost:8080`.
 
+Optional environment variables (see `backend/.env.example`):
+- `MAPILLARY_ACCESS_TOKEN` enables Mapillary reference retrieval for `/api/predict/sfm`.
+- `GEOWRAITH_ENABLE_SFM` controls whether `/api/predict/sfm` is active (`false` by default while SfM remains a staged update).
+- `GEOWRAITH_OFFLINE`, `GEOWRAITH_API_PORT`, and `GEOWRAITH_MAX_IMAGE_BYTES` tune local runtime behavior.
+
 **Backend checks:**
 ```bash
 npm run lint
@@ -137,6 +142,11 @@ npm run build
 npm run test
 npm run benchmark:accuracy
 npm run build:dataset
+```
+
+City dataset scrape example (multi-source fallback):
+```bash
+npm run scrape:city -- --city="Istanbul" --count=50 --sources=flickr,openverse,wikimedia
 ```
 
 **Demo mode:** Demo and Live API are explicit operator modes. Live mode now surfaces request failures instead of silently switching to demo output.

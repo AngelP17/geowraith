@@ -37,7 +37,7 @@ export async function fetchOpenverseCandidate(
     mature: 'false',
   });
 
-  const url = `https://api.openverse.engineering/v1/images?${params.toString()}`;
+  const url = `https://api.openverse.org/v1/images?${params.toString()}`;
   const response = await fetch(url, {
     headers: { 'User-Agent': 'GeoWraith/0.2.0 (smart blend validation)' },
     signal: AbortSignal.timeout(options.timeoutMs),

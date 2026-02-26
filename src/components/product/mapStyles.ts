@@ -6,7 +6,7 @@
 import type { StyleSpecification } from 'maplibre-gl';
 
 export type MapStyle = 'standard' | 'satellite' | 'terrain';
-export type BaseMapStyle = 'standard' | 'satellite' | 'fallback';
+export type BaseMapStyle = 'standard' | 'satellite' | 'offline' | 'fallback';
 
 const OSM_TILES = [
   'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -81,6 +81,25 @@ export const fallbackStyle: StyleSpecification = {
       paint: {
         'background-color': '#0d1117',
       },
+    },
+  ],
+};
+
+export const offlineStyle: StyleSpecification = {
+  version: 8,
+  sources: {
+    offline: {
+      type: 'raster',
+      tiles: ['cached://{z}/{x}/{y}'],
+      tileSize: 256,
+      attribution: '© OpenStreetMap contributors (cached)',
+    },
+  },
+  layers: [
+    {
+      id: 'offline-base',
+      type: 'raster',
+      source: 'offline',
     },
   ],
 };

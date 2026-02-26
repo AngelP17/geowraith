@@ -22,12 +22,15 @@ export interface PredictTopMatch {
   similarity: number;
 }
 
+export type ConfidenceTier = 'high' | 'medium' | 'low';
+
 export interface PredictResponse {
   request_id: string;
   status: 'ok' | 'low_confidence';
   mode: PredictMode;
   location: PredictLocation;
   confidence: number;
+  confidence_tier: ConfidenceTier;
   elapsed_ms: number;
   notes: string;
   top_matches?: PredictTopMatch[];
