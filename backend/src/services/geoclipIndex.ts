@@ -4,6 +4,8 @@ import { FEATURE_VECTOR_SIZE } from '../data/referenceVectors.js';
 import type { ReferenceVectorRecord } from '../types.js';
 import { embedGeoLocations } from './clipExtractor.js';
 import { HNSWIndex } from './annIndex.js';
+import { getReferenceImageVectors } from './referenceImageIndex.js';
+import { COORDINATE_CONFIG } from '../config.js';
 
 interface CoordinateRecord {
   id: string;
@@ -12,9 +14,9 @@ interface CoordinateRecord {
   lon: number;
 }
 
-const CHUNK_SIZE = 256;
-const TARGET_COORDINATES = 100000;
-const CACHE_VERSION = `v1-geoclip-${TARGET_COORDINATES}-model-v2`;
+const CHUNK_SIZE = COORDINATE_CONFIG.chunkSize;
+const TARGET_COORDINATES = COORDINATE_CONFIG.targetCount;
+const CACHE_VERSION = `v2-geoclip-${TARGET_COORDINATES}-model-v2`;
 const COORDINATES_FILE = path.resolve(process.cwd(), 'src/data/geoclipCoordinates.json');
 const CACHE_FILE = path.resolve(process.cwd(), `.cache/geoclip/referenceVectors.${TARGET_COORDINATES}.json`);
 const HNSW_INDEX_FILE = path.resolve(process.cwd(), `.cache/geoclip/hnsw_index.${CACHE_VERSION}.bin`);
@@ -28,6 +30,7 @@ const HNSW_CONFIG = {
 
 let indexPromise: Promise<ReferenceVectorRecord[]> | null = null;
 let indexSource: 'model' | 'cache' | 'fallback' | 'unknown' = 'unknown';
+let referenceImageAnchorCount = 0;
 
 /** Global HNSW index instance. */
 let hnswIndex: HNSWIndex | null = null;
@@ -192,21 +195,37 @@ async function buildFallbackIndex(): Promise<ReferenceVectorRecord[]> {
 export async function getReferenceVectors(): Promise<ReferenceVectorRecord[]> {
   if (!indexPromise) {
     indexPromise = (async () => {
+      let baseVectors: ReferenceVectorRecord[];
       const cached = await loadIndexFromCache();
       if (cached && cached.length > 0) {
         indexSource = 'cache';
-        return cached;
+        baseVectors = cached;
+      } else {
+        try {
+          baseVectors = await buildReferenceIndex();
+          indexSource = 'model';
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.warn('[GeoCLIP] Failed to build model-backed reference index, using fallback:', error);
+          indexSource = 'fallback';
+          baseVectors = await buildFallbackIndex();
+        }
       }
+
       try {
-        const vectors = await buildReferenceIndex();
-        indexSource = 'model';
-        return vectors;
+        const imageAnchors = await getReferenceImageVectors();
+        referenceImageAnchorCount = imageAnchors.length;
+        if (imageAnchors.length > 0) {
+          // eslint-disable-next-line no-console
+          console.log(`[GeoCLIP] Loaded ${imageAnchors.length} multi-source image anchors`);
+          return [...baseVectors, ...imageAnchors];
+        }
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.warn('[GeoCLIP] Failed to build model-backed reference index, using fallback:', error);
-        indexSource = 'fallback';
-        return buildFallbackIndex();
+        console.warn('[GeoCLIP] Failed to load image-anchor vectors, continuing with coordinate index:', error);
       }
+      referenceImageAnchorCount = 0;
+      return baseVectors;
     })();
   }
   return indexPromise;
@@ -216,12 +235,16 @@ export async function getReferenceVectors(): Promise<ReferenceVectorRecord[]> {
 export async function warmupReferenceIndex(): Promise<void> {
   const vectors = await getReferenceVectors();
   // eslint-disable-next-line no-console
-  console.log(`[GeoCLIP] Reference index ready with ${vectors.length} vectors`);
+  console.log(`[GeoCLIP] Reference index ready with ${vectors.length} vectors (${referenceImageAnchorCount} image anchors)`);
 }
 
 /** Current source used for the in-memory reference index. */
 export function getReferenceIndexSource(): 'model' | 'cache' | 'fallback' | 'unknown' {
   return indexSource;
+}
+/** Number of image-anchor vectors appended to the base coordinate index. */
+export function getReferenceImageAnchorCount(): number {
+  return referenceImageAnchorCount;
 }
 
 /**

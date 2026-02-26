@@ -39,6 +39,7 @@ export interface PredictResponse {
   diagnostics?: {
     embedding_source: 'geoclip' | 'fallback';
     reference_index_source: 'model' | 'cache' | 'fallback' | 'unknown';
+    reference_image_anchors?: number;
   };
 }
 

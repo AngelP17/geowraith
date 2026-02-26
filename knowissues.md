@@ -387,13 +387,15 @@ Living list of known issues, gaps, and risks. Keep this concise, factual, and cu
 - Expected: Reliable image acquisition with automatic retries and proper API endpoints.
 - Actual: Openverse URL is fixed and retry/rate-limit logic is present. Wikimedia remains unreliable in this environment (frequent HTTP 403), but a new Flickr source is now available and verified.
 - Impact: City-level scraping is usable via Flickr/Openverse even when Wikimedia blocks.
-- Workaround: Prefer `--sources=flickr,openverse` when Wikimedia returns persistent 403 responses.
+- Workaround: Prefer `--sources=flickr,mapillary,openverse` when Wikimedia returns persistent 403 responses.
 - Resolution: 
   - Fixed Openverse API URL from `api.openverse.engineering` to `api.openverse.org`
   - Added retry utility (`backend/src/scripts/city/retry.ts`) with exponential backoff
   - Added automatic rate limiting (2s for Wikimedia, 600ms for Openverse)
   - Added URL variant generation for Wikimedia (multiple thumbnail sizes)
   - Added Flickr public feed source (`backend/src/scripts/city/flickr.ts`) as working alternative
+  - Added Mapillary source (`backend/src/scripts/city/mapillary.ts`) for free street-level imagery when token is configured
+  - Added global city scrape orchestrator (`backend/src/scripts/scrapeGlobalCities.ts`) for broad zero-cost dataset expansion
   - Added Flickr URL-size fallbacks in downloader
   - Made per-image failures non-fatal (scrape continues with summary report)
   - Added proper User-Agent headers with contact information
@@ -472,3 +474,44 @@ Living list of known issues, gaps, and risks. Keep this concise, factual, and cu
 - Workaround: none
 - Resolution: Updated route to pass `maxReferences: max_references`.
 - Evidence: `backend/src/app.ts` lines 54-69 (`maxReferences: max_references`), `cd backend && npm run lint && npm run test && npm run build` on 2026-02-26.
+
+## KI-0026: 99% confidence for every image is unattainable for single-image geolocation
+- Status: mitigated
+- Severity: high
+- First Seen: 2026-02-26
+- Last Updated: 2026-02-26
+- Area: `backend/src/services/predictPipeline.ts`, `backend/src/services/geoclipIndex.ts`, `src/components/product/ResultsPanel.tsx`
+- Description: Some images do not contain enough geospatial signal to support high-confidence localization. Requiring 99% confidence for every image is infeasible without rejecting low-information inputs.
+- Reproduction: Submit ambiguous images (indoor scenes, generic roads, low-texture crops) to `/api/predict`; predictions can cross countries/continents if confidence is not gated.
+- Expected: System should avoid false certainty and withhold weak predictions.
+- Actual: Mitigated by confidence gating and location withholding:
+  - Actionable threshold raised to 60%
+  - `location_visibility: "withheld"` for weak/fallback/wide-spread matches
+  - Frontend hides map pin/coordinate copy when location is withheld
+  - Multi-source image-anchor vectors added from SmartBlend gallery to improve landmark retrieval
+  - Consensus aggregation now collapses duplicate coordinates and uses a strong-anchor path so dense city-anchor duplicates no longer override dominant landmark matches
+- Impact: Wrong-continent false positives are reduced in low-confidence cases, but universal 99% confidence for every input remains impossible.
+- Workaround: Use geolocatable imagery (clear landmarks, outdoor context), and treat withheld results as indeterminate rather than failures.
+- Resolution: Not fully resolvable as a hard guarantee; enforced abstain behavior and retrieval augmentation are implemented.
+- Evidence:
+  - `backend/src/config.ts` (`MINIMUM_CONFIDENCE = 0.6`, confidence tiers 0.75/0.60)
+  - `backend/src/services/predictPipeline.ts` (`location_visibility`, `location_reason`, withholding notes)
+  - `backend/src/services/vectorSearch.ts` (coordinate dedupe + strong-anchor aggregation path)
+  - `backend/src/services/referenceImageIndex.ts` (multi-source anchor vectors)
+  - `backend/src/services/geoclipIndex.ts` (anchor integration into HNSW index)
+  - `src/components/product/ResultsPanel.tsx` (withheld UI state)
+
+## KI-0027: City scraper metadata rows were missing id/url/status fields
+- Status: resolved
+- Severity: low
+- First Seen: 2026-02-26
+- Last Updated: 2026-02-26
+- Area: `backend/src/scripts/scrapeCityImages.ts`, `backend/src/scripts/city/downloader.ts`
+- Description: Downloaded city dataset metadata rows were written with `undefined` values for `id`, `url`, and `status`.
+- Reproduction: Inspect generated `backend/.cache/city_datasets/*/metadata.csv` and observe `undefined` in required columns.
+- Expected: Metadata should include deterministic row id, source URL, and download status for each successful file.
+- Actual: Fields now populated during scrape loop before CSV write.
+- Impact: Improves dataset traceability and downstream quality checks for scraped references.
+- Workaround: none
+- Resolution: Added explicit `id`, `url`, and `status: downloaded` fields to metadata rows in `scrapeCityImages.ts`.
+- Evidence: `backend/src/scripts/scrapeCityImages.ts` metadata mapping and successful lint/test/build verification on 2026-02-26.

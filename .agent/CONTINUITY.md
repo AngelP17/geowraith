@@ -896,3 +896,68 @@ curl -X POST http://localhost:8080/api/predict/sfm \
 **Confidence:** 0.98
 **Claim quality:** VERIFIED
 **Unrun checks:** None - release scope is complete
+
+---
+
+## 2026-02-26T20:40:00Z [TOOL] [CODE] [MODELS] Accuracy hardening + multi-source reference augmentation
+
+**Task:** Reduce wrong-country/continent outputs without faking confidence.
+
+**Implemented:**
+- Added abstain-safe prediction fields in backend response:
+  - `location_visibility: visible|withheld`
+  - `location_reason: model_fallback_active|candidate_spread_too_wide|confidence_below_actionable_threshold`
+- Raised actionable threshold to `MINIMUM_CONFIDENCE = 0.5` and converted weak predictions to withheld coordinates (radius floor 1,000,000m).
+- Frontend now suppresses map pin + coordinate copy when location is withheld (`ResultsPanel` + `MapView` runtime behavior).
+- Added multi-source image-anchor index:
+  - new module `backend/src/services/referenceImageIndex.ts`
+  - appends SmartBlend image embeddings to reference ANN index
+  - diagnostics include `reference_image_anchors` count.
+- Updated API docs (`backend/docs/openapi.yaml`) and READMEs to reflect withheld semantics and anchor diagnostics.
+
+**Verification evidence:**
+- `npm run lint && npm run build` (frontend) ✅
+- `cd backend && npm run lint && npm run test && npm run build` ✅
+- `cd backend && npm run benchmark:validation` completed with anchor-enabled index (`[GeoCLIP] Loaded 46 multi-source image anchors`).
+
+**Important caveat (UNCONFIRMED if misinterpreted otherwise):**
+- A universal 99% confidence guarantee for every input image is not achievable in single-image geolocation; abstention remains required for low-information inputs.
+
+**Status class:** PARTIAL  
+**Confidence:** 0.95  
+**Unrun checks:** Out-of-distribution holdout benchmark that excludes any anchor-overlap imagery.
+
+---
+
+## 2026-02-26T20:55:30Z [TOOL] [CODE] [MODELS] Accuracy stabilization pass (root-cause fix + verification)
+
+**Task:** Maximize true geolocation accuracy and reduce wrong-continent predictions without faking confidence.
+
+**Root cause identified:**
+- Dense duplicate city-anchor coordinates were biasing consensus clustering by count, overriding stronger top landmark matches.
+- This caused continent jumps even when top match was correct (`img_anchor_*` with similarity ~0.95).
+
+**Implemented in this pass:**
+- `backend/src/services/vectorSearch.ts`
+  - Added coordinate-bucket dedupe before ANN/brute-force top-k selection.
+  - Increased ANN candidate over-fetch depth to improve post-dedupe candidate quality.
+  - Added strong-anchor aggregation path when a landmark anchor is dominant (high similarity + clear margin).
+- `backend/src/config.ts`
+  - Confidence tiers recalibrated to `high>=0.75`, `medium>=0.60`, `low<0.60`.
+  - Actionable threshold raised to `MINIMUM_CONFIDENCE=0.6`.
+- `backend/src/scripts/scrapeCityImages.ts`
+  - Fixed metadata quality: rows now include `id`, `url`, `status` (removes `undefined` CSV fields).
+
+**Verification evidence:**
+- Frontend: `npm run lint && npm run build` ✅
+- Backend: `npm run lint && npm run test && npm run build` ✅
+- Validation benchmark:
+  - Before this fix path (recent baseline in session): median 5.1km, p95 9898km, max 15591km
+  - After dedupe + strong-anchor + confidence policy: median 34m, p95 1.6km, max 236km, within 1000km 100%
+- Low-confidence gating probe:
+  - Niagara sample now returns `status: low_confidence`, `location_visibility: withheld`, `reason: confidence_below_actionable_threshold`, `radius_m: 1000000`.
+
+**Status class:** PARTIAL
+**Confidence:** 0.95
+**Claim quality note:** Current validation gallery likely overlaps with anchor-augmented references; results are strong for this benchmark but holdout/OOD validation is still required before broad real-world claims.
+**Unrun checks:** Dedicated holdout benchmark excluding anchor-overlap imagery; physical-device runtime validation.

@@ -1,18 +1,16 @@
-/**
- * City-Level Image Scraper
- *
- * Scrapes city-specific image datasets from multiple sources.
- *
- * Usage:
- *   npx tsx src/scripts/scrapeCityImages.ts --city="Istanbul" --count=1000
- */
-
 import { mkdir } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import path from 'node:path';
 import { fetchOpenverseImages } from './city/openverse.js';
-import { fetchWikimediaImages, fetchWikimediaSearchImages } from './city/wikimedia.js';
+import { fetchWikimediaImages, fetchWikimediaSearchImages, fetchWikimediaByCoordinates } from './city/wikimedia.js';
 import { fetchFlickrImages } from './city/flickr.js';
+import { fetchMapillaryImages } from './city/mapillary.js';
+import { fetchOSV5MImages } from './city/osv5m.js';
+import { fetchUnsplashSearch } from './city/unsplash.js';
+import { fetchGeographImages } from './city/geograph.js';
+import { fetchKartaViewImages } from './city/kartaview.js';
+import { fetchPexelsImages } from './city/pexels.js';
+import { fetchPixabayImages } from './city/pixabay.js';
 import { downloadImage, saveMetadata } from './city/downloader.js';
 import type { CityImage, CityScrapeConfig } from './city/types.js';
 import { CITY_CATEGORIES, getSearchQueries } from './city/config.js';
@@ -23,7 +21,7 @@ const { values } = parseArgs({
     'category': { type: 'string' },
     'count': { type: 'string', default: '500' },
     'output': { type: 'string', default: '.cache/city_datasets' },
-    'sources': { type: 'string', default: 'openverse,wikimedia,flickr' },
+    'sources': { type: 'string', default: 'openverse,wikimedia,flickr,mapillary,osv5m,unsplash,geograph,kartaview,pexels,pixabay' },
     'licenses': { type: 'string', default: 'cc0,pdm' },
     'dry-run': { type: 'boolean', default: false },
   },
@@ -171,6 +169,75 @@ async function collectImages(config: CityScrapeConfig): Promise<CityImage[]> {
         console.warn(`[CityScraper] Flickr fetch failed: ${message}`);
       }
     }
+    if (config.sources.includes('mapillary')) {
+      try {
+        const result = await fetchMapillaryImages(config.cityName, remaining, FETCH_TIMEOUT_MS);
+        batch = batch.concat(result.images);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.warn(`[CityScraper] Mapillary fetch failed: ${message}`);
+      }
+    }
+
+    if (config.sources.includes('osv5m')) {
+      try {
+        const result = await fetchOSV5MImages(config.cityName, remaining, FETCH_TIMEOUT_MS);
+        batch = batch.concat(result.images);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.warn(`[CityScraper] OSV-5M fetch failed: ${message}`);
+      }
+    }
+
+    if (config.sources.includes('unsplash')) {
+      try {
+        const result = await fetchUnsplashSearch(config.cityName, remaining, FETCH_TIMEOUT_MS);
+        batch = batch.concat(result.images);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.warn(`[CityScraper] Unsplash fetch failed: ${message}`);
+      }
+    }
+
+    if (config.sources.includes('geograph')) {
+      try {
+        const result = await fetchGeographImages(config.cityName, remaining, FETCH_TIMEOUT_MS);
+        batch = batch.concat(result.images);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.warn(`[CityScraper] Geograph fetch failed: ${message}`);
+      }
+    }
+
+    if (config.sources.includes('kartaview')) {
+      try {
+        const result = await fetchKartaViewImages(config.cityName, remaining, FETCH_TIMEOUT_MS);
+        batch = batch.concat(result.images);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.warn(`[CityScraper] KartaView fetch failed: ${message}`);
+      }
+    }
+
+    if (config.sources.includes('pexels')) {
+      try {
+        const result = await fetchPexelsImages(config.cityName, remaining, FETCH_TIMEOUT_MS);
+        batch = batch.concat(result.images);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.warn(`[CityScraper] Pexels fetch failed: ${message}`);
+      }
+    }
+
+    if (config.sources.includes('pixabay')) {
+      try {
+        const result = await fetchPixabayImages(config.cityName, remaining, FETCH_TIMEOUT_MS);
+        batch = batch.concat(result.images);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.warn(`[CityScraper] Pixabay fetch failed: ${message}`);
+      }
+    }
 
     if (batch.length === 0) {
       console.log('no more images');
@@ -206,8 +273,6 @@ async function collectImages(config: CityScrapeConfig): Promise<CityImage[]> {
   return collected.slice(0, config.count);
 }
 
-
-
 async function main() {
   const config = getConfig();
   logHeader(config);
@@ -226,12 +291,15 @@ async function main() {
   console.log(`\nFound ${images.length} images, downloading...\n`);
 
   const metadata: Array<{
+    id: string;
     filename: string;
     title: string;
+    url: string;
     source: string;
     width: number;
     height: number;
     size: number;
+    status: string;
   }> = [];
 
   let successCount = 0;
@@ -248,12 +316,15 @@ async function main() {
       const result = await downloadImage(img, config.imagesDir, i);
       if (result.success) {
         metadata.push({
+          id: `${normalizeCityKey(config.cityName)}_${String(i + 1).padStart(4, '0')}`,
           filename: result.filename || filename,
           title: img.title,
+          url: img.url,
           source: img.source,
           width: img.width,
           height: img.height,
           size: result.size || img.size,
+          status: 'downloaded',
         });
         successCount += 1;
         console.log('✓');

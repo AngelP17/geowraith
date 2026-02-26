@@ -82,6 +82,16 @@ GeoWraith:
 - **MIT license**
   Fork, audit, extend, deploy. Zero cost, fully open source.
 
+- **Ultra Accuracy Mode** (v2.2+)
+  Aggressive accuracy tuning for 10m median / 1km P95 targets. Features:
+  - Geographic constraints to prevent continent-jumping errors (e.g., Sheffield→China)
+  - IQR-based outlier rejection for robust P95 accuracy
+  - Weighted median centroid calculation (less sensitive to outliers)
+  - 500K stratified coordinate dataset with global coverage
+  - 10 data source scrapers (7 work without API keys)
+  
+  Enable with `GEOWRAITH_ULTRA_ACCURACY=true`.
+
 ---
 
 ## Current Repo Structure
@@ -152,7 +162,9 @@ npm run build:dataset
 
 City dataset scrape example (multi-source fallback):
 ```bash
-npm run scrape:city -- --city="Istanbul" --count=50 --sources=flickr,openverse,wikimedia
+npm run scrape:city -- --city="Istanbul" --count=50 --sources=flickr,openverse,wikimedia,mapillary
+# Global run across configured world cities (zero-cost/public sources)
+npm run scrape:global -- --count=12 --sources=flickr,openverse,wikimedia,mapillary
 ```
 
 **Demo mode:** Demo and Live API are explicit operator modes. Live mode now surfaces request failures instead of silently switching to demo output.
@@ -168,6 +180,8 @@ npm run scrape:city -- --city="Istanbul" --count=50 --sources=flickr,openverse,w
 
 The backend returns EXIF GPS coordinates when present, otherwise an approximate location from local GeoCLIP nearest-neighbor search.
 Remote image URL fetches are blocked to preserve local-first operation.
+Weak matches now return `low_confidence` with `location_visibility: "withheld"` so the UI does not present a false precise location.
+If `.cache/smartblend_gallery/metadata.csv` exists, GeoWraith also appends multi-source image anchors to the reference index to improve landmark retrieval stability.
 
 GeoCLIP model-backed mode expects local assets in `backend/.cache/geoclip/`:
 - `vision_model_q4.onnx`

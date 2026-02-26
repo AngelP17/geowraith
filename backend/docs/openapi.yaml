@@ -25,6 +25,8 @@ paths:
                     type: string
                   offline_mode:
                     type: boolean
+                  sfm_enabled:
+                    type: boolean
                   engine:
                     type: string
   /api/predict:
@@ -77,6 +79,12 @@ paths:
                         type: number
                       radius_m:
                         type: number
+                  location_visibility:
+                    type: string
+                    enum: [visible, withheld]
+                  location_reason:
+                    type: string
+                    description: Present when location_visibility is withheld.
                   confidence:
                     type: number
                   elapsed_ms:
@@ -107,6 +115,9 @@ paths:
                       reference_index_source:
                         type: string
                         enum: [model, cache, fallback, unknown]
+                      reference_image_anchors:
+                        type: integer
+                        minimum: 0
         '400':
           description: Bad request
           content:

@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MapPin, Target, Clock, Copy, CheckCircle2, AlertTriangle, Cpu, Database } from 'lucide-react';
@@ -41,7 +36,6 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
     error: 'text-red-400',
   }[phase];
 
-  // Determine if any fallback modes are active
   const hasFallback = result && (
     result.diagnostics?.embedding_source === 'fallback' ||
     result.diagnostics?.reference_index_source === 'fallback'
@@ -53,7 +47,6 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
   );
   const canDisplayLocation = Boolean(result && !isLocationWithheld);
 
-  // Get model status display
   const getModelStatus = () => {
     if (!result?.diagnostics) return { text: 'Unknown', color: 'text-white/40', icon: null };
     
@@ -96,7 +89,6 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
 
       <div className="flex-1 overflow-y-auto">
         <div className="p-6 space-y-4">
-          {/* Status */}
           <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono text-white/40 uppercase tracking-wider">System Status</span>
@@ -104,7 +96,6 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
             </div>
           </div>
 
-          {/* Fallback Warning */}
           <AnimatePresence>
             {hasFallback && (
               <motion.div
@@ -127,7 +118,6 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
             )}
           </AnimatePresence>
 
-          {/* Low Confidence Warning */}
           <AnimatePresence>
             {isLowConfidence && !hasFallback && (
               <motion.div
@@ -149,7 +139,6 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
             )}
           </AnimatePresence>
 
-          {/* Coordinates */}
           <div className={`p-4 rounded-xl border transition-all duration-500 ${result ? 'bg-amber-500/5 border-amber-500/20' : 'bg-white/[0.02] border-white/[0.06]'}`}>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
@@ -181,7 +170,6 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
             </AnimatePresence>
           </div>
 
-          {/* Confidence Indicator */}
           <AnimatePresence>
             {result && (
               <motion.div
@@ -197,7 +185,6 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
             )}
           </AnimatePresence>
 
-          {/* Stats Grid */}
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
               <div className="flex items-center gap-2 mb-2">
@@ -234,7 +221,6 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
             </div>
           </div>
 
-          {/* Diagnostics */}
           <AnimatePresence>
             {result?.diagnostics && (
               <motion.div
@@ -266,11 +252,16 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
                      result.diagnostics.reference_index_source === 'cache' ? 'Cached' : 'Fallback'}
                   </span>
                 </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-white/30 uppercase">Image Anchors</span>
+                  <span className="text-xs font-mono text-white/60">
+                    {result.diagnostics.reference_image_anchors ?? 0}
+                  </span>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Metadata */}
           <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono text-white/30 uppercase">Analysis Mode</span>

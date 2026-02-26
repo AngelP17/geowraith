@@ -1,23 +1,39 @@
+/**
+ * Vector search service with ANN support and image anchor priority
+ * Searches reference vectors to find geographic matches
+ */
+
+import type { VectorMatch } from '../types.js';
+import { cosineSimilarity } from '../utils/math.js';
 import { ApiError } from '../errors.js';
-import type { AggregatedResult, VectorMatch } from '../types.js';
-import { haversineMeters } from '../utils/geo.js';
-import { clamp, cosineSimilarity, softmax } from '../utils/math.js';
 import { getReferenceVectors, getHNSWIndex } from './geoclipIndex.js';
+import { getReferenceImageVectors } from './referenceImageIndex.js';
+export { aggregateMatches } from './aggregation.js';
 
 /** Flag to control which search method is used. */
 export const USE_ANN_SEARCH = true;
 
-const CLUSTER_RADIUS_M = 90_000;
-const MAX_CLUSTER_CANDIDATES = 6;
-const CLUSTER_SEARCH_DEPTH = 24;
+const ANCHOR_BOOST_FACTOR = 0.15; // Boost image anchors by this amount in similarity
 
-function toScore(similarity: number): number {
-  return clamp((similarity + 1) / 2, 0, 1);
+/**
+ * Get image anchor vectors separately
+ */
+async function getImageAnchors(): Promise<VectorMatch[]> {
+  try {
+    const anchors = await getReferenceImageVectors();
+    return anchors.map(a => ({
+      ...a,
+      similarity: 0, // Will be computed
+    }));
+  } catch {
+    return [];
+  }
 }
 
 /**
- * Run brute-force nearest-neighbor search over all reference vectors.
- * O(N) complexity - accurate but slower for large indexes.
+ * Search for nearest neighbors using brute-force cosine similarity.
+ * O(N) complexity - accurate but slow for large datasets.
+ * @deprecated Use searchNearestNeighborsANN for production workloads
  */
 export async function searchNearestNeighbors(queryVector: number[], k: number): Promise<VectorMatch[]> {
   const referenceVectors = await getReferenceVectors();
@@ -39,16 +55,54 @@ export async function searchNearestNeighbors(queryVector: number[], k: number): 
 /**
  * Run approximate nearest-neighbor search using HNSW index.
  * O(log N) complexity - fast with minimal accuracy tradeoff.
+ * Also checks image anchors separately to ensure they're prioritized.
  */
 export async function searchNearestNeighborsANN(queryVector: number[], k: number): Promise<VectorMatch[]> {
-  const index = await getHNSWIndex();
-  const matches = index.search(queryVector, k);
+  // First, get image anchors with brute-force (fast since only ~200)
+  const imageAnchors = await getImageAnchors();
+  const anchorMatches = imageAnchors
+    .map(record => ({
+      ...record,
+      similarity: cosineSimilarity(queryVector, record.vector),
+    }))
+    .sort((a, b) => b.similarity - a.similarity);
 
-  if (matches.length === 0) {
+  // Get more candidates from ANN to fill the rest
+  const index = await getHNSWIndex();
+  const annMatches = index.search(queryVector, k * 3); // Get more from ANN
+
+  // Combine: image anchors first, then ANN results
+  const combined: VectorMatch[] = [];
+  
+  // Add all image anchors that meet a threshold
+  for (const anchor of anchorMatches) {
+    if (anchor.similarity > 0.2 || combined.length < 3) {
+      // Boost anchor similarity for ranking purposes
+      const boostedAnchor: VectorMatch = {
+        ...anchor,
+        similarity: Math.min(anchor.similarity + ANCHOR_BOOST_FACTOR, 1.0),
+      };
+      combined.push(boostedAnchor);
+    }
+  }
+  
+  // Add ANN matches that aren't already in the list
+  const seenIds = new Set(combined.map(m => m.id));
+  for (const match of annMatches) {
+    if (!seenIds.has(match.id)) {
+      combined.push(match);
+      seenIds.add(match.id);
+    }
+  }
+
+  // Sort by boosted similarity
+  combined.sort((a, b) => b.similarity - a.similarity);
+
+  if (combined.length === 0) {
     throw new ApiError(500, 'index_error', 'HNSW index returned no matches');
   }
 
-  return matches;
+  return combined.slice(0, k);
 }
 
 /**
@@ -63,90 +117,4 @@ export async function searchNearestNeighborsWithFallback(
     return searchNearestNeighborsANN(queryVector, k);
   }
   return searchNearestNeighbors(queryVector, k);
-}
-
-function pickConsensusCluster(matches: VectorMatch[]): VectorMatch[] {
-  const shortlist = matches.slice(0, Math.min(CLUSTER_SEARCH_DEPTH, matches.length));
-  let bestCluster: VectorMatch[] = [shortlist[0]];
-  let bestClusterScore = toScore(shortlist[0].similarity);
-
-  for (const seed of shortlist) {
-    const cluster = shortlist.filter(
-      (candidate) =>
-        haversineMeters({ lat: seed.lat, lon: seed.lon }, { lat: candidate.lat, lon: candidate.lon }) <=
-        CLUSTER_RADIUS_M
-    );
-
-    const clusterScore = cluster.reduce((sum, item) => {
-      const score = toScore(item.similarity);
-      return sum + score * score;
-    }, 0);
-
-    if (clusterScore > bestClusterScore) {
-      bestCluster = cluster;
-      bestClusterScore = clusterScore;
-    }
-  }
-
-  return bestCluster.sort((a, b) => b.similarity - a.similarity).slice(0, MAX_CLUSTER_CANDIDATES);
-}
-
-/** Aggregate top matches into a single location, confidence score, and radius. */
-export function aggregateMatches(matches: VectorMatch[]): AggregatedResult {
-  if (matches.length === 0) {
-    throw new ApiError(500, 'index_error', 'No vector matches to aggregate');
-  }
-
-  const candidates = pickConsensusCluster(matches);
-  if (candidates.length === 0) {
-    throw new ApiError(500, 'index_error', 'No candidate matches available for aggregation');
-  }
-
-  for (const candidate of candidates) {
-    if (!Number.isFinite(candidate.lat) || !Number.isFinite(candidate.lon)) {
-      throw new ApiError(500, 'index_error', `Invalid candidate coordinates for ${candidate.id}`);
-    }
-  }
-
-  const top = matches[0];
-  const second = matches[1] ?? top;
-  const topScore = toScore(top.similarity);
-  const secondScore = toScore(second.similarity);
-  const margin = clamp(topScore - secondScore, 0, 1);
-
-  const candidateScores = candidates.map((match) => toScore(match.similarity));
-  const weights = softmax(candidateScores, 0.05);
-
-  let lat = 0;
-  let lon = 0;
-  for (let i = 0; i < candidates.length; i += 1) {
-    lat += candidates[i].lat * weights[i];
-    lon += candidates[i].lon * weights[i];
-  }
-
-  const centroid = { lat, lon };
-  let spreadMeters = 0;
-  for (let i = 0; i < candidates.length; i += 1) {
-    spreadMeters +=
-      haversineMeters(centroid, { lat: candidates[i].lat, lon: candidates[i].lon }) * weights[i];
-  }
-
-  const consensusStrength = clamp(
-    candidates.length / Math.max(1, Math.min(CLUSTER_SEARCH_DEPTH, matches.length)),
-    0,
-    1
-  );
-  const confidence = clamp(0.1 + topScore * 0.5 + margin * 0.25 + consensusStrength * 0.15, 0.05, 0.97);
-  const radius = Math.round(
-    clamp(140 + spreadMeters * (1.2 - confidence) + (1 - consensusStrength) * 50_000, 120, 2_000_000)
-  );
-
-  if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
-    throw new ApiError(500, 'index_error', 'Aggregated coordinates are invalid');
-  }
-
-  return {
-    location: { lat, lon, radius_m: radius },
-    confidence,
-  };
 }

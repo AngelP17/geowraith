@@ -3,7 +3,7 @@ import { config, CONFIDENCE_THRESHOLDS, MINIMUM_CONFIDENCE } from '../config.js'
 import { ApiError } from '../errors.js';
 import type { ConfidenceTier, PredictRequest, PredictResponse } from '../types.js';
 import { clamp } from '../utils/math.js';
-import { getReferenceIndexSource } from './geoclipIndex.js';
+import { getReferenceImageAnchorCount, getReferenceIndexSource } from './geoclipIndex.js';
 import { extractImageSignals } from './imageSignals.js';
 import { parsePredictRequest } from './requestParser.js';
 import { aggregateMatches, searchNearestNeighborsWithFallback } from './vectorSearch.js';
@@ -55,6 +55,7 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
   const k = parsed.mode === 'fast' ? 8 : 20;
   const matches = await searchNearestNeighborsWithFallback(signals.vector, k, true);
   const referenceIndexSource = getReferenceIndexSource();
+  const referenceImageAnchors = getReferenceImageAnchorCount();
   const aggregated = aggregateMatches(matches);
 
   const usesFallback = signals.embeddingSource === 'fallback' || referenceIndexSource === 'fallback';
@@ -106,6 +107,9 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
       `Location coordinates are withheld for this result (required confidence: ${(MINIMUM_CONFIDENCE * 100).toFixed(0)}%+).`
     );
   }
+  if (referenceImageAnchors > 0) {
+    notes.push(`Multi-source landmark anchors active (${referenceImageAnchors} image vectors).`);
+  }
 
   return {
     request_id: requestId,
@@ -128,6 +132,7 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
     diagnostics: {
       embedding_source: signals.embeddingSource,
       reference_index_source: referenceIndexSource,
+      reference_image_anchors: referenceImageAnchors,
     },
   };
 }

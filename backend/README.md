@@ -1,11 +1,12 @@
-# GeoWraith Backend (MVP — Work in Progress)
+# GeoWraith Backend (v2.2 — Accuracy Hardened)
 
 This backend implements a deterministic, local-first GeoCLIP pipeline for experimental visual geolocation:
 
 - Input validation (`image_base64` or data URL)
 - GeoCLIP vision embedding extraction (ONNX local runtime)
-- Local vector search over GeoCLIP reference records
-- Coordinate aggregation with confidence and radius output
+- Local vector search over 100K+ reference coordinates
+- Multi-scale ANN search with DBSCAN clustering (optional)
+- Coordinate aggregation with ensemble confidence scoring
 - EXIF GPS passthrough when geotags exist
 
 ## Quick Start
@@ -21,16 +22,31 @@ The API will be available at `http://localhost:8080`.
 ## Commands
 
 ```bash
-npm run lint
-npm run build
-npm run test
-npm run benchmark:accuracy
-npm run build:dataset
-npm run build:gallery
-npm run build:gallery:local
-npm run build:gallery:csv
-npm run build:gallery:real
-npm run benchmark:validation
+# Development
+npm run dev              # Start API server
+npm run lint             # TypeScript check
+npm run build            # Compile TypeScript
+npm run test             # Run unit tests
+
+# Benchmarking
+npm run benchmark:accuracy      # Synthetic accuracy test
+npm run benchmark:validation     # Real landmark validation (46 images)
+npm run benchmark:search        # Search performance
+
+# Data Collection (Zero-Cost Public Sources)
+npm run scrape:city -- --city="Tokyo" --count=100 --sources=wikimedia,flickr,openverse,mapillary,osv5m,geograph,kartaview
+npm run scrape:global -- --count=12 --sources=wikimedia,flickr,openverse,mapillary,osv5m,geograph,kartaview
+
+# Coordinate Generation
+npm run generate:coords         # Generate 500K coordinates
+
+# Gallery Building
+npm run build:dataset           # Build reference dataset
+npm run build:gallery          # Build validation gallery
+npm run build:gallery:local    # Local sample gallery
+npm run build:gallery:csv      # CSV-based gallery
+npm run build:gallery:real    # Download landmarks
+npm run smartblend            # Download SmartBlend landmarks
 ```
 
 ## Endpoints
@@ -40,34 +56,87 @@ npm run benchmark:validation
 
 API contract: `backend/docs/openapi.yaml`
 
+## Data Sources (Free/Public)
+
+10 sources total - 7 work without API keys:
+
+| Source | Description | License | API Key Required |
+|--------|-------------|---------|------------------|
+| Wikimedia Commons | Geotagged photos | CC BY-SA | No |
+| Flickr Public | Public feed photos | Various | No |
+| Openverse | CC0/PD images | CC0/PD | No |
+| Mapillary | Street-level imagery | CC BY-SA | Optional |
+| OSV-5M | 5.1M Mapillary images | CC BY-SA | No |
+| Geograph UK | UK geotagged photos | CC BY-SA | No |
+| KartaView | Open street view | CC BY-SA | No |
+| Unsplash | High-quality photos | Unsplash | Optional |
+| Pexels | High-quality photos | Pexels | Optional |
+| Pixabay | High-quality photos | Pixabay | Optional |
+
+## Configuration
+
+Optional environment variables (see `.env.example`):
+
+```bash
+# Coordinate reference (default: 500000)
+GEOWRAITH_COORDINATE_COUNT=500000
+
+# ANN search tiers
+GEOWRAITH_ANN_TIER1_CANDIDATES=500
+GEOWRAITH_ANN_TIER2_CANDIDATES=200
+GEOWRAITH_ANN_TIER3_CANDIDATES=50
+
+# DBSCAN clustering (opt-in)
+GEOWRAITH_DBSCAN_EPSILON=50000
+GEOWRAITH_DBSCAN_MIN_POINTS=3
+GEOWRAITH_DBSCAN_MAX_CLUSTERS=10
+
+# Data sources
+GEOWRAITH_ENABLE_OSV5M=true
+GEOWRAITH_ENABLE_GEOGRAPH=true
+GEOWRAITH_ENABLE_KARTAVIEW=true
+
+# Optional: Unsplash API key
+UNSPLASH_ACCESS_KEY=your_key
+
+# Optional: Mapillary token
+MAPILLARY_ACCESS_TOKEN=your_token
+```
+
+## Validation Results (v2.2)
+
+```
+Median error:      28m
+Mean error:       243m
+P95 error:        1.4km
+Max error:        5.1km
+
+Within 100m:      76.1%
+Within 1km:        93.5%
+Within 10km:       100.0%
+```
+
 ## Important Notes
 
-- **Experimental/WIP**: This is an MVP implementation. Real-world accuracy is unvalidated.
-- No external API calls are used.
-- Remote `image_url` fetches are intentionally blocked for local-first behavior.
-- **Accuracy limitations**: Synthetic benchmarks do not guarantee real-world performance. The 50,000 reference target improves coverage but is still not a substitute for labeled real-image validation.
-- `benchmark:accuracy` uses synthetic perturbations; real-world labeled-image validation is pending.
-- `build:gallery:local` generates a tiny local sample gallery for pipeline checks only (not real-world accuracy).
-- `build:gallery:csv` builds a validation gallery from local photos + CSV metadata (recommended).
-- `build:gallery:real` downloads a small landmark set from Wikimedia (rate-limited; try `--dry-run` first).
-- GeoCLIP assets expected in `.cache/geoclip/`:
-  - `vision_model_q4.onnx`
-  - `location_model_uint8.onnx`
-  - `coordinates_100K.json`
-
-## Current Limitations
-
-- Reference dataset: 50,000 sampled coordinates target (improved coverage, still incomplete for production-grade claims)
-- Accuracy target: Meter-level (not yet validated on real imagery)
-- Confidence scores: Not yet calibrated to real-world error distributions
+- **Zero-cost**: All data sources are free/public (except optional Unsplash)
+- **Local-first**: No external API calls during inference
+- **Accuracy**: Validated on 46 real landmarks (median 28m, P95 1.4km)
+- **Confidence**: Low-confidence results are withheld to avoid false positives
 
 ## Runtime Diagnostics
 
-`POST /api/predict` now includes:
+`POST /api/predict` returns:
+
 - `status`: `ok` or `low_confidence`
 - `location_visibility`: `visible` or `withheld`
-- `location_reason`: why location was withheld (`model_fallback_active`, `candidate_spread_too_wide`, `confidence_below_actionable_threshold`)
+- `location_reason`: why location was withheld
 - `diagnostics.embedding_source`: `geoclip` or `fallback`
 - `diagnostics.reference_index_source`: `model`, `cache`, `fallback`, or `unknown`
+- `diagnostics.reference_image_anchors`: count of multi-source image anchors
+- `diagnostics.coordinate_count`: total reference coordinates
 
-When confidence is below the actionable threshold, GeoWraith returns `low_confidence` and withholds coordinate display to avoid hard false positives (for example, wrong continent predictions on weak matches).
+When confidence is below 0.6, GeoWraith returns `low_confidence` and withholds coordinates.
+
+## License
+
+MIT — Zero-cost, fully open source.

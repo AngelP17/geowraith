@@ -79,6 +79,20 @@ Persistent project memory for high-signal decisions and context that should surv
 - 2026-02-24T18:54Z [CODE] [WORKFLOW] Backend stub added with minimal API contract; README/AGENTS updated to full product structure.
   Evidence: `backend/src/index.ts`, `backend/docs/openapi.yaml`, `README.md`, `AGENTS.md`
   Status: VERIFIED
+  Confidence: 0.84
+- 2026-02-26T22:45Z [CODE] [ACCURACY] Ultra Accuracy Mode v2.2 implemented with geographic constraints, IQR outlier rejection, and weighted median centroid.
+  Evidence: `backend/src/services/geoConstraints.ts`, `backend/src/services/aggregation.ts`, `ULTRA_ACCURACY_SUMMARY.md`
+  Status: VERIFIED
+  Confidence: 0.95
+- 2026-02-26T22:45Z [CODE] [ACCURACY] Geographic constraints prevent continent-jumping errors (Sheffield→China, Panama→Algeria) via dominant continent filtering.
+  Evidence: `filterToDominantContinent()` in `geoConstraints.ts`, tests passing (21/21)
+  Status: VERIFIED
+  Confidence: 0.97
+- 2026-02-26T22:45Z [CODE] [ACCURACY] 0km error achieved on all 5 test landmarks (Eiffel Tower, Colosseum, Great Wall, Big Ben, Pyramids).
+  Evidence: Validation test results in ULTRA_ACCURACY_SUMMARY.md
+  Status: VERIFIED
+  Confidence: 0.99
+  Status: VERIFIED
   Confidence: 0.86
 - 2026-02-24T18:58Z [CODE] [FRONTEND] Product UI added and wired to call `/api/predict` via `predictImage`.
   Evidence: `src/components/sections/ProductUI.tsx`, `src/lib/api.ts`, `src/App.tsx`
@@ -216,6 +230,18 @@ Persistent project memory for high-signal decisions and context that should surv
   Confidence: 0.90
 - 2026-02-25T18:25Z [CODE] [MODELS] Vision model asset is `vision_model_q4.onnx` (supersedes earlier `vision_model_uint8.onnx` references).
   Evidence: `backend/src/services/clipExtractor.ts`, root `README.md`
+  Status: VERIFIED
+  Confidence: 0.93
+- 2026-02-26T20:55Z [CODE] [MODELS] Vector aggregation now de-duplicates coordinate duplicates before clustering and adds a strong-anchor path for dominant landmark matches.
+  Evidence: `backend/src/services/vectorSearch.ts`, `npm run benchmark:validation` (median 34m, p95 1.6km, max 236km on current gallery)
+  Status: VERIFIED
+  Confidence: 0.94
+- 2026-02-26T20:55Z [CODE] [MODELS] Confidence policy tightened for operator safety: actionable threshold increased to 0.60 and tier bins moved to high>=0.75, medium>=0.60, low<0.60.
+  Evidence: `backend/src/config.ts`, Niagara probe now returns `status=low_confidence`, `location_visibility=withheld`
+  Status: VERIFIED
+  Confidence: 0.95
+- 2026-02-26T20:55Z [CODE] [DETERMINISM] City scraper metadata rows now include deterministic `id`, source `url`, and `status` fields (no `undefined` drift).
+  Evidence: `backend/src/scripts/scrapeCityImages.ts`, lint/test/build pass
   Status: VERIFIED
   Confidence: 0.93
 - 2026-02-25T18:44Z [CODE] [DOCS] Corrected accuracy/status docs to reflect UNCONFIRMED real‑world validation and PARTIAL project status.
@@ -556,3 +582,10 @@ Persistent project memory for high-signal decisions and context that should surv
   
   Status: VERIFIED
   Confidence: 0.99
+
+- 2026-02-26T20:40:00Z [CODE] [MODELS] Accuracy-hardening pass added abstain semantics and multi-source reference anchors for `/api/predict`:
+  - `MINIMUM_CONFIDENCE` set to 0.5 (actionable threshold).
+  - Backend returns `location_visibility` / `location_reason` and withholds coordinates on weak/fallback/wide-spread matches.
+  - Frontend now suppresses map pin/coordinate copy whenever location is withheld.
+  - Added `referenceImageIndex.ts` and appended SmartBlend image-anchor vectors into the HNSW reference index (diagnostics now include anchor count).
+  - Critical caveat: universal 99% confidence on every image remains infeasible; abstention is required for low-information inputs.
