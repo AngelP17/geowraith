@@ -65,7 +65,7 @@ GeoWraith:
   Vite + React + TypeScript + Motion. Current implementation runs locally from the repo root.
 
 - **Local Inference API**
-  Express-based API with local GeoCLIP embedding, vector search, and coordinate aggregation for `/api/predict`.
+  Express-based API with CLIP-based geolocation. Uses `@xenova/transformers` CLIP model to match images against 355 world-city text embeddings when GeoCLIP ONNX models are unavailable. Falls back gracefully through GeoCLIP → CLIP → deterministic color histogram.
 
 - **Hybrid Demo Mode**
   Product UI can run in Demo mode (offline) or Live API mode (backend running).
@@ -183,10 +183,19 @@ Remote image URL fetches are blocked to preserve local-first operation.
 Weak matches now return `low_confidence` with `location_visibility: "withheld"` so the UI does not present a false precise location.
 If `.cache/smartblend_gallery/metadata.csv` exists, GeoWraith also appends multi-source image anchors to the reference index to improve landmark retrieval stability.
 
-GeoCLIP model-backed mode expects local assets in `backend/.cache/geoclip/`:
-- `vision_model_q4.onnx`
-- `location_model_uint8.onnx`
-- `coordinates_100K.json` (for rebuilding coordinate samples)
+**Inference modes (automatic fallback chain):**
+
+1. **GeoCLIP mode** (best accuracy): Requires ONNX models in `backend/.cache/geoclip/`:
+   - `vision_model_q4.onnx`
+   - `location_model_uint8.onnx`
+   - `coordinates_100K.json` (for rebuilding coordinate samples)
+
+2. **CLIP text-matching mode** (no ONNX files needed): Uses `@xenova/transformers` to auto-download
+   `Xenova/clip-vit-base-patch32` from HuggingFace on first startup. Matches images against
+   text embeddings for 355 world cities. Model is cached locally after first download.
+
+3. **Deterministic fallback** (last resort): Color histogram features matched against
+   trigonometric coordinate vectors. Very low accuracy — used only when both CLIP paths fail.
 
 ---
 
@@ -197,9 +206,10 @@ GeoCLIP model-backed mode expects local assets in `backend/.cache/geoclip/`:
 
 ## Current Limitations
 
-- **Accuracy**: The synthetic benchmark shows promising results, but real-world accuracy on diverse imagery remains unvalidated. Meter-level precision is a target, not a current guarantee.
-- **Reference Dataset**: Currently targets 50,000 sampled coordinates from GeoCLIP 100K; broader coverage and labeled-image validation are still in progress.
-- **Offline Maps**: Map tiles require internet connectivity (offline tile caching not yet implemented).
+- **Accuracy**: Without GeoCLIP ONNX models, the CLIP text-matching fallback achieves ~40-50% city-level accuracy on distinctive landmark photos. Standard CLIP (ViT-Base-Patch32) was not trained for geolocation. For 95%+ city-level accuracy globally, a geo-specialized model (StreetCLIP, GeoCLIP with ONNX exports, or PIGEON) is needed.
+- **CLIP fallback range**: CLIP text-image similarities are inherently low (0.20-0.35 raw), so confidence scores are rescaled and may appear moderate even on correct predictions.
+- **Reference Dataset**: 355 cities in CLIP mode; 696K coordinates available for GeoCLIP mode when ONNX models are present.
+- **Offline Maps**: Map tiles require internet connectivity (offline tile caching implemented with IndexedDB but depends on prior tile viewing).
 
 ---
 

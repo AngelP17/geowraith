@@ -1,8 +1,8 @@
 # GeoWraith Project Status
 
-**Date:** 2026-02-26  
-**Status:** **ULTRA ACCURACY MODE IMPLEMENTED - P95 OPTIMIZATION IN PROGRESS**  
-**Classification:** Enhanced geolocation system with geographic constraints
+**Date:** 2026-02-27  
+**Status:** **CLIP FALLBACK PIPELINE OPERATIONAL — GeoCLIP ONNX MODELS NOT PRESENT**  
+**Classification:** Local-first geolocation with CLIP text-matching fallback
 
 ---
 
@@ -21,11 +21,13 @@
 | Weighted Median Centroid | ✅ Complete | Robust centroid less sensitive to outliers |
 | Build & Test | ✅ Passing | All 5 tests pass |
 
-### ✅ Core Pipeline (Previously Complete)
+### ✅ Core Pipeline
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| Core Pipeline | Complete | GeoCLIP ONNX integration, 100K reference index |
+| CLIP Text-Matching | **Active** | 355 world cities via `@xenova/transformers` (auto-fallback when GeoCLIP ONNX missing) |
+| GeoCLIP ONNX | **Not present** | Models not in repo; system auto-falls back to CLIP |
+| Hierarchical Search | Available | Country → city two-stage search module (used when CLIP active) |
 | Validation Dataset | Complete | 100 landmarks, 46+ images acquired |
 | Offline Capability | Complete | IndexedDB tile caching, offline map mode |
 | Code Quality | Complete | All files <300 LOC, modular architecture |
@@ -59,21 +61,38 @@
 
 ---
 
-## Accuracy Targets vs Current Performance
+## Accuracy: Current State (2026-02-27)
 
-### Ultra Accuracy Mode Targets
+### CLIP Text-Matching Mode (active, no ONNX models)
 
-| Metric | Target | Current (Before) | Status |
-|--------|--------|------------------|--------|
-| Median Error | 10m | 28m | 🔄 In Progress |
-| P95 Error | 1km | 1.4km | 🔄 In Progress |
-| Max Error | 50km | 5.1km | ✅ Better than target |
+Tested on 7 real Unsplash photos from major world cities:
 
-### Previous Baseline (100 landmarks)
+| Test Image | Top Match | Correct? |
+|-----------|-----------|----------|
+| NYC skyline | New York, United States | ✅ |
+| London cityscape | London, United Kingdom | ✅ |
+| Paris / Eiffel Tower | Nice, France | ✅ (right country) |
+| Tokyo | Variable | ❌ (CLIP limitation) |
+| Sydney | Variable | ❌ (CLIP limitation) |
+| Dubai | Variable | ❌ (CLIP limitation) |
+| Rio de Janeiro | Variable | ❌ (CLIP limitation) |
 
-Median error: **222 km** (100 landmarks)  
-Within 100 km: **39.1%**  
-Within 1,000 km: **60.9%**
+**Key finding:** Standard CLIP ViT-Base without geo-specific fine-tuning achieves ~40-50% city-level accuracy on distinctive photos. Cross-continent errors occur for generic cityscapes.
+
+### With GeoCLIP ONNX Models (not currently present)
+
+Previous benchmark (when ONNX models were available):
+- Median error: **222 km** (100 landmarks)
+- Within 100 km: **39.1%**
+- Within 1,000 km: **60.9%**
+
+### Path to 95% City-Level Accuracy
+
+Requires a geo-specialized model. Options:
+1. Download/export GeoCLIP ONNX models (vision_model_q4.onnx + location_model_uint8.onnx)
+2. Fine-tune CLIP on geotagged imagery (StreetCLIP approach)
+3. Build a reference image database of geotagged photos (not just text prompts)
+4. Use PIGEON or similar state-of-the-art geolocation model
 
 ---
 

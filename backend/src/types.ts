@@ -37,8 +37,8 @@ export interface PredictResponse {
   notes: string;
   top_matches?: PredictTopMatch[];
   diagnostics?: {
-    embedding_source: 'geoclip' | 'fallback';
-    reference_index_source: 'model' | 'cache' | 'fallback' | 'unknown';
+    embedding_source: 'geoclip' | 'clip' | 'fallback';
+    reference_index_source: 'model' | 'cache' | 'clip' | 'fallback' | 'unknown';
     reference_image_anchors?: number;
   };
 }
@@ -69,7 +69,7 @@ export interface ImageSignals {
   meta: ImageMeta;
   vector: number[];
   exifLocation: ImageGpsLocation | null;
-  embeddingSource: 'geoclip' | 'fallback';
+  embeddingSource: 'geoclip' | 'clip' | 'fallback';
 }
 
 export interface ReferenceVectorRecord {

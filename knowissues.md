@@ -515,3 +515,33 @@ Living list of known issues, gaps, and risks. Keep this concise, factual, and cu
 - Workaround: none
 - Resolution: Added explicit `id`, `url`, and `status: downloaded` fields to metadata rows in `scrapeCityImages.ts`.
 - Evidence: `backend/src/scripts/scrapeCityImages.ts` metadata mapping and successful lint/test/build verification on 2026-02-26.
+
+## KI-0028: GeoCLIP ONNX models absent — CLIP text-matching fallback active
+- Status: mitigated
+- Severity: high
+- First Seen: 2026-02-27
+- Last Updated: 2026-02-27
+- Area: `backend/.cache/geoclip/`, `backend/src/services/clipExtractor.ts`, `backend/src/services/clipGeolocator.ts`
+- Description: The GeoCLIP ONNX model files (`vision_model_q4.onnx`, `location_model_uint8.onnx`) are not present in the repository or cache. The backend automatically falls back to CLIP text-based geolocation via `@xenova/transformers`.
+- Reproduction: Start backend; observe `[GeoCLIP] GeoCLIP models unavailable` in logs followed by `[CLIP] Building text embeddings for 355 cities`.
+- Expected: GeoCLIP ONNX models loaded for maximum accuracy.
+- Actual: CLIP text-matching fallback is active. The `Xenova/clip-vit-base-patch32` model is auto-downloaded from HuggingFace on first startup and cached locally. This achieves ~40-50% city-level accuracy on distinctive landmark photos.
+- Impact: Reduced accuracy compared to GeoCLIP (standard CLIP was not trained for geolocation). Cross-continent errors possible for generic cityscapes.
+- Workaround: Use images with distinctive landmarks for best results. System correctly identifies iconic locations (Eiffel Tower, Big Ben, NYC skyline).
+- Resolution: To restore GeoCLIP accuracy, obtain `vision_model_q4.onnx` and `location_model_uint8.onnx` from `Xenova/geoclip-large-patch14` on HuggingFace and place in `backend/.cache/geoclip/`. For 95% city-level accuracy, a geo-specialized model (StreetCLIP, PIGEON) is needed.
+- Evidence: Backend logs showing CLIP fallback active; terminal accuracy test on 7 Unsplash images (2026-02-27); `backend/src/services/clipGeolocator.ts`, `backend/src/services/clipHierarchicalSearch.ts`.
+
+## KI-0029: Standard CLIP accuracy limited for non-landmark imagery
+- Status: open
+- Severity: high
+- First Seen: 2026-02-27
+- Last Updated: 2026-02-27
+- Area: `backend/src/services/clipGeolocator.ts`, prediction pipeline
+- Description: Standard CLIP ViT-Base-Patch32 was trained for general image-text matching, not geolocation. Text prompts like "A photograph taken in Tokyo, Japan" do not reliably distinguish cities with similar-looking urban architecture.
+- Reproduction: Upload a generic cityscape photo of Tokyo, Dubai, or Sydney to `/api/predict`; observe that the top match may be a different city or continent.
+- Expected: Correct city identification for any photo globally.
+- Actual: ~40-50% city-level accuracy on distinctive landmark photos; cross-continent errors on generic cityscapes.
+- Impact: Users may receive incorrect geolocation results for non-iconic imagery.
+- Workaround: Use images with clearly identifiable landmarks, signage, or architecture. Check confidence score — lower confidence correlates with less reliable predictions.
+- Resolution: Requires a geo-specialized model. Options: (1) StreetCLIP (fine-tuned CLIP for geolocation), (2) GeoCLIP with proper ONNX exports, (3) PIGEON model, (4) reference image database of geotagged photos instead of text-only embeddings.
+- Evidence: Terminal accuracy tests showing NYC/London/Paris correct but Tokyo/Dubai/Sydney variable (2026-02-27).

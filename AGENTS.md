@@ -304,3 +304,44 @@ A task is complete when:
 - **Ethics concerns:** Flag immediately, do not merge
 
 **License:** MIT — You own what you build, but you are responsible for how it is used.
+
+---
+
+## Cursor Cloud specific instructions
+
+### Services overview
+
+| Service | Directory | Dev command | Port | Notes |
+|---------|-----------|-------------|------|-------|
+| Frontend (Vite/React) | `/workspace` | `npm run dev` | 3001 | Works standalone in Demo mode |
+| Backend (Express API) | `/workspace/backend` | `npm run dev` | 8080 | Optional for live inference; frontend gracefully degrades without it |
+
+Standard commands for lint, build, and test are documented in `README.md` under **Quick Start** and **Backend checks**.
+
+### Backend `npm install` workaround
+
+`onnxruntime-node@1.22.0` post-install script fails in this environment because it tries to download GPU (CUDA) binaries that don't match the Linux x64 host. The workaround:
+
+```bash
+cd backend
+npm install --ignore-scripts
+# Rebuild the native addons that actually need it:
+cd node_modules/sharp && npm run install && cd ../..
+npx node-gyp rebuild --directory=node_modules/hnswlib-node
+cd node_modules/@xenova/transformers/node_modules/sharp && npm run install && cd ../../../..
+```
+
+The CPU-only ONNX runtime binaries (napi-v6) are bundled in the package and load correctly without the GPU install step.
+
+### Running services
+
+- **Frontend only (Demo mode):** `npm run dev` from repo root. No backend needed.
+- **Both services:** Start backend first (`cd backend && npm run dev`), then frontend (`npm run dev` from root). Or use `./start.sh`.
+- The backend health check is at `GET http://localhost:8080/health`.
+
+### Gotchas
+
+- No proxy in `vite.config.ts` — frontend makes direct fetch to `http://localhost:8080`. CORS is handled server-side.
+- GeoCLIP model files (`backend/.cache/geoclip/`) are not in the repo. Without them, the backend falls back to CLIP-based text matching via `@xenova/transformers`. The CLIP model (`Xenova/clip-vit-base-patch32`) is auto-downloaded from HuggingFace on first backend startup and cached locally.
+- `npm run lint` in both root and `backend/` runs `tsc --noEmit` (type checking only, no ESLint).
+- **CLIP accuracy limitation**: Standard CLIP ViT-Base without geo-specific fine-tuning achieves limited city-level accuracy (~40-50% for distinctive landmark photos). To reach 95% city-level accuracy globally, the project needs a geo-specialized model (e.g., StreetCLIP, GeoCLIP with proper ONNX exports, or PIGEON) and/or a reference image database of geotagged photos.

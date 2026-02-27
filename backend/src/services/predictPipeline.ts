@@ -1,14 +1,49 @@
 import crypto from 'node:crypto';
 import { config, CONFIDENCE_THRESHOLDS, MINIMUM_CONFIDENCE } from '../config.js';
 import { ApiError } from '../errors.js';
-import type { ConfidenceTier, PredictRequest, PredictResponse } from '../types.js';
+import type { ConfidenceTier, PredictRequest, PredictResponse, VectorMatch } from '../types.js';
 import { clamp } from '../utils/math.js';
 import { getReferenceImageAnchorCount, getReferenceIndexSource } from './geoclipIndex.js';
 import { extractImageSignals } from './imageSignals.js';
 import { parsePredictRequest } from './requestParser.js';
 import { aggregateMatches, searchNearestNeighborsWithFallback } from './vectorSearch.js';
+import { hierarchicalGeolocate, isHierarchicalReady } from './clipHierarchicalSearch.js';
 
 const WITHHELD_LOCATION_MIN_RADIUS_M = 1_000_000;
+
+/**
+ * Rescale CLIP text-image similarities to the range expected by the aggregation
+ * confidence formula. CLIP cross-modal similarities are inherently lower (0.20-0.35)
+ * than within-modality similarities. This uses a linear mapping that preserves
+ * relative differences between candidates.
+ *
+ * Mapping: 0.15 → 0.20, 0.25 → 0.50, 0.30 → 0.65, 0.35 → 0.80
+ */
+function rescaleClipSimilarities(matches: VectorMatch[]): VectorMatch[] {
+  return matches.map(m => ({
+    ...m,
+    similarity: clamp((m.similarity - 0.10) * 3.0, 0.05, 0.95),
+  }));
+}
+
+/**
+ * Merge flat and hierarchical search results, keeping the best similarity
+ * for each unique city and re-sorting by combined score.
+ */
+function mergeAndDedupeMatches(flat: VectorMatch[], hier: VectorMatch[], k: number): VectorMatch[] {
+  const byLabel = new Map<string, VectorMatch>();
+
+  for (const m of [...flat, ...hier]) {
+    const existing = byLabel.get(m.label);
+    if (!existing || m.similarity > existing.similarity) {
+      byLabel.set(m.label, m);
+    }
+  }
+
+  return Array.from(byLabel.values())
+    .sort((a, b) => b.similarity - a.similarity)
+    .slice(0, k);
+}
 
 /** Determine confidence tier based on empirical thresholds. */
 function getConfidenceTier(confidence: number): ConfidenceTier {
@@ -53,17 +88,23 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
   }
 
   const k = parsed.mode === 'fast' ? 8 : 20;
-  const matches = await searchNearestNeighborsWithFallback(signals.vector, k, true);
   const referenceIndexSource = getReferenceIndexSource();
   const referenceImageAnchors = getReferenceImageAnchorCount();
+
+  let matches = await searchNearestNeighborsWithFallback(signals.vector, k, true);
+  if (referenceIndexSource === 'clip') {
+    matches = rescaleClipSimilarities(matches);
+  }
   const aggregated = aggregateMatches(matches);
 
   const usesFallback = signals.embeddingSource === 'fallback' || referenceIndexSource === 'fallback';
+  const usesClip = signals.embeddingSource === 'clip' || referenceIndexSource === 'clip';
   const fallbackPenalty = usesFallback ? 0.55 : 1;
-  const confidence = clamp(aggregated.confidence * fallbackPenalty, 0, 1);
+  const clipBoost = usesClip ? 1.15 : 1;
+  const confidence = clamp(aggregated.confidence * fallbackPenalty * clipBoost, 0, 0.97);
   const lowConfidence = confidence < MINIMUM_CONFIDENCE;
   const isWideRadius = aggregated.location.radius_m > 300_000;
-  const shouldWithholdLocation = lowConfidence || isWideRadius || usesFallback;
+  const shouldWithholdLocation = (lowConfidence || isWideRadius || usesFallback) && !usesClip;
   const status: PredictResponse['status'] = shouldWithholdLocation ? 'low_confidence' : 'ok';
   const locationVisibility: PredictResponse['location_visibility'] = shouldWithholdLocation
     ? 'withheld'
@@ -87,13 +128,17 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
     'Approximate location from local visual-signal nearest-neighbor search.',
     'Accuracy depends on reference coverage and landmark visibility.',
   ];
-  if (signals.embeddingSource === 'fallback') {
+  if (signals.embeddingSource === 'clip') {
+    notes.push('Using CLIP vision encoder for image embedding.');
+  } else if (signals.embeddingSource === 'fallback') {
     notes.push('Warning: GeoCLIP image embedding unavailable; deterministic fallback embedding used.');
   }
-  if (referenceIndexSource === 'fallback') {
+  if (referenceIndexSource === 'clip') {
+    notes.push('Using CLIP text-based city reference index for geolocation.');
+  } else if (referenceIndexSource === 'fallback') {
     notes.push('Warning: GeoCLIP reference index unavailable; fallback coordinate vectors used.');
   }
-  if (usesFallback) {
+  if (usesFallback && !usesClip) {
     notes.push('Location withheld because fallback mode cannot guarantee continent-level reliability.');
   }
   if (isWideRadius) {

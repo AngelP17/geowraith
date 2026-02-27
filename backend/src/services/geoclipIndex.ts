@@ -6,6 +6,7 @@ import { embedGeoLocations } from './clipExtractor.js';
 import { HNSWIndex } from './annIndex.js';
 import { getReferenceImageVectors } from './referenceImageIndex.js';
 import { COORDINATE_CONFIG } from '../config.js';
+import { buildCityReferenceVectors } from './clipGeolocator.js';
 
 interface CoordinateRecord {
   id: string;
@@ -29,7 +30,7 @@ const HNSW_CONFIG = {
 };
 
 let indexPromise: Promise<ReferenceVectorRecord[]> | null = null;
-let indexSource: 'model' | 'cache' | 'fallback' | 'unknown' = 'unknown';
+let indexSource: 'model' | 'cache' | 'clip' | 'fallback' | 'unknown' = 'unknown';
 let referenceImageAnchorCount = 0;
 
 /** Global HNSW index instance. */
@@ -204,11 +205,17 @@ export async function getReferenceVectors(): Promise<ReferenceVectorRecord[]> {
         try {
           baseVectors = await buildReferenceIndex();
           indexSource = 'model';
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.warn('[GeoCLIP] Failed to build model-backed reference index, using fallback:', error);
-          indexSource = 'fallback';
-          baseVectors = await buildFallbackIndex();
+        } catch (geoclipError) {
+          console.warn('[GeoCLIP] GeoCLIP models unavailable, trying CLIP text-based index:', geoclipError);
+          try {
+            baseVectors = await buildCityReferenceVectors();
+            indexSource = 'clip';
+            console.log(`[CLIP] Built CLIP text-based reference index with ${baseVectors.length} city vectors`);
+          } catch (clipError) {
+            console.warn('[CLIP] CLIP index also failed, using deterministic fallback:', clipError);
+            indexSource = 'fallback';
+            baseVectors = await buildFallbackIndex();
+          }
         }
       }
 
@@ -239,7 +246,7 @@ export async function warmupReferenceIndex(): Promise<void> {
 }
 
 /** Current source used for the in-memory reference index. */
-export function getReferenceIndexSource(): 'model' | 'cache' | 'fallback' | 'unknown' {
+export function getReferenceIndexSource(): 'model' | 'cache' | 'clip' | 'fallback' | 'unknown' {
   return indexSource;
 }
 /** Number of image-anchor vectors appended to the base coordinate index. */

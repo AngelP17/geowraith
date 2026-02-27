@@ -1,12 +1,13 @@
-# GeoWraith Backend (v2.2 — Accuracy Hardened)
+# GeoWraith Backend (v2.2 — CLIP Fallback Active)
 
-This backend implements a deterministic, local-first GeoCLIP pipeline for experimental visual geolocation:
+This backend implements a deterministic, local-first geolocation pipeline:
 
 - Input validation (`image_base64` or data URL)
-- GeoCLIP vision embedding extraction (ONNX local runtime)
-- Local vector search over 100K+ reference coordinates
-- Multi-scale ANN search with DBSCAN clustering (optional)
-- Coordinate aggregation with ensemble confidence scoring
+- Three-tier embedding: GeoCLIP ONNX → CLIP text-matching (`@xenova/transformers`) → deterministic fallback
+- CLIP mode: matches images against 355 world-city text embeddings (auto-downloads model from HuggingFace)
+- GeoCLIP mode: uses ONNX vision/location encoders with 100K+ reference coordinates (when models present)
+- HNSW approximate nearest-neighbor search
+- Coordinate aggregation with continent filtering and confidence scoring
 - EXIF GPS passthrough when geotags exist
 
 ## Quick Start
