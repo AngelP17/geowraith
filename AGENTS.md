@@ -1,178 +1,138 @@
-Here is the **GeoWraith-specific `AGENTS.md`** — a drop-in file for `.codex/AGENTS.md` or repo root that inherits your global rules and adds project-specific constraints for the Rust/React stack, deterministic testing, and ethical use requirements.
-
 # GeoWraith AGENTS.md
 
 **Project:** GeoWraith v2.2 — Local-First Visual Geolocation  
 **Stack:** TypeScript/React (Vite) + Node/Express (API stub)  
 **Constraints:** Zero-cost hosting, deterministic builds, offline-capable, MIT license  
-**Last Updated:** 2026-02-24
+**Last Updated:** 2026-02-27
+
+> **Quick Links:** [README](README.md) | [Architecture](ARCHITECTURE.md) | [Status](STATUS.md) | [Known Issues](knowissues.md)
 
 ---
 
-## How This File Relates to Global Guidance
+## Build, Lint & Test Commands
 
-This `AGENTS.md` is the **repo-local extension** of your global `~/.codex/AGENTS.md`.
-
-- **Read order**: Read the global `~/.codex/AGENTS.md` first, then this file.
-- **Scope**: Global guidance defines how Codex should behave everywhere; this file pins the GeoWraith-specific constraints for determinism, ethics, and stack choices.
-- **Non-negotiables (from global rules)**:
-  - Deterministic, reproducible builds and tests.
-  - No destructive or write-capable remote API calls without explicit user approval and a dry-run.
-  - Hard 300 LOC limit for code files (modular by default).
-  - Continuity ledger must be maintained in `.agent/CONTINUITY.md`.
-
-The **canonical end‑user and operator documentation** for this repo is `[README.md](README.md)`. When in doubt about commands, file layout, or workflows, prefer the README and keep this file focused on **agent behavior and guardrails**.
-
-### Global Alignment: Accuracy, Recency, and Sourcing
-
-When a task depends on *current* information (e.g., free tier hosting limits, latest crate versions, security advisories):
-
-- Establish the current date/time in ISO format (e.g., via `date -Is`) and treat it as part of the answer.
-- Prefer **official / primary sources**.
-- Prefer the **most recent versioned docs**; when evaluating hosting options, confirm that a free tier still exists and **record the source and publish date** in your explanation.
-- If you cannot verify a fact, mark it as **UNCONFIRMED** and avoid relying on it for critical decisions.
-
-Web search (or Context7) is allowed **only when it materially improves correctness**, and the results must be summarized in your own words—never pasted in bulk.
-
----
-
-## GeoWraith-Specific Mandates
-
-### 1. Determinism Is Non-Negotiable
-
-Every code change must preserve byte-for-byte reproducibility:
-
-- **Node:** Lockfile must be committed (`package-lock.json`).
-
-**Testing verification:**
-- Use committed fixtures only if/when backend tests are introduced
-- `GEOWRAITH_OFFLINE=1` must pass when implemented
-
-The authoritative commands and workflows live in `[README.md](README.md)` (quick start, testing). Keep this file **policy-focused** and avoid diverging from the README’s command examples.
-
-### 2. Host-First (Current)
-
-Host-based workflows are the default for this repo.
-
+### Frontend (root)
 ```bash
-# Frontend
-npm install
-npm run dev
-npm run build
-npm run lint
-
-# Backend (stub)
-cd backend
-npm install
-npm run dev
+npm run dev          # Start Vite dev server on port 3001
+npm run build       # Production build to dist/
+npm run lint        # TypeScript type check (tsc --noEmit)
+npm run preview     # Preview production build
+npm run clean       # Remove dist/
 ```
 
-**If a task requires a new tool:** Document it in `[README.md](README.md)` and keep tooling choices consistent with the current repo setup.
+### Backend (cd backend)
+```bash
+cd backend
+npm run dev         # Start API server on port 8080
+npm run build       # Compile TypeScript to dist/
+npm run lint        # TypeScript type check
+npm run test        # Run all tests (tsx --test src/**/*.test.ts)
 
-### 3. Code Modularity (300 LOC Hard Limit)
+# Run a single test file
+npm run test -- src/routes/predict.test.ts
 
-GeoWraith uses aggressive modularization:
+# Run tests matching a pattern
+npm run test -- --grep "health"
 
-- **TypeScript:** Components over 300 lines must decompose into sub-components or hooks.
-- **Backend:** Files over 300 lines must be split into modules.
+# Backend benchmarks
+npm run benchmark:accuracy
+npm run benchmark:search
+npm run benchmark:validation
+```
 
-**Exception:** Generated files and documentation.
+---
 
-#### Scope Control (Global Rule, GeoWraith-Tailored)
+## Code Style Guidelines
 
-- Only modify files that are **directly required** by the current task.
-- If a change would touch additional files (refactors, cleanups, “small improvements”), **list them and the reason** before editing and wait for explicit approval.
-- Never rename, move, or delete files without an explicit user request.
+### General
+- **300 LOC max** per file (except generated/docs). Decompose large components into sub-components or hooks.
+- Use **ES modules** (`import`/`export`, not CommonJS).
+- Always use **strict TypeScript** (`strict: true` in tsconfig).
 
-### 4. Error Handling (Zero Tolerance for Silent Failures)
+### Imports & Organization
+- **Explicit imports only** — no barrel files (`index.ts`) unless for re-exports.
+- Order: external libs → internal modules → local types → relative paths.
+- Use path aliases defined in `tsconfig.json` (e.g., `@/` or `@backend/`).
+- Example:
+```ts
+import { useState } from 'react';
+import axios from 'axios';
+import { config } from '../config.js';
+import type { PredictResponse } from '../lib/api.ts';
+```
 
-**Banned patterns:**
+### Naming Conventions
+- **Files:** kebab-case (`clipExtractor.ts`, `useMapRuntime.ts`)
+- **Components:** PascalCase (`Hero.tsx`, `ProductUI.tsx`)
+- **Hooks:** camelCase with `use` prefix (`useScrollProgress.ts`)
+- **Types/Interfaces:** PascalCase (`PredictRequest`, `ConfidenceTier`)
+- **Constants:** UPPER_SNAKE_CASE for runtime constants, PascalCase for config objects
+- **Variables:** camelCase
+
+### TypeScript Types
+- Use **interfaces** for object shapes, **types** for unions/intersections.
+- Always type function parameters and return values.
+- Avoid `any` — use `unknown` if type is truly unknown, then narrow with type guards.
+- Use `strict` mode — no implicit `any`.
+
+### Error Handling
+- **NEVER** use empty catch blocks:
 ```ts
 // BANNED
 try { /* ... */ } catch { /* ignore */ }
 ```
-
-**Required pattern:**
+- **REQUIRED** — throw descriptive errors with context:
 ```ts
-// REQUIRED
 if (!payload) {
-  throw new Error('missing payload');
+  throw new Error('missing payload: predictImage requires an image');
+}
+```
+- Use custom error types for API errors:
+```ts
+export class ApiError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+```
+- Log errors with context before propagating:
+```ts
+catch (err) {
+  console.error('[Service] Failed to extract embedding:', err);
+  throw err;
 }
 ```
 
-Log errors with clear context before propagating. If you don't know how to handle it, let it bubble up—never swallow.
+### React Patterns
+- Use **functional components** with hooks only.
+- Colocate small components in a single file when tightly coupled.
+- Extract reusable logic into custom hooks.
+- Use `useCallback`/`useMemo` only when there's measurable perf benefit.
+- Keep components under 200 lines; decompose larger ones.
 
-### 5. Ethical Use Guardrails
-
-Every code contribution must respect:
-
-- **No live camera ingestion** — Only analyze operator-uploaded static images
-- **No tracking persistence** — Do not store session data, user IDs, or query logs beyond the HTTP request lifecycle
-- **Explicit authorization checks** — Any batch processing feature must verify ownership of imagery
-
-If implementing a feature that could enable surveillance (correlation across time, face detection, etc.), stop and flag for review. GeoWraith analyzes **places**, not people.
-
-### 6. Zero-Cost Deployment Constraint
-
-All code must run on free tiers:
-- No Redis, no Postgres, no cloud-only services
-- Static file serving only (no server-side rendering requirement)
-
----
-
-## Project Structure Reference
-
+### API/Express Patterns
+- Return JSON only — never plain text or HTML (except `/health`).
+- Validate input early; return 400 with clear error message:
+```ts
+if (!payload.image_base64 && !payload.image_url) {
+  return res.status(400).json({ error: 'missing image payload' });
+}
 ```
-./
-├── src/                 # React app source
-├── dist/                # Production build output
-├── bg.mp4               # Hero background video
-├── backend/             # API service (stub)
-│   ├── src/
-│   ├── docs/
-│   ├── package.json
-│   └── tsconfig.json
-├── package.json
-├── package-lock.json
-├── tsconfig.json
-├── vite.config.ts
-└── README.md
-```
+- Use middleware for cross-cutting concerns (logging, error handling).
+- No silent failures — always log and return appropriate status codes.
+
+### Formatting
+- Use **2 spaces** for indentation (match project defaults).
+- Max **100 characters** per line.
+- Trailing commas in multi-line objects/arrays.
+- Single quotes for strings (except where template literals needed).
+- Always use semicolons.
+- Format on save (editor config provided via `.editorconfig` if present).
 
 ---
 
-## Current Frontend Baseline (As of 2026-02-24)
-
-Use this as the agent reference point to prevent drift between implementation and documentation.
-
-- Hero style: dark cinematic landing with animated grid overlay and center-focused typography.
-- Nav layout: centered `GEOWRAITH` logo with `Docs`, `Examples`, `Gallery`, `Contact`.
-- Hero copy baseline:
-  - Badge: `v2.2 | Fully Local | MIT Licensed`
-  - Headline: `Meter-Level Geolocation from Any Photo`
-  - CTAs: `Start Building`, `Learn More`
-- Docs/Examples/Gallery are interactive and should scroll to live sections.
-- Implemented landing flow in `src/App.tsx` includes:
-  `Navbar`, `Hero`, `ProductUI`, `Docs`, `Examples`, `Gallery`, `WhatItIs`, `Features`, `UseCases`, `Industries`,
-  `HowItWorks`, `Outcomes`, `Comparison`, `PrivacyDeepDive`,
-  `TechStack`, `Pricing`, `FAQ`, `Contact`, `FinalCTA`, `Footer`.
-
-When this baseline changes, update `README.md`, `Memory.md`, and `knowissues.md` as applicable in the same task.
-
----
-
-## Testing Protocol
-
-**Scope note:** The commands below apply only if the corresponding services/files exist in this workspace.
-
-### Frontend Tests
-```bash
-npm run test  # If defined in package.json
-```
-
----
-
-## Continuity Ledger
+## Determinism & Testing
 
 Maintain `.agent/CONTINUITY.md` per global rules, with GeoWraith-specific sections.
 
@@ -302,6 +262,21 @@ A task is complete when:
 - **Determinism issues:** Check `package-lock.json` and build scripts first
 - **Model accuracy issues:** Verify test fixtures once added
 - **Ethics concerns:** Flag immediately, do not merge
+
+---
+
+## Related Documentation
+
+| Document | Description |
+|----------|-------------|
+| [README.md](README.md) | Main project documentation |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture, API contracts, models, pipelines |
+| [STATUS.md](STATUS.md) | Current project status and component matrix |
+| [knowissues.md](knowissues.md) | Known issues, gaps, and risks |
+| [Memory.md](Memory.md) | Durable high-level memory of decisions |
+| [.agent/CONTINUITY.md](.agent/CONTINUITY.md) | Task-by-task operational continuity |
+| [VALIDATION_GUIDE.md](VALIDATION_GUIDE.md) | Real-world accuracy validation workflow |
+| [docs/DEPLOYMENT_RUNBOOK.md](docs/DEPLOYMENT_RUNBOOK.md) | Production deployment guide |
 
 **License:** MIT — You own what you build, but you are responsible for how it is used.
 

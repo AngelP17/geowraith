@@ -2,6 +2,8 @@
 
 **Local-First • Open-Source Visual Geolocation Work in Progress**
 
+> **Quick Links:** [Architecture](ARCHITECTURE.md) | [API Docs](ARCHITECTURE.md#api-endpoints) | [) | [KnownStatus](STATUS.md Issues](knowissues.md)
+
 GeoWraith is an experimental, local-first visual geolocation system exploring privacy-preserving approaches to image-based location inference.
 No data leaves your machine. No external services are required after setup.
 
@@ -322,10 +324,30 @@ Synchronization rule:
 
 1. Fork the repository
 2. Add or update tests when applicable
-3. Update docs that changed behavior/state: `README.md`, `.agent/CONTINUITY.md`, `Memory.md`, `knowissues.md`
+3. Update docs that changed behavior/state: `README.md`, `.agent/CONTINUITY.md`, `Memory.md`, `knowissues.md`, `ARCHITECTURE.md`, `AGENTS.md`
 4. Ensure `npm run build` and `npm run lint` pass
 
 Pull requests that break determinism will not be accepted.
+
+---
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [README.md](README.md) | Main project documentation (this file) |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture, API contracts, models, pipelines |
+| [AGENTS.md](AGENTS.md) | Build/lint/test commands and code style for agents |
+| [STATUS.md](STATUS.md) | Current project status and component matrix |
+| [knowissues.md](knowissues.md) | Known issues, gaps, and risks |
+| [Memory.md](Memory.md) | Durable high-level memory of decisions |
+| [.agent/CONTINUITY.md](.agent/CONTINUITY.md) | Task-by-task operational continuity |
+| [VALIDATION_GUIDE.md](VALIDATION_GUIDE.md) | Real-world accuracy validation workflow |
+| [SMARTBLEND_GUIDE.md](SMARTBLEND_GUIDE.md) | SmartBlend landmark database guide |
+| [CSV_WORKFLOW_GUIDE.md](CSV_WORKFLOW_GUIDE.md) | CSV-based validation workflow |
+| [docs/DEPLOYMENT_RUNBOOK.md](docs/DEPLOYMENT_RUNBOOK.md) | Production deployment guide |
+| [docs/SFM_PIPELINE_ARCHITECTURE.md](docs/SFM_PIPELINE_ARCHITECTURE.md) | SfM refinement pipeline design |
+| [docs/PHYSICAL_DEVICE_VALIDATION.md](docs/PHYSICAL_DEVICE_VALIDATION.md) | Physical device testing guide |
 
 ---
 

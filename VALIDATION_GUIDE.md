@@ -3,6 +3,8 @@
 **Date:** 2026-02-25  
 **Status:** Real‑world accuracy validated on 32 images
 
+> **Quick Links:** [README](README.md) | [Architecture](ARCHITECTURE.md) | [AGENTS](AGENTS.md) | [Status](STATUS.md) | [Known Issues](knowissues.md)
+
 ---
 
 ## 1. Download Images (Multi-Source)

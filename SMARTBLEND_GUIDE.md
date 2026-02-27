@@ -2,6 +2,8 @@
 
 **Resilient, multi‑source validation pipeline**
 
+> **Quick Links:** [README](README.md) | [Architecture](ARCHITECTURE.md) | [AGENTS](AGENTS.md) | [Status](STATUS.md) | [VALIDATION_GUIDE](VALIDATION_GUIDE.md)
+
 SmartBlend provides multiple ways to build validation datasets:
 
 1. **Multi-Source Downloader** — Direct Wikimedia Commons downloads

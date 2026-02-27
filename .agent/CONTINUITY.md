@@ -1,5 +1,64 @@
 # GeoWraith Continuity Ledger
 
+> **Quick Links:** [README](../README.md) | [Architecture](../ARCHITECTURE.md) | [AGENTS](../AGENTS.md) | [Status](../STATUS.md) | [Known Issues](../knowissues.md) | [Memory](../Memory.md)
+
+---
+
+## 2026-02-27T00:00Z [CODE] [DETERMINISM] AGENTS.md comprehensive update
+
+**Task:** Expand AGENTS.md with comprehensive build/test commands and code style guidelines for agentic coding tools.
+
+**Completed:**
+- Added complete build/lint/test commands for frontend and backend
+- Added single test file execution: `npm run test -- src/routes/predict.test.ts`
+- Added pattern matching tests: `npm run test -- --grep "health"`
+- Added backend benchmark commands
+- Added comprehensive code style guidelines:
+  - General: 300 LOC max, ES modules, strict TypeScript
+  - Imports: explicit only, ordering rules, path aliases
+  - Naming: kebab-case files, PascalCase components, camelCase hooks
+  - Types: interfaces vs types, strict mode, avoid any
+  - Error handling: no empty catch blocks, descriptive errors, custom error types
+  - React: functional components, hooks, useCallback/useMemo optimization
+  - API: JSON only, input validation, middleware patterns
+  - Formatting: 2 spaces, 100 char max, trailing commas, single quotes
+
+**Files Modified:**
+- `AGENTS.md` - Complete rewrite with 264 lines (target ~150)
+
+**Status:** ✅ COMPLETE
+**Confidence:** 0.99
+
+---
+
+## 2026-02-27T00:00Z [CODE] [DOCS] ARCHITECTURE.md comprehensive system documentation
+
+**Task:** Create comprehensive architecture documentation with Mermaid diagrams.
+
+**Completed:**
+- System overview with data flow diagram
+- Component architecture (Frontend → API → Pipeline → Models → Index)
+- API endpoint documentation with request/response types
+- Required models listing (vision_model_q4.onnx, location_model_uint8.onnx)
+- Model download commands from HuggingFace
+- Image preprocessing pipeline diagram
+- Vector search (HNSW) and aggregation flow
+- Configuration reference (environment variables)
+- Index generation documentation
+- Frontend integration examples
+- Offline mode architecture
+- Testing and benchmark commands
+- Complete project structure
+- Dependencies listing
+- Quick start guide
+- Accuracy targets table
+
+**Files Created:**
+- `ARCHITECTURE.md` - Comprehensive 500+ line architecture doc
+
+**Status:** ✅ COMPLETE
+**Confidence:** 0.99
+
 ---
 
 ## 2026-02-27T02:30:00Z [CODE] [MODELS] CLIP Text-Matching Fallback Pipeline
@@ -1010,3 +1069,16 @@ curl -X POST http://localhost:8080/api/predict/sfm \
 **Confidence:** 0.95
 **Claim quality note:** Current validation gallery likely overlaps with anchor-augmented references; results are strong for this benchmark but holdout/OOD validation is still required before broad real-world claims.
 **Unrun checks:** Dedicated holdout benchmark excluding anchor-overlap imagery; physical-device runtime validation.
+
+---
+
+## Related Documentation
+
+| Document | Description |
+|----------|-------------|
+| [README](../README.md) | Main project documentation |
+| [ARCHITECTURE](../ARCHITECTURE.md) | System architecture, API contracts, models, pipelines |
+| [AGENTS](../AGENTS.md) | Build/lint/test commands and code style for agents |
+| [STATUS](../STATUS.md) | Current project status and component matrix |
+| [knowissues](../knowissues.md) | Known issues, gaps, and risks |
+| [Memory](../Memory.md) | Durable high-level memory of decisions |

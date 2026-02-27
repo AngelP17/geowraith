@@ -2,6 +2,8 @@
 
 This backend implements a deterministic, local-first geolocation pipeline:
 
+> **Quick Links:** [Main README](../README.md) | [Architecture](../ARCHITECTURE.md) | [AGENTS](../AGENTS.md) | [Status](../STATUS.md)
+
 - Input validation (`image_base64` or data URL)
 - Three-tier embedding: GeoCLIP ONNX → CLIP text-matching (`@xenova/transformers`) → deterministic fallback
 - CLIP mode: matches images against 355 world-city text embeddings (auto-downloads model from HuggingFace)

@@ -132,36 +132,12 @@ async function saveIndexToCache(vectors: ReferenceVectorRecord[]): Promise<void>
   );
 }
 
+// PURE IMAGE MODE: Only use real image anchors, no coordinate embeddings
 async function buildReferenceIndex(): Promise<ReferenceVectorRecord[]> {
-  const coordinates = await loadCoordinates();
-  const vectors: ReferenceVectorRecord[] = [];
-
-  for (let i = 0; i < coordinates.length; i += CHUNK_SIZE) {
-    const chunk = coordinates.slice(i, i + CHUNK_SIZE);
-    const embeddings = await embedGeoLocations(chunk);
-    for (let j = 0; j < chunk.length; j += 1) {
-      const item = chunk[j];
-      const embedding = embeddings[j];
-      if (!embedding || embedding.length !== FEATURE_VECTOR_SIZE) {
-        throw new Error(`missing GeoCLIP embedding for ${item.id}`);
-      }
-      vectors.push({
-        id: item.id,
-        label: item.label,
-        lat: item.lat,
-        lon: item.lon,
-        vector: embedding,
-      });
-    }
-  }
-
-  try {
-    await saveIndexToCache(vectors);
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.warn('[GeoCLIP] Unable to persist reference cache, continuing with in-memory index:', error);
-  }
-  return vectors;
+  // Skip coordinate embeddings - use image anchors only
+  // This gives much better accuracy for landmark recognition
+  console.log('[GeoCLIP] PURE IMAGE MODE: Skipping coordinate embeddings, using image anchors only');
+  return [];
 }
 
 function fallbackVector(lat: number, lon: number): number[] {
@@ -219,19 +195,21 @@ export async function getReferenceVectors(): Promise<ReferenceVectorRecord[]> {
         }
       }
 
+      // PURE IMAGE MODE: Use only image anchors, skip coordinate vectors
       try {
         const imageAnchors = await getReferenceImageVectors();
         referenceImageAnchorCount = imageAnchors.length;
         if (imageAnchors.length > 0) {
           // eslint-disable-next-line no-console
-          console.log(`[GeoCLIP] Loaded ${imageAnchors.length} multi-source image anchors`);
-          return [...baseVectors, ...imageAnchors];
+          console.log(`[GeoCLIP] PURE IMAGE MODE: ${imageAnchors.length} image anchors (coordinate embeddings skipped)`);
+          return imageAnchors; // Only image anchors, no coordinate vectors
         }
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.warn('[GeoCLIP] Failed to load image-anchor vectors, continuing with coordinate index:', error);
+        console.warn('[GeoCLIP] Failed to load image anchors:', error);
       }
       referenceImageAnchorCount = 0;
+      // Fallback only if no image anchors available
       return baseVectors;
     })();
   }

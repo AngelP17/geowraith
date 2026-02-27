@@ -16,7 +16,7 @@ interface SmartBlendRow {
   label: string;
 }
 
-const IMAGE_VECTOR_VERSION = 'multi-source-v2';
+const IMAGE_VECTOR_VERSION = 'merged_v1';
 const SMARTBLEND_METADATA_CSV = path.resolve(process.cwd(), '.cache/smartblend_gallery/metadata.csv');
 const SMARTBLEND_IMAGES_DIR = path.resolve(process.cwd(), '.cache/smartblend_gallery/images');
 const CITY_DATASETS_DIR = path.resolve(process.cwd(), '.cache/city_datasets');
