@@ -2,14 +2,25 @@ import { createApp } from './app.js';
 import { config } from './config.js';
 import { warmupCLIP } from './services/clipExtractor.js';
 import { warmupReferenceIndex } from './services/geoclipIndex.js';
+import { buildHierarchicalIndex } from './services/clipHierarchicalSearch.js';
 
 async function startServer() {
   try {
     await warmupCLIP();
+  } catch (error) {
+    console.warn('[GeoCLIP] GeoCLIP warmup failed; CLIP fallback will be used:', error instanceof Error ? error.message : error);
+  }
+
+  try {
     await warmupReferenceIndex();
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.warn('[GeoCLIP] Warmup failed, service will use fallback embedding path:', error);
+    console.warn('[Index] Reference index warmup failed:', error instanceof Error ? error.message : error);
+  }
+
+  try {
+    await buildHierarchicalIndex();
+  } catch (error) {
+    console.warn('[CLIP-H] Hierarchical index build failed:', error instanceof Error ? error.message : error);
   }
 
   const app = createApp();

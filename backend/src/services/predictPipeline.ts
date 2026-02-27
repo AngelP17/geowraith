@@ -1,14 +1,29 @@
 import crypto from 'node:crypto';
 import { config, CONFIDENCE_THRESHOLDS, MINIMUM_CONFIDENCE } from '../config.js';
 import { ApiError } from '../errors.js';
-import type { ConfidenceTier, PredictRequest, PredictResponse } from '../types.js';
+import type { ConfidenceTier, PredictRequest, PredictResponse, VectorMatch } from '../types.js';
 import { clamp } from '../utils/math.js';
 import { getReferenceImageAnchorCount, getReferenceIndexSource } from './geoclipIndex.js';
 import { extractImageSignals } from './imageSignals.js';
 import { parsePredictRequest } from './requestParser.js';
 import { aggregateMatches, searchNearestNeighborsWithFallback } from './vectorSearch.js';
+import { hierarchicalGeolocate, isHierarchicalReady } from './clipHierarchicalSearch.js';
 
 const WITHHELD_LOCATION_MIN_RADIUS_M = 1_000_000;
+
+/**
+ * Rescale CLIP text-image similarities to the range expected by the aggregation
+ * confidence formula. CLIP cross-modal similarities are inherently lower (0.20-0.35)
+ * than within-modality similarities. This uses a non-linear mapping that amplifies
+ * the gap between the top match and lower matches, which is critical for confidence.
+ */
+function rescaleClipSimilarities(matches: VectorMatch[]): VectorMatch[] {
+  return matches.map(m => {
+    const shifted = Math.max(0, m.similarity - 0.12);
+    const scaled = Math.pow(shifted * 4.5, 1.3);
+    return { ...m, similarity: clamp(scaled, 0, 0.98) };
+  });
+}
 
 /** Determine confidence tier based on empirical thresholds. */
 function getConfidenceTier(confidence: number): ConfidenceTier {
@@ -53,15 +68,25 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
   }
 
   const k = parsed.mode === 'fast' ? 8 : 20;
-  const matches = await searchNearestNeighborsWithFallback(signals.vector, k, true);
   const referenceIndexSource = getReferenceIndexSource();
   const referenceImageAnchors = getReferenceImageAnchorCount();
+
+  let matches: VectorMatch[];
+  if (referenceIndexSource === 'clip' && isHierarchicalReady()) {
+    matches = rescaleClipSimilarities(await hierarchicalGeolocate(parsed.imageBuffer));
+  } else {
+    matches = await searchNearestNeighborsWithFallback(signals.vector, k, true);
+    if (referenceIndexSource === 'clip') {
+      matches = rescaleClipSimilarities(matches);
+    }
+  }
   const aggregated = aggregateMatches(matches);
 
   const usesFallback = signals.embeddingSource === 'fallback' || referenceIndexSource === 'fallback';
   const usesClip = signals.embeddingSource === 'clip' || referenceIndexSource === 'clip';
   const fallbackPenalty = usesFallback ? 0.55 : 1;
-  const confidence = clamp(aggregated.confidence * fallbackPenalty, 0, 1);
+  const clipBoost = usesClip ? 1.15 : 1;
+  const confidence = clamp(aggregated.confidence * fallbackPenalty * clipBoost, 0, 0.97);
   const lowConfidence = confidence < MINIMUM_CONFIDENCE;
   const isWideRadius = aggregated.location.radius_m > 300_000;
   const shouldWithholdLocation = (lowConfidence || isWideRadius || usesFallback) && !usesClip;

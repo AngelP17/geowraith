@@ -14,39 +14,31 @@ import type { ReferenceVectorRecord } from '../types.js';
 
 const CACHE_DIR = path.resolve(process.cwd(), '.cache/clip');
 const TEXT_EMBEDDINGS_CACHE = path.join(CACHE_DIR, 'city_text_embeddings.json');
-const CACHE_VERSION = 'clip-city-v3';
+const CACHE_VERSION = 'clip-city-v4';
 const CLIP_MODEL_ID = 'Xenova/clip-vit-base-patch32';
 const IMAGE_SIZE = 224;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let textModel: any = null;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let visionModel: any = null;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let tokenizer: any = null;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let processor: any = null;
+let clipPipeline: any = null;
+let pipelineReady = false;
+let loadingPromise: Promise<void> | null = null;
 
-let modelsReady = false;
+async function ensurePipeline(): Promise<void> {
+  if (pipelineReady) return;
+  if (loadingPromise) return loadingPromise;
 
-async function loadModels(): Promise<void> {
-  if (modelsReady) return;
+  loadingPromise = (async () => {
+    const { env, pipeline } = await import('@xenova/transformers');
+    env.backends.onnx.wasm.proxy = false;
 
-  const transformers = await import('@xenova/transformers');
-  const { CLIPTextModelWithProjection, CLIPVisionModelWithProjection, AutoTokenizer, AutoProcessor } = transformers;
+    console.log('[CLIP] Loading CLIP model (first run downloads from HuggingFace)...');
+    const startTime = Date.now();
+    clipPipeline = await pipeline('zero-shot-image-classification', CLIP_MODEL_ID);
+    pipelineReady = true;
+    console.log(`[CLIP] Model loaded in ${Date.now() - startTime}ms`);
+  })();
 
-  console.log('[CLIP] Loading CLIP models from HuggingFace cache...');
-  const startTime = Date.now();
-
-  [textModel, visionModel, tokenizer, processor] = await Promise.all([
-    CLIPTextModelWithProjection.from_pretrained(CLIP_MODEL_ID),
-    CLIPVisionModelWithProjection.from_pretrained(CLIP_MODEL_ID),
-    AutoTokenizer.from_pretrained(CLIP_MODEL_ID),
-    AutoProcessor.from_pretrained(CLIP_MODEL_ID),
-  ]);
-
-  modelsReady = true;
-  console.log(`[CLIP] Models loaded in ${Date.now() - startTime}ms`);
+  return loadingPromise;
 }
 
 function normalizeVector(vec: number[]): number[] {
@@ -56,44 +48,47 @@ function normalizeVector(vec: number[]): number[] {
 }
 
 /**
- * Compute text embedding for a single text string.
- * Returns a normalized 512-dim vector.
+ * Compute text embeddings for a batch of strings.
+ * Uses a dummy pixel input since the ONNX session requires both modalities.
  */
-async function embedText(text: string): Promise<number[]> {
-  await loadModels();
-  const inputs = await tokenizer(text, { padding: true, truncation: true });
-  const output = await textModel(inputs);
-  const embeds = output.text_embeds?.data ?? output.text_embeds;
-  if (!embeds) {
-    throw new Error('CLIP text model returned no text_embeds');
-  }
-  return normalizeVector(Array.from(embeds as Float32Array));
-}
+async function embedTextBatch(texts: string[]): Promise<number[][]> {
+  await ensurePipeline();
 
-/**
- * Compute text embeddings for multiple texts (batched).
- * Returns normalized 512-dim vectors.
- */
-export async function embedTexts(texts: string[]): Promise<number[][]> {
-  await loadModels();
+  const { Tensor } = await import('@xenova/transformers');
+  const tok = clipPipeline.tokenizer;
+  const model = clipPipeline.model;
+
+  const textInputs = tok(texts, { padding: true, truncation: true });
+  const dummyPixels = new Tensor('float32', new Float32Array(3 * IMAGE_SIZE * IMAGE_SIZE), [1, 3, IMAGE_SIZE, IMAGE_SIZE]);
+
+  const output = await model.session.run({
+    input_ids: textInputs.input_ids,
+    attention_mask: textInputs.attention_mask,
+    pixel_values: dummyPixels,
+  });
+
+  const data = output.text_embeds.data as Float32Array;
+  const dim = output.text_embeds.dims[1] as number;
   const results: number[][] = [];
-  const batchSize = 32;
 
-  for (let i = 0; i < texts.length; i += batchSize) {
-    const batch = texts.slice(i, i + batchSize);
-    const embeddings = await Promise.all(batch.map(t => embedText(t)));
-    results.push(...embeddings);
+  for (let i = 0; i < texts.length; i++) {
+    const vec = Array.from(data.slice(i * dim, (i + 1) * dim));
+    results.push(normalizeVector(vec));
   }
   return results;
 }
 
 /**
  * Compute image embedding from raw image buffer.
- * Returns a normalized vector in the CLIP embedding space.
+ * Returns a normalized 512-dim vector in the CLIP embedding space.
  */
 export async function embedImage(imageBuffer: Buffer): Promise<number[]> {
-  await loadModels();
-  const { RawImage } = await import('@xenova/transformers');
+  await ensurePipeline();
+
+  const { RawImage, Tensor } = await import('@xenova/transformers');
+  const proc = clipPipeline.processor;
+  const tok = clipPipeline.tokenizer;
+  const model = clipPipeline.model;
 
   const pixels = await sharp(imageBuffer)
     .rotate()
@@ -102,16 +97,19 @@ export async function embedImage(imageBuffer: Buffer): Promise<number[]> {
     .raw()
     .toBuffer();
 
-  const image = new RawImage(pixels, IMAGE_SIZE, IMAGE_SIZE, 3);
-  const imageInputs = await processor(image);
-  const output = await visionModel(imageInputs);
-  const embeds = output.image_embeds?.data ?? output.image_embeds;
+  const image = new RawImage(new Uint8ClampedArray(pixels), IMAGE_SIZE, IMAGE_SIZE, 3);
+  const imageInputs = await proc(image);
+  const dummyText = tok('a', { padding: true, truncation: true });
 
-  if (!embeds) {
-    throw new Error('CLIP vision model returned no image_embeds');
-  }
+  const output = await model.session.run({
+    input_ids: dummyText.input_ids,
+    attention_mask: dummyText.attention_mask,
+    pixel_values: imageInputs.pixel_values,
+  });
 
-  const vec = normalizeVector(Array.from(embeds as Float32Array));
+  const data = output.image_embeds.data as Float32Array;
+  const vec = normalizeVector(Array.from(data));
+
   if (vec.length !== FEATURE_VECTOR_SIZE) {
     throw new Error(`CLIP embedding size ${vec.length} != expected ${FEATURE_VECTOR_SIZE}`);
   }
@@ -125,32 +123,11 @@ const PROMPT_TEMPLATES = [
   'An outdoor scene in {city}, {country}',
 ];
 
-/**
- * Generate averaged text embedding for a city using multiple prompts.
- */
-async function embedCity(city: string, country: string): Promise<number[]> {
-  const prompts = PROMPT_TEMPLATES.map(t =>
-    t.replace('{city}', city).replace('{country}', country)
-  );
-  const embeddings = await Promise.all(prompts.map(p => embedText(p)));
-
-  const avg = new Array<number>(FEATURE_VECTOR_SIZE).fill(0);
-  for (const emb of embeddings) {
-    for (let i = 0; i < FEATURE_VECTOR_SIZE; i++) {
-      avg[i] += emb[i] / embeddings.length;
-    }
-  }
-  return normalizeVector(avg);
-}
-
 interface CachedEmbeddings {
   version: string;
   vectors: Array<{ id: string; label: string; lat: number; lon: number; vector: number[] }>;
 }
 
-/**
- * Load city text embeddings from cache.
- */
 async function loadCachedEmbeddings(): Promise<ReferenceVectorRecord[] | null> {
   try {
     const raw = await readFile(TEXT_EMBEDDINGS_CACHE, 'utf8');
@@ -162,18 +139,15 @@ async function loadCachedEmbeddings(): Promise<ReferenceVectorRecord[] | null> {
   }
 }
 
-/**
- * Save city text embeddings to cache.
- */
 async function saveCachedEmbeddings(vectors: ReferenceVectorRecord[]): Promise<void> {
   await mkdir(CACHE_DIR, { recursive: true });
-  const data: CachedEmbeddings = { version: CACHE_VERSION, vectors };
-  await writeFile(TEXT_EMBEDDINGS_CACHE, JSON.stringify(data));
+  await writeFile(TEXT_EMBEDDINGS_CACHE, JSON.stringify({ version: CACHE_VERSION, vectors }));
 }
 
 /**
  * Build reference vectors from world city database using CLIP text embeddings.
- * Caches results for fast reload on subsequent starts.
+ * Each city gets an averaged embedding from multiple prompt templates.
+ * Results are cached for fast reload on subsequent starts.
  */
 export async function buildCityReferenceVectors(): Promise<ReferenceVectorRecord[]> {
   const cached = await loadCachedEmbeddings();
@@ -187,33 +161,38 @@ export async function buildCityReferenceVectors(): Promise<ReferenceVectorRecord
   const startTime = Date.now();
 
   const vectors: ReferenceVectorRecord[] = [];
-  const chunkSize = 50;
 
-  for (let i = 0; i < WORLD_CITIES_RAW.length; i += chunkSize) {
-    const chunk = WORLD_CITIES_RAW.slice(i, i + chunkSize);
-    const embeddings = await Promise.all(
-      chunk.map(c => embedCity(c.city, c.country))
+  for (let i = 0; i < WORLD_CITIES_RAW.length; i++) {
+    const c = WORLD_CITIES_RAW[i];
+    const prompts = PROMPT_TEMPLATES.map(t =>
+      t.replace('{city}', c.city).replace('{country}', c.country)
     );
 
-    for (let j = 0; j < chunk.length; j++) {
-      const c = chunk[j];
-      vectors.push({
-        id: `city_${i + j}`,
-        label: `${c.city}, ${c.country}`,
-        lat: c.lat,
-        lon: c.lon,
-        vector: embeddings[j],
-      });
+    const embeddings = await embedTextBatch(prompts);
+
+    const avg = new Array<number>(FEATURE_VECTOR_SIZE).fill(0);
+    for (const emb of embeddings) {
+      for (let d = 0; d < FEATURE_VECTOR_SIZE; d++) {
+        avg[d] += emb[d] / embeddings.length;
+      }
     }
 
-    if ((i + chunkSize) % 200 === 0 || i + chunkSize >= WORLD_CITIES_RAW.length) {
-      console.log(`[CLIP] Embedded ${Math.min(i + chunkSize, WORLD_CITIES_RAW.length)}/${WORLD_CITIES_RAW.length} cities`);
+    vectors.push({
+      id: `city_${i}`,
+      label: `${c.city}, ${c.country}`,
+      lat: c.lat,
+      lon: c.lon,
+      vector: normalizeVector(avg),
+    });
+
+    if ((i + 1) % 50 === 0 || i + 1 === WORLD_CITIES_RAW.length) {
+      console.log(`[CLIP] Embedded ${i + 1}/${WORLD_CITIES_RAW.length} cities`);
     }
   }
 
   try {
     await saveCachedEmbeddings(vectors);
-    console.log(`[CLIP] Cached ${vectors.length} city embeddings in ${Date.now() - startTime}ms`);
+    console.log(`[CLIP] Cached ${vectors.length} city embeddings (${Date.now() - startTime}ms)`);
   } catch (err) {
     console.warn('[CLIP] Failed to cache embeddings:', err);
   }
@@ -224,11 +203,11 @@ export async function buildCityReferenceVectors(): Promise<ReferenceVectorRecord
 /** Preload CLIP models during startup. */
 export async function warmupCLIPGeolocator(): Promise<void> {
   console.log('[CLIP] Warming up CLIP geolocation pipeline...');
-  await loadModels();
+  await ensurePipeline();
   console.log('[CLIP] CLIP models ready');
 }
 
 /** Check if CLIP models are loaded and ready. */
 export function isClipReady(): boolean {
-  return modelsReady;
+  return pipelineReady;
 }
