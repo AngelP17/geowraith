@@ -56,6 +56,7 @@ export interface BenchmarkResult {
   status: string;
   continent: string;
   sceneType: string;
+  cohort: 'iconic_landmark' | 'generic_scene';
 }
 
 export interface AccuracyReport {
@@ -87,6 +88,12 @@ export interface AccuracyReport {
     count: number;
     medianErrorM: number;
     within10km: number;
+  }>;
+  byCohort: Record<'iconic_landmark' | 'generic_scene', {
+    count: number;
+    medianErrorM: number;
+    within10km: number;
+    within100km: number;
   }>;
   confidenceCorrelation: {
     highConfidence: { count: number; medianErrorM: number };

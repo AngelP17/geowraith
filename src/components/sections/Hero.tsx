@@ -47,11 +47,11 @@ export const Hero: React.FC<HeroProps> = ({ onOpenComingSoon }) => {
   };
 
   return (
-    <section id="hero" className="relative w-full min-h-screen bg-black overflow-hidden font-general flex flex-col">
+    <section id="hero" className="relative w-full min-h-screen bg-[#060606] overflow-hidden font-general flex flex-col">
       {/* Background Video with Parallax - Now smooth and high quality */}
       <motion.div 
         style={{ y: y1 }}
-        initial={{ opacity: 0, scale: 1.05 }}
+        initial={{ opacity: 0, scale: 1.015 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.5, ease: 'easeOut' }}
         className="absolute inset-0 w-full h-full z-0"
@@ -71,7 +71,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenComingSoon }) => {
       />
 
       {/* Additional animated mesh for depth */}
-      <div className="absolute inset-0 z-[1] opacity-50 pointer-events-none">
+      <div className="absolute inset-0 z-[1] opacity-25 pointer-events-none">
         <MeshGradient />
       </div>
 
@@ -88,8 +88,9 @@ export const Hero: React.FC<HeroProps> = ({ onOpenComingSoon }) => {
             transition={{ duration: 0.8, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
             whileHover={{ scale: 1.05 }}
             onClick={handleDocsClick}
-            className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.08] 
-                       backdrop-blur-md cursor-pointer group overflow-hidden relative"
+            className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-[rgba(255,255,255,0.04)]
+                       border border-[rgba(255,255,255,0.12)] backdrop-blur-md cursor-pointer
+                       group overflow-hidden relative transition-colors duration-300"
           >
             {/* Shimmer effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent 
@@ -100,16 +101,16 @@ export const Hero: React.FC<HeroProps> = ({ onOpenComingSoon }) => {
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
               className="relative"
             >
-              <div className="w-2 h-2 bg-emerald-400 rounded-full" />
-              <div className="absolute inset-0 w-2 h-2 bg-emerald-400 rounded-full blur-sm" />
+              <div className="w-2 h-2 rounded-full bg-[var(--gw-accent)]" />
+              <div className="absolute inset-0 w-2 h-2 rounded-full bg-[var(--gw-accent)] blur-sm" />
             </motion.div>
             
             <div className="text-[13px] font-medium tracking-wide">
               <span className="text-white/50">v2.2</span>
               <span className="text-white/30 mx-2">|</span>
-              <span className="text-white/50">Fully Local</span>
+              <span className="text-white/55">Fully Local</span>
               <span className="text-white/30 mx-2">|</span>
-              <span className="text-white group-hover:text-emerald-400 transition-colors">MIT Licensed</span>
+              <span className="text-white group-hover:text-[var(--gw-accent)] transition-colors">MIT Licensed</span>
             </div>
           </motion.div>
 
@@ -121,17 +122,18 @@ export const Hero: React.FC<HeroProps> = ({ onOpenComingSoon }) => {
                 initial={{ y: 100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 1, delay: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-                className="max-w-[900px] text-[40px] sm:text-[56px] md:text-[72px] lg:text-[84px] font-bold leading-[0.95] text-center"
+                className="font-display max-w-[920px] text-[44px] sm:text-[60px] md:text-[76px]
+                           lg:text-[88px] font-semibold leading-[0.9] text-center"
               >
-                <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/60">
-                  Meter-Level
+                <span className="text-white">
+                  High-Confidence
                 </span>
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-cyan-300 to-blue-400">
+                <span className="hero-headline-accent">
                   Geolocation
                 </span>
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-b from-white/90 to-white/40">
+                <span className="text-white/80">
                   from Any Photo
                 </span>
               </motion.h1>
@@ -142,12 +144,13 @@ export const Hero: React.FC<HeroProps> = ({ onOpenComingSoon }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.9 }}
-              className="max-w-[640px] text-[15px] md:text-[17px] font-normal text-white/50 text-center leading-relaxed"
+              className="max-w-[680px] text-[15px] md:text-[17px] font-normal text-white/65 text-center
+                         leading-relaxed"
             >
-              The complete open-source reverse-engineered GeoSpy. Rust-core inference, 
-              LanceDB vector search, hloc meter-level refinement.{' '}
-              <span className="text-white/70">100% local-first.</span>{' '}
-              <span className="text-emerald-400/80">Zero data leaves your machine.</span>
+              Open-source local-first geolocation with transparent confidence reporting. GeoCLIP/CLIP
+              embeddings, HNSW vector retrieval, and cohort-aware calibration.{' '}
+              <span className="text-white/85">100% local-first.</span>{' '}
+              <span className="text-[var(--gw-accent)]">Zero data leaves your machine.</span>
             </motion.p>
 
             {/* Premium CTA Buttons */}
@@ -160,8 +163,9 @@ export const Hero: React.FC<HeroProps> = ({ onOpenComingSoon }) => {
               <MagneticButton
                 strength={0.2}
                 onClick={openGitHub}
-                className="group relative px-8 py-4 bg-white text-black rounded-full font-semibold text-[15px] 
-                           overflow-hidden transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)]"
+                className="group relative px-8 py-4 bg-[var(--gw-accent)] text-black rounded-full
+                           font-semibold text-[15px] overflow-hidden transition-all duration-300
+                           hover:shadow-[0_0_36px_rgba(243,184,97,0.35)]"
               >
                 <span className="relative z-10 flex items-center gap-2">
                   Start Building
@@ -172,9 +176,9 @@ export const Hero: React.FC<HeroProps> = ({ onOpenComingSoon }) => {
               <MagneticButton
                 strength={0.2}
                 onClick={scrollToFeatures}
-                className="group px-8 py-4 bg-white/[0.03] text-white rounded-full font-medium text-[15px] 
-                           border border-white/10 backdrop-blur-sm hover:bg-white/[0.08] 
-                           hover:border-white/20 transition-all duration-300"
+                className="group px-8 py-4 bg-white/[0.03] text-white rounded-full font-medium text-[15px]
+                           border border-[rgba(255,255,255,0.16)] backdrop-blur-sm hover:bg-white/[0.08]
+                           hover:border-white/35 transition-all duration-300"
               >
                 <span className="flex items-center gap-2">
                   <Play className="w-4 h-4" />

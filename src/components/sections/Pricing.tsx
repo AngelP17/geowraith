@@ -6,7 +6,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { pricing } from '../../data/extendedContent';
-import { Check, Sparkles, ArrowRight } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
 
 export const Pricing: React.FC = () => {
   const scrollToContact = () => {
@@ -77,7 +77,7 @@ export const Pricing: React.FC = () => {
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-black text-xs font-medium">
-                      <Sparkles className="w-3 h-3" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-black/80" />
                       Recommended
                     </div>
                   </div>

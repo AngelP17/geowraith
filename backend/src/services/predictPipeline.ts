@@ -1,5 +1,9 @@
 import crypto from 'node:crypto';
-import { config, CONFIDENCE_THRESHOLDS, MINIMUM_CONFIDENCE } from '../config.js';
+import {
+  config,
+  CONFIDENCE_THRESHOLDS,
+  MINIMUM_CONFIDENCE,
+} from '../config.js';
 import { ApiError } from '../errors.js';
 import type { ConfidenceTier, PredictRequest, PredictResponse, VectorMatch } from '../types.js';
 import { clamp } from '../utils/math.js';
@@ -7,7 +11,13 @@ import { getReferenceImageAnchorCount, getReferenceIndexSource } from './geoclip
 import { extractImageSignals } from './imageSignals.js';
 import { parsePredictRequest } from './requestParser.js';
 import { aggregateMatches, searchNearestNeighborsWithFallback } from './vectorSearch.js';
-import { hierarchicalGeolocate, isHierarchicalReady } from './clipHierarchicalSearch.js';
+import { preventCrossContinentErrors } from './geoConstraints.js';
+import {
+  classifySceneFromMatches,
+  inferCohortHint,
+  getConfidenceCalibration,
+} from './sceneClassifier.js';
+import { decideLocationVisibility } from './confidenceGate.js';
 
 const WITHHELD_LOCATION_MIN_RADIUS_M = 1_000_000;
 
@@ -77,6 +87,11 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
       location_visibility: 'visible',
       confidence: 0.99,
       confidence_tier: 'high',
+      scene_context: {
+        scene_type: 'unknown',
+        cohort_hint: 'generic_scene',
+        confidence_calibration: 'Exact GPS coordinates from image metadata',
+      },
       elapsed_ms: Date.now() - startedAt,
       notes: 'Exact EXIF GPS metadata detected. Returning embedded coordinates from uploaded image.',
       top_matches: [],
@@ -95,27 +110,35 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
   if (referenceIndexSource === 'clip') {
     matches = rescaleClipSimilarities(matches);
   }
+
+  // Prevent cross-continent prediction errors
+  matches = preventCrossContinentErrors(matches);
+
   const aggregated = aggregateMatches(matches);
+  const sceneType = classifySceneFromMatches(matches);
+  const cohortHint = inferCohortHint(sceneType);
+  const confidenceCalibration = getConfidenceCalibration(sceneType, cohortHint);
 
   const usesFallback = signals.embeddingSource === 'fallback' || referenceIndexSource === 'fallback';
   const usesClip = signals.embeddingSource === 'clip' || referenceIndexSource === 'clip';
   const fallbackPenalty = usesFallback ? 0.55 : 1;
   const clipBoost = usesClip ? 1.15 : 1;
   const confidence = clamp(aggregated.confidence * fallbackPenalty * clipBoost, 0, 0.97);
-  const lowConfidence = confidence < MINIMUM_CONFIDENCE;
   const isWideRadius = aggregated.location.radius_m > 300_000;
-  const shouldWithholdLocation = (lowConfidence || isWideRadius || usesFallback) && !usesClip;
+  const visibilityDecision = decideLocationVisibility({
+    confidence,
+    matches,
+    usesFallback,
+    usesClip,
+    isWideRadius,
+    minimumConfidence: MINIMUM_CONFIDENCE,
+  });
+  const shouldWithholdLocation = visibilityDecision.shouldWithholdLocation;
   const status: PredictResponse['status'] = shouldWithholdLocation ? 'low_confidence' : 'ok';
   const locationVisibility: PredictResponse['location_visibility'] = shouldWithholdLocation
     ? 'withheld'
     : 'visible';
-  const locationReason = usesFallback
-    ? 'model_fallback_active'
-    : isWideRadius
-      ? 'candidate_spread_too_wide'
-      : lowConfidence
-        ? 'confidence_below_actionable_threshold'
-        : undefined;
+  const locationReason = visibilityDecision.locationReason;
   const location =
     shouldWithholdLocation
       ? {
@@ -144,12 +167,15 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
   if (isWideRadius) {
     notes.push('Warning: Candidate spread is very large; result is low confidence.');
   }
-  if (lowConfidence && !isWideRadius && !usesFallback) {
+  if (visibilityDecision.weakConsensus && !isWideRadius && !usesFallback) {
+    notes.push('Warning: Top matches disagree geographically; coordinates are not reliable enough to show.');
+  }
+  if (visibilityDecision.lowConfidence && !isWideRadius && !usesFallback) {
     notes.push('Warning: Similarity margin is weak; coordinate may be far from true location.');
   }
   if (shouldWithholdLocation) {
     notes.push(
-      `Location coordinates are withheld for this result (required confidence: ${(MINIMUM_CONFIDENCE * 100).toFixed(0)}%+).`
+      `Location coordinates are withheld for this result (required confidence: ${(MINIMUM_CONFIDENCE * 100).toFixed(1)}%+ or a strong local match consensus).`
     );
   }
   if (referenceImageAnchors > 0) {
@@ -165,6 +191,11 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
     location_reason: locationReason,
     confidence,
     confidence_tier: getConfidenceTier(confidence),
+    scene_context: {
+      scene_type: sceneType,
+      cohort_hint: cohortHint,
+      confidence_calibration: confidenceCalibration,
+    },
     elapsed_ms: Date.now() - startedAt,
     notes: notes.join(' '),
     top_matches: matches.slice(0, 8).map((match) => ({

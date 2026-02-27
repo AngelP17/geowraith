@@ -5,32 +5,36 @@
 
 // What It Is - Detailed explanation
 export const whatItIs = {
-  headline: "Visual Place Recognition at Machine Speed",
-  description: `GeoWraith is a complete visual geolocation system that determines where a photograph was taken by analyzing its visual content. Unlike EXIF-based solutions that rely on embedded metadata, GeoWraith uses deep learning to extract visual features and match them against a database of known locations.`,
+  headline: 'Visual Geolocation with Confidence Gating',
+  description: `GeoWraith estimates where a photo was taken by encoding visual signals and matching them against a local reference index. It prioritizes GeoCLIP ONNX when available, falls back to CLIP when needed, and explicitly withholds weak predictions.`,
   capabilities: [
     {
-      title: "Visual Feature Extraction",
-      description: "ONNX vision model processes images into 384-dimensional embeddings that capture unique visual characteristics of any location."
+      title: 'Visual Feature Extraction',
+      description:
+        'GeoCLIP ONNX embeddings are used when available, with CLIP fallback for resilient local operation.',
     },
     {
-      title: "Vector Similarity Search",
-      description: "LanceDB performs sub-second approximate nearest neighbor search across millions of reference images."
+      title: 'HNSW Vector Retrieval',
+      description:
+        'hnswlib-node performs approximate nearest-neighbor search over a 55K+ mixed coordinate and anchor index.',
     },
     {
-      title: "Geometric Refinement",
-      description: "hloc + COLMAP structure-from-motion pipeline refines coarse matches to meter-level GPS coordinates."
+      title: 'Confidence-Aware Output',
+      description:
+        'Confidence tiers and scene/cohort calibration reduce false certainty and withhold unreliable locations.',
     },
     {
-      title: "Complete Local Operation",
-      description: "Everything runs on your hardware. No API calls, no data transmission, no external dependencies after setup."
+      title: 'Complete Local Operation',
+      description:
+        'Everything runs on your hardware. No cloud inference, no telemetry, and no external API dependency.',
     }
   ],
   architecture: {
-    title: "Three-Layer Architecture",
+    title: 'Three-Layer Architecture',
     layers: [
-      { name: "Inference Layer", detail: "Rust + ONNX Runtime for vision model inference" },
-      { name: "Search Layer", detail: "LanceDB for vector storage and similarity search" },
-      { name: "Refinement Layer", detail: "Python hloc bridge for geometric pose estimation" }
+      { name: 'Inference Layer', detail: 'TypeScript pipeline + ONNX Runtime + CLIP fallback path' },
+      { name: 'Search Layer', detail: 'HNSW ANN index with coordinate vectors and image anchors' },
+      { name: 'Decision Layer', detail: 'Confidence thresholds, cohort hints, and location withholding' },
     ]
   }
 };
@@ -165,32 +169,37 @@ export const industries = [
 
 // End Goals / Outcomes
 export const outcomes = {
-  headline: "What You Achieve with GeoWraith",
-  description: "The ultimate goal is actionable location intelligence—turning any image into reliable geographic data without compromising operational security or privacy.",
+  headline: 'What You Achieve with GeoWraith',
+  description:
+    'Actionable location intelligence with transparent confidence reporting and reproducible benchmarks.',
   goals: [
     {
-      title: "Sub-10-Meter Accuracy",
-      description: "Achieve meter-level precision in dense urban environments with structure-from-motion refinement.",
-      metric: "<10m",
-      metricLabel: "Accuracy"
+      title: '93.1% Within 10km',
+      description:
+        'Current validated snapshot: 54/58 within 10km. Cohorts: iconic 100.0%, generic 88.9%.',
+      metric: '93.1%',
+      metricLabel: 'Within 10km',
     },
     {
-      title: "Sub-Second Response",
-      description: "Get location results in under 2 seconds for rapid decision-making during time-sensitive operations.",
-      metric: "<2s",
-      metricLabel: "Inference"
+      title: 'Sub-Second Hot Path',
+      description:
+        'After warmup, typical requests complete quickly enough for interactive analysis workflows.',
+      metric: '<2s',
+      metricLabel: 'Typical',
     },
     {
-      title: "Zero Data Exposure",
-      description: "Process sensitive imagery without ever transmitting data to external services or cloud providers.",
-      metric: "100%",
-      metricLabel: "Local"
+      title: 'Zero Data Exposure',
+      description:
+        'Process sensitive imagery without transmitting image payloads to external services.',
+      metric: '100%',
+      metricLabel: 'Local',
     },
     {
-      title: "Unlimited Scale",
-      description: "Build city-scale galleries with millions of reference images. No per-query costs or rate limits.",
-      metric: "∞",
-      metricLabel: "Queries"
+      title: '55K+ Indexed Vectors',
+      description:
+        'Current combined index is ~55K vectors (coordinates + image anchors), with no per-query billing.',
+      metric: '55K+',
+      metricLabel: 'Vectors',
     }
   ],
   results: [
@@ -212,7 +221,7 @@ export const outcomes = {
     {
       icon: "CheckCircle",
       title: "Verified Intelligence",
-      description: "Confidence scores and accuracy metrics for every result. Know when to trust and when to verify further."
+      description: "Confidence scores, cohort-aware calibration, and accuracy metrics for every result. Know when to trust and when to verify further."
     }
   ]
 };

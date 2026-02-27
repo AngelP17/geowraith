@@ -1,64 +1,24 @@
-# GeoCLIP Integration Execution Record
+# GeoCLIP Remaining Tasks
 
-**Date:** 2026-02-25  
-**Status:** VALIDATED COARSE GEOLOCATION (WEAK REAL-WORLD ACCURACY)  
-**Confidence:** 0.92
+**Last Updated:** 2026-02-27
 
----
-
-## ✅ VERIFIED FUNCTIONAL STATUS (Workspace)
-
-| Component | Status | Evidence |
-|-----------|--------|----------|
-| Frontend build | ✅ | `npm run lint` + `npm run build` pass |
-| Backend build | ✅ | `npm run lint` + `npm run build` pass |
-| Backend tests | ✅ | `npm run test` (5/5) |
-| Offline mode | ✅ | `GEOWRAITH_OFFLINE=1 npm run test` (5/5) |
-| HNSW ANN search | ✅ | 121x–176x faster; recall@20 = 27.5% |
-| GeoCLIP models | ✅ | Load in ~200ms |
-| Reference index | ✅ | HNSW cached index loads successfully |
-| Real‑world validation | ✅ | 32 landmark photos tested |
-| SmartBlend pipeline | ✅ | Openverse PD/CC0 + cached fallbacks |
+> **Quick Links:** [STATUS.md](STATUS.md) | [VALIDATION_GUIDE.md](VALIDATION_GUIDE.md) | [knowissues.md](knowissues.md)
 
 ---
 
-## ✅ REAL‑WORLD ACCURACY (32 LANDMARKS)
+## Open Accuracy Tasks
 
-| Metric | Value |
-|--------|-------|
-| Median error | **176 km** |
-| Mean error | **2,313 km** |
-| Within 100 km | **43.8%** |
-| Within 1,000 km | **62.5%** |
+1. Resolve remaining 4 hard validation failures
+2. Build holdout/OOD benchmark separated from anchor corpus
+3. Improve generic-scene retrieval robustness
+4. Keep fallback-mode benchmarks separate from ONNX-mode benchmarks
 
-Outliers exist (max ~12,972 km). Results are coarse regional accuracy, not meter‑level.
+## Verification Standard
 
----
+Any "done" claim must include:
 
-## Quick Start
+- command set used
+- benchmark artifact path
+- model mode declaration
+- cohort split metrics
 
-```bash
-# Verify everything works
-cd /Users/apinzon/Desktop/Active Projects/geowraith
-npm run lint && npm run build
-cd backend
-npm run lint && npm run build && npm run test
-
-# Acquire validation images (SmartBlend)
-npm run smartblend -- --min-images=30 --max-retries=3 --strategy=auto --seed=1337 --allow-unverified
-
-# Build gallery & validate
-npm run build:gallery:csv -- \
-  --images=.cache/smartblend_gallery/images \
-  --csv=.cache/smartblend_gallery/metadata.csv
-npm run benchmark:validation
-```
-
----
-
-## Remaining Work
-
-- [ ] Expand real‑world benchmark to 50+ images (SmartBlend or CSV workflow)
-- [ ] Offline map tiles (KI‑0003)
-- [ ] Physical device browser validation
-- [ ] Meter‑level refinement stage (SfM/hloc)

@@ -23,6 +23,8 @@ export interface PredictTopMatch {
 }
 
 export type ConfidenceTier = 'high' | 'medium' | 'low';
+export type SceneType = 'landmark' | 'nature' | 'urban' | 'rural' | 'unknown';
+export type CohortHint = 'iconic_landmark' | 'generic_scene';
 
 export interface PredictResponse {
   request_id: string;
@@ -33,6 +35,11 @@ export interface PredictResponse {
   location_reason?: string;
   confidence: number;
   confidence_tier: ConfidenceTier;
+  scene_context?: {
+    scene_type: SceneType;
+    cohort_hint: CohortHint;
+    confidence_calibration: string;
+  };
   elapsed_ms: number;
   notes: string;
   top_matches?: PredictTopMatch[];

@@ -7,21 +7,23 @@ import type { Feature, ProcessStep, TechStackItem, NavLink, FooterSection } from
 
 export const features: Feature[] = [
   {
-    id: 'rust-core',
-    title: 'Rust Inference Engine',
-    description: 'Deterministic ONNX runtime with CPU-only operation. CUDA and OpenVINO acceleration optional. WASM-ready for browser privacy mode.',
+    id: 'local-pipeline',
+    title: 'Local Inference Pipeline',
+    description:
+      'GeoCLIP ONNX is used when available, with CLIP and deterministic fallback paths for resilient local inference.',
     icon: 'Cpu',
   },
   {
-    id: 'lancedb',
-    title: 'Embedded Vector Search',
-    description: 'LanceDB stores city-scale galleries locally on disk. No external vector database required. Sub-second similarity search.',
+    id: 'hnsw',
+    title: 'HNSW Vector Search',
+    description: 'hnswlib-node provides sub-millisecond approximate nearest neighbor search across 55K+ reference vectors. Disk-backed index for memory efficiency.',
     icon: 'Database',
   },
   {
-    id: 'hloc',
-    title: 'Meter-Level Refinement',
-    description: 'hloc + COLMAP geometric pose estimation achieves <10m accuracy in pre-mapped dense environments. Structure-from-motion refinement.',
+    id: 'confidence-gating',
+    title: 'Confidence-Gated Output',
+    description:
+      'Predictions include confidence tiers, scene context, and location withholding when reliability is too low.',
     icon: 'Target',
   },
   {
@@ -55,19 +57,19 @@ export const processSteps: ProcessStep[] = [
     step: 2,
     title: 'Embed',
     description: 'Vision model creates embedding',
-    details: ['ONNX inference', '384-dimensional vector', 'Sub-second processing'],
+    details: ['ONNX/CLIP extraction path', 'Visual embedding vector', 'Sub-second processing'],
   },
   {
     step: 3,
     title: 'Search',
-    description: 'Vector similarity search',
-    details: ['LanceDB ANN search', 'Top-k matches retrieved', 'Confidence scoring'],
+    description: 'HNSW similarity search',
+    details: ['hnswlib-node ANN search', 'Top-k matches retrieved', 'Confidence scoring'],
   },
   {
     step: 4,
-    title: 'Refine',
-    description: 'Geometric pose estimation',
-    details: ['hloc + COLMAP', 'Structure-from-motion', 'Meter-level accuracy'],
+    title: 'Calibrate',
+    description: 'Confidence and cohort analysis',
+    details: ['Confidence tiering', 'Scene classification', 'Withhold-on-uncertain policy'],
   },
   {
     step: 5,
@@ -78,16 +80,17 @@ export const processSteps: ProcessStep[] = [
 ];
 
 export const techStack: TechStackItem[] = [
-  { name: 'Rust', category: 'core', description: 'Axum API + ONNX Runtime' },
+  { name: 'TypeScript', category: 'core', description: 'End-to-end typed inference and API pipeline' },
+  { name: 'Express', category: 'core', description: 'Local API runtime' },
   { name: 'ONNX', category: 'core', description: 'Vision model inference' },
-  { name: 'LanceDB', category: 'storage', description: 'Embedded vector database' },
-  { name: 'Python', category: 'core', description: 'hloc + COLMAP bridge' },
+  { name: 'HNSW', category: 'storage', description: 'hnswlib-node ANN index' },
+  { name: 'Node.js', category: 'core', description: 'Backend runtime environment' },
   { name: 'React', category: 'frontend', description: 'UI components' },
-  { name: 'TypeScript', category: 'frontend', description: 'Type-safe development' },
+  { name: 'Tabler Icons', category: 'frontend', description: 'Interface iconography' },
   { name: 'Vite', category: 'frontend', description: 'Build tooling' },
   { name: 'Tailwind', category: 'frontend', description: 'Utility styling' },
-  { name: 'Docker', category: 'infrastructure', description: 'Containerization' },
-  { name: 'Earthly', category: 'infrastructure', description: 'Reproducible builds' },
+  { name: 'Motion', category: 'frontend', description: 'Animations' },
+  { name: 'MapLibre', category: 'frontend', description: 'Map rendering' },
 ];
 
 export const navLinks: NavLink[] = [

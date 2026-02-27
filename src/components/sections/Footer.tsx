@@ -67,15 +67,19 @@ export const Footer: React.FC<FooterProps> = ({ onOpenComingSoon }) => {
               transition={{ duration: 0.5 }}
               className="col-span-2"
             >
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-white font-bold text-xl tracking-wide">GEOWRAITH</span>
+              <div className="flex items-center gap-3 mb-4">
+                <img
+                  src="/logo-wordmark.png"
+                  alt="GeoWraith"
+                  className="h-8 w-auto select-none"
+                />
                 <span className="px-1.5 py-0.5 rounded bg-white/10 text-white/50 text-[10px] font-medium">
                   v2.2
                 </span>
               </div>
               <p className="text-white/40 text-sm leading-relaxed mb-6 max-w-xs">
-                100% local-first visual geolocation. Open-source alternative to GeoSpy. 
-                MIT licensed. Zero cost, zero data leaves your machine.
+                Local-first visual geolocation with confidence gating and transparent validation metrics.
+                MIT licensed. Zero recurring license cost, zero image upload to external services.
               </p>
               
               {/* Social Links */}
@@ -196,7 +200,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenComingSoon }) => {
                   transition={{ duration: 2, repeat: Infinity }}
                   className="w-1.5 h-1.5 bg-emerald-400 rounded-full"
                 />
-                <span className="text-white/40 text-xs">All systems operational</span>
+                <span className="text-white/40 text-xs">Local mode ready</span>
               </div>
             </div>
           </motion.div>

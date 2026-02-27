@@ -5,7 +5,7 @@
 import { haversineMeters } from '../../utils/geo.js';
 import { runPredictPipeline } from '../../services/predictPipeline.js';
 import type { PredictResponse } from '../../types.js';
-import type { GalleryManifest, GalleryImage, BenchmarkResult, AccuracyReport } from './types.js';
+import type { GalleryManifest, BenchmarkResult, AccuracyReport } from './types.js';
 import { ensureImageAvailable } from './image.js';
 import { extractLocationMetadata } from './geo.js';
 import { calculateStats, withinThreshold } from './stats.js';
@@ -26,7 +26,7 @@ export async function runBenchmark(manifest: GalleryManifest): Promise<AccuracyR
       const imageBuffer = await ensureImageAvailable(image);
       if (!imageBuffer) {
         failed++;
-        const { continent, sceneType } = extractLocationMetadata(image);
+        const { continent, sceneType, cohort } = extractLocationMetadata(image);
         results.push({
           imageId: image.id,
           filename: image.filename,
@@ -39,6 +39,7 @@ export async function runBenchmark(manifest: GalleryManifest): Promise<AccuracyR
           status: 'download_failed',
           continent,
           sceneType,
+          cohort,
         });
         console.log(`  ✗ Download failed\n`);
         continue;
@@ -59,7 +60,7 @@ export async function runBenchmark(manifest: GalleryManifest): Promise<AccuracyR
         { lat: prediction.location.lat, lon: prediction.location.lon }
       );
 
-      const { continent, sceneType } = extractLocationMetadata(image);
+      const { continent, sceneType, cohort } = extractLocationMetadata(image);
 
       results.push({
         imageId: image.id,
@@ -73,6 +74,7 @@ export async function runBenchmark(manifest: GalleryManifest): Promise<AccuracyR
         status: prediction.status,
         continent,
         sceneType,
+        cohort,
       });
 
       successful++;
@@ -81,7 +83,7 @@ export async function runBenchmark(manifest: GalleryManifest): Promise<AccuracyR
       failed++;
       console.error(`  ✗ Inference failed: ${error instanceof Error ? error.message : String(error)}\n`);
 
-      const { continent, sceneType } = extractLocationMetadata(image);
+      const { continent, sceneType, cohort } = extractLocationMetadata(image);
       results.push({
         imageId: image.id,
         filename: image.filename,
@@ -94,6 +96,7 @@ export async function runBenchmark(manifest: GalleryManifest): Promise<AccuracyR
         status: 'inference_failed',
         continent,
         sceneType,
+        cohort,
       });
     }
   }
@@ -154,6 +157,37 @@ function buildAccuracyReport(
     };
   }
 
+  // Calculate by benchmark cohort
+  const byCohort: AccuracyReport['byCohort'] = {
+    iconic_landmark: {
+      count: 0,
+      medianErrorM: NaN, // Use NaN instead of 0 to indicate "no data"
+      within10km: 0,
+      within100km: 0,
+    },
+    generic_scene: {
+      count: 0,
+      medianErrorM: NaN, // Use NaN instead of 0 to indicate "no data"
+      within10km: 0,
+      within100km: 0,
+    },
+  };
+  const cohortGroups = new Map<'iconic_landmark' | 'generic_scene', number[]>();
+  for (const result of successfulResults) {
+    const list = cohortGroups.get(result.cohort) ?? [];
+    list.push(result.errorMeters);
+    cohortGroups.set(result.cohort, list);
+  }
+  for (const [cohort, errs] of cohortGroups) {
+    const cohortStats = calculateStats(errs);
+    byCohort[cohort] = {
+      count: errs.length,
+      medianErrorM: cohortStats.median,
+      within10km: withinThreshold(errs, 10000),
+      within100km: withinThreshold(errs, 100000),
+    };
+  }
+
   // Calculate confidence correlation
   const highConf = successfulResults.filter((r) => r.confidenceTier === 'high');
   const medConf = successfulResults.filter((r) => r.confidenceTier === 'medium');
@@ -189,6 +223,7 @@ function buildAccuracyReport(
     thresholds,
     byContinent,
     bySceneType,
+    byCohort,
     confidenceCorrelation,
     results,
   };

@@ -1,2 +1,6 @@
 filename,lat,lon,label,accuracy_radius,source_method
 big_ben.jpg,51.5007,-0.1246,"Big Ben, London",30,existing
+colosseum.jpg,41.8902,12.4922,"Colosseum, Rome",30,existing
+great_wall.jpg,40.4319,116.5704,"Great Wall of China",30,existing
+machu_picchu.jpg,-13.1631,-72.545,"Machu Picchu, Peru",30,existing
+pyramids_giza.jpg,29.9792,31.1342,"Pyramids of Giza, Egypt",30,existing

@@ -115,7 +115,7 @@ export const AnimatedBackground: React.FC = () => {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ opacity: 0.4 }}
+      style={{ opacity: 0.22 }}
     />
   );
 };
@@ -216,7 +216,7 @@ export const VideoBackground: React.FC = () => {
 
   return (
     <>
-      {/* Video element - Full HD quality */}
+      {/* Video element - sharpened hero master */}
       <video
         ref={videoRef}
         autoPlay
@@ -227,9 +227,13 @@ export const VideoBackground: React.FC = () => {
         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
           isLoaded ? 'opacity-100' : 'opacity-0'
         }`}
-        style={{ opacity: 0.6 }}
+        style={{
+          opacity: 0.74,
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+        }}
       >
-        <source src="bg.mp4" type="video/mp4" />
+        <source src="/bg-hero.mp4" type="video/mp4" />
       </video>
 
       {/* Fallback gradient when video not loaded */}
@@ -242,8 +246,8 @@ export const VideoBackground: React.FC = () => {
       </div>
 
       {/* Gradient overlays for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black z-0 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40 z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/42 via-black/50 to-black z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/24 via-transparent to-black/24 z-0 pointer-events-none" />
     </>
   );
 };

@@ -43,7 +43,7 @@ export const Docs: React.FC = () => {
               transition={{ delay: 0.2 }}
               className="text-white/50 text-base md:text-lg"
             >
-              Everything you need to run the frontend, start the API stub, and call the prediction endpoint.
+              Everything you need to run the frontend, start the local API, and call the prediction endpoint.
             </motion.p>
           </div>
 
@@ -78,12 +78,12 @@ export const Docs: React.FC = () => {
                 <div className="w-10 h-10 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center">
                   <ShieldCheck className="w-5 h-5 text-cyan-400" />
                 </div>
-                <h3 className="text-white font-semibold">Backend Stub</h3>
+                <h3 className="text-white font-semibold">Backend API</h3>
               </div>
               <pre className="text-xs text-white/50 bg-black/50 border border-white/5 rounded-lg p-3 overflow-x-auto">
-                <code>{`cd backend\nnpm install\nnpm run dev`}</code>
+                <code>{`npm run start\n# or: cd backend && npm run dev`}</code>
               </pre>
-              <p className="text-white/40 text-xs mt-3">Local API at `http://localhost:8080`.</p>
+              <p className="text-white/40 text-xs mt-3">Local API at `http://localhost:8080/health`.</p>
             </motion.div>
 
             <motion.div
@@ -101,7 +101,7 @@ export const Docs: React.FC = () => {
               </div>
               <p className="text-white/50 text-sm">`POST /api/predict`</p>
               <p className="text-white/40 text-xs mt-2">Spec: `backend/docs/openapi.yaml`</p>
-              <p className="text-white/30 text-xs mt-4">Send `image_base64` or `image_url` with mode.</p>
+              <p className="text-white/30 text-xs mt-4">Send `image_base64` (or a data URL in `image_url`) with mode.</p>
             </motion.div>
           </div>
         </div>

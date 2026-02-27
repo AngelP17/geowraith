@@ -48,74 +48,35 @@ export default function App() {
   }, []);
 
   return (
-    <>
-      <style>
-        {`
-          @import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700,800&display=swap');
-          
-          .font-general { 
-            font-family: 'General Sans', -apple-system, BlinkMacSystemFont, sans-serif; 
-          }
-          
-          html {
-            scroll-behavior: smooth;
-          }
-          
-          ::selection {
-            background: rgba(52, 211, 153, 0.3);
-            color: white;
-          }
+    <div className="font-general bg-[#060606] text-white antialiased">
+      <Navbar onOpenComingSoon={showComingSoon} />
+      <Hero onOpenComingSoon={showComingSoon} />
+      <ProductUI />
+      <Docs />
+      <Examples />
+      <Gallery />
+      <WhatItIs />
+      <Features />
+      <UseCases />
+      <Industries />
+      <HowItWorks />
+      <Outcomes />
+      <Comparison />
+      <PrivacyDeepDive />
+      <TechStack />
+      <Pricing />
+      <FAQ />
+      <Contact />
+      <FinalCTA />
+      <Footer onOpenComingSoon={showComingSoon} />
 
-          /* Premium scrollbar */
-          ::-webkit-scrollbar {
-            width: 8px;
-          }
-          
-          ::-webkit-scrollbar-track {
-            background: #000;
-          }
-          
-          ::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-          }
-          
-          ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.2);
-          }
-        `}
-      </style>
-
-      <div className="font-general bg-black text-white antialiased">
-        <Navbar onOpenComingSoon={showComingSoon} />
-        <Hero onOpenComingSoon={showComingSoon} />
-        <ProductUI />
-        <Docs />
-        <Examples />
-        <Gallery />
-        <WhatItIs />
-        <Features />
-        <UseCases />
-        <Industries />
-        <HowItWorks />
-        <Outcomes />
-        <Comparison />
-        <PrivacyDeepDive />
-        <TechStack />
-        <Pricing />
-        <FAQ />
-        <Contact />
-        <FinalCTA />
-        <Footer onOpenComingSoon={showComingSoon} />
-        
-        {/* Global Coming Soon Modal */}
-        <ComingSoonModal
-          isOpen={comingSoonOpen}
-          onClose={closeComingSoon}
-          title={comingSoonContent.title}
-          description={comingSoonContent.description}
-        />
-      </div>
-    </>
+      {/* Global Coming Soon Modal */}
+      <ComingSoonModal
+        isOpen={comingSoonOpen}
+        onClose={closeComingSoon}
+        title={comingSoonContent.title}
+        description={comingSoonContent.description}
+      />
+    </div>
   );
 }

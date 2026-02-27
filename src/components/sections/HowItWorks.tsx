@@ -41,7 +41,7 @@ export const HowItWorks: React.FC = () => {
             >
               From Photo to{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
-                Precise Location
+                Calibrated Location
               </span>
             </motion.h2>
 
@@ -52,8 +52,8 @@ export const HowItWorks: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-white/50 text-base md:text-lg max-w-2xl mx-auto"
             >
-              A five-stage pipeline that transforms any image into GPS coordinates 
-              with meter-level accuracy.
+              A five-stage pipeline that transforms any image into confidence-calibrated
+              geolocation output.
             </motion.p>
           </div>
 
@@ -134,9 +134,9 @@ export const HowItWorks: React.FC = () => {
                 className="grid grid-cols-3 gap-4 mt-6"
               >
                 {[
-                  { value: '<10m', label: 'Accuracy' },
-                  { value: '<2s', label: 'Inference' },
-                  { value: '100%', label: 'Local' },
+                  { value: '93.1%', label: 'Within 10km' },
+                  { value: '<2s', label: 'Typical' },
+                  { value: '55K+', label: 'Vectors' },
                 ].map((stat, i) => (
                   <div key={i} className="text-center p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                     <div className="text-xl md:text-2xl font-bold text-white mb-1">{stat.value}</div>

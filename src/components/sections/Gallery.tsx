@@ -6,55 +6,34 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Image as ImageIcon, MapPin, Target } from 'lucide-react';
-import { dispatchDemo, type DemoKey } from '../../lib/demo';
+import { dispatchDemo, getDemoResult, type DemoKey } from '../../lib/demo';
 
 const galleryItems: Array<{
   title: string;
-  coords: string;
-  confidence: string;
-  radius: string;
   key: DemoKey;
 }> = [
   {
     title: 'Downtown Core',
-    coords: '34.0522, -118.2437',
-    confidence: '92%',
-    radius: '45m',
     key: 'downtown',
   },
   {
     title: 'Harbor District',
-    coords: '37.8080, -122.4177',
-    confidence: '88%',
-    radius: '60m',
     key: 'harbor',
   },
   {
     title: 'Industrial Zone',
-    coords: '40.7128, -74.0060',
-    confidence: '84%',
-    radius: '75m',
     key: 'industrial',
   },
   {
     title: 'Mountain Ridge',
-    coords: '39.7392, -104.9903',
-    confidence: '79%',
-    radius: '110m',
     key: 'ridge',
   },
   {
     title: 'Coastal Highway',
-    coords: '32.7157, -117.1611',
-    confidence: '87%',
-    radius: '58m',
     key: 'coastal',
   },
   {
     title: 'Campus Quadrant',
-    coords: '42.3601, -71.0589',
-    confidence: '90%',
-    radius: '50m',
     key: 'campus',
   },
 ];
@@ -101,37 +80,45 @@ export const Gallery: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {galleryItems.map((item, index) => (
-              <motion.button
-                key={item.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.05 * index }}
-                onClick={() => {
-                  const target = document.querySelector('#product');
-                  if (target) target.scrollIntoView({ behavior: 'smooth' });
-                  dispatchDemo(item.key);
-                }}
-                className="text-left rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 hover:border-white/20 hover:bg-white/[0.04] transition-all"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-white font-semibold">{item.title}</span>
-                  <span className="text-white/30 text-xs uppercase tracking-[0.2em]">Demo</span>
-                </div>
+              (() => {
+                const demo = getDemoResult(item.key);
+                const coords = `${demo.location.lat.toFixed(4)}, ${demo.location.lon.toFixed(4)}`;
+                const confidence = `${Math.round(demo.confidence * 100)}%`;
+                const radius = `${Math.round(demo.location.radius_m)}m`;
+                return (
+                  <motion.button
+                    key={item.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.05 * index }}
+                    onClick={() => {
+                      const target = document.querySelector('#product');
+                      if (target) target.scrollIntoView({ behavior: 'smooth' });
+                      dispatchDemo(item.key);
+                    }}
+                    className="text-left rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 hover:border-white/20 hover:bg-white/[0.04] transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-white font-semibold">{item.title}</span>
+                      <span className="text-white/30 text-xs uppercase tracking-[0.2em]">Demo</span>
+                    </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-white/50 text-sm">
-                    <MapPin className="w-4 h-4 text-emerald-400" />
-                    <span>{item.coords}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-white/50 text-sm">
-                    <Target className="w-4 h-4 text-cyan-400" />
-                    <span>{item.confidence} confidence</span>
-                  </div>
-                </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-white/50 text-sm">
+                        <MapPin className="w-4 h-4 text-emerald-400" />
+                        <span>{coords}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-white/50 text-sm">
+                        <Target className="w-4 h-4 text-cyan-400" />
+                        <span>{confidence} confidence</span>
+                      </div>
+                    </div>
 
-                <p className="text-white/30 text-xs mt-4">Radius: {item.radius}</p>
-              </motion.button>
+                    <p className="text-white/30 text-xs mt-4">Radius: {radius}</p>
+                  </motion.button>
+                );
+              })()
             ))}
           </div>
         </div>

@@ -20,6 +20,9 @@ const LOCATION_MODEL = path.join(MODEL_DIR, 'location_model_uint8.onnx');
 const IMAGE_SIZE = 224;
 const IMAGE_MEAN = [0.48145466, 0.4578275, 0.40821073];
 const IMAGE_STD = [0.26862954, 0.26130258, 0.27577711];
+const SESSION_OPTIONS: ort.InferenceSession.SessionOptions = {
+  executionProviders: ['cpu'],
+};
 
 let visionSession: ort.InferenceSession | null = null;
 let locationSession: ort.InferenceSession | null = null;
@@ -44,11 +47,11 @@ async function getGeoCLIPSessions(): Promise<{
     await ensureModelFiles();
     const startTime = Date.now();
     [visionSession, locationSession] = await Promise.all([
-      ort.InferenceSession.create(VISION_MODEL),
-      ort.InferenceSession.create(LOCATION_MODEL),
+      ort.InferenceSession.create(VISION_MODEL, SESSION_OPTIONS),
+      ort.InferenceSession.create(LOCATION_MODEL, SESSION_OPTIONS),
     ]);
     // eslint-disable-next-line no-console
-    console.log(`[GeoCLIP] ONNX sessions loaded in ${Date.now() - startTime}ms`);
+    console.log(`[GeoCLIP] ONNX sessions loaded in ${Date.now() - startTime}ms (cpu EP)`);
   }
   return {
     vision: visionSession,

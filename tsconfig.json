@@ -17,6 +17,9 @@
     "allowJs": true,
     "jsx": "react-jsx",
     "paths": {
+      "lucide-react": [
+        "./src/lib/icons/lucideTablerCompat.tsx"
+      ],
       "@/*": [
         "./*"
       ]

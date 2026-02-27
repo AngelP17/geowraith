@@ -10,13 +10,12 @@ import { techStack } from '../../data/features';
 import { Terminal } from 'lucide-react';
 
 export const TechStack: React.FC = () => {
-  const categories = ['core', 'storage', 'frontend', 'infrastructure'] as const;
+  const categories = ['core', 'storage', 'frontend'] as const;
   
   const categoryNames: Record<string, string> = {
     core: 'Core Engine',
-    storage: 'Storage & Database',
+    storage: 'Vector Search',
     frontend: 'Frontend & UI',
-    infrastructure: 'Infrastructure',
   };
 
   return (
@@ -128,22 +127,17 @@ export const TechStack: React.FC = () => {
                       <span className="text-cyan-400">cd</span>
                       <span className="text-white/70"> geowraith</span>
                       {'\n\n'}
-                      <span className="text-white/30"># Start the full stack</span>
+                      <span className="text-white/30"># Start frontend + backend together</span>
                       {'\n'}
-                      <span className="text-emerald-400">docker compose</span>
-                      <span className="text-white/70"> up --build</span>
-                      {'\n\n'}
-                      <span className="text-white/30"># Or backend only for development</span>
-                      {'\n'}
-                      <span className="text-emerald-400">docker compose</span>
-                      <span className="text-white/70"> -f docker-compose.backend.yml up</span>
+                      <span className="text-emerald-400">npm</span>
+                      <span className="text-white/70"> run start</span>
                     </code>
                   </pre>
                 </div>
               </div>
 
               <p className="text-center text-white/30 text-xs mt-4">
-                Zero configuration required. Runs entirely offline after setup.
+                One-command startup. Offline-capable after local models and gallery are prepared.
               </p>
             </div>
           </motion.div>

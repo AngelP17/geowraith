@@ -1,145 +1,71 @@
-# GeoWraith Backend (v2.2 — CLIP Fallback Active)
+# GeoWraith Backend
 
-This backend implements a deterministic, local-first geolocation pipeline:
+**Version:** 0.2.0  
+**Last Updated:** 2026-02-27
 
-> **Quick Links:** [Main README](../README.md) | [Architecture](../ARCHITECTURE.md) | [AGENTS](../AGENTS.md) | [Status](../STATUS.md)
+> **Quick Links:** [Main README](../README.md) | [Status](../STATUS.md) | [Architecture](../ARCHITECTURE.md) | [Validation Guide](../VALIDATION_GUIDE.md) | [Reproducibility Playbook](../docs/REPRODUCIBILITY_PLAYBOOK.md)
 
-- Input validation (`image_base64` or data URL)
-- Three-tier embedding: GeoCLIP ONNX → CLIP text-matching (`@xenova/transformers`) → deterministic fallback
-- CLIP mode: matches images against 355 world-city text embeddings (auto-downloads model from HuggingFace)
-- GeoCLIP mode: uses ONNX vision/location encoders with 100K+ reference coordinates (when models present)
-- HNSW approximate nearest-neighbor search
-- Coordinate aggregation with continent filtering and confidence scoring
-- EXIF GPS passthrough when geotags exist
+---
 
-## Quick Start
+## What This Service Does
 
-```bash
-cd backend
-npm install
-npm run dev
-```
+`backend` provides local image geolocation inference via:
 
-The API will be available at `http://localhost:8080`.
+- EXIF GPS passthrough
+- GeoCLIP ONNX embeddings (preferred)
+- CLIP text-matching fallback
+- deterministic fallback safety path
+- ANN/HNSW search over coordinate vectors + image anchors
+- confidence tiering and coordinate withholding
+
+---
 
 ## Commands
 
 ```bash
-# Development
-npm run dev              # Start API server
-npm run lint             # TypeScript check
-npm run build            # Compile TypeScript
-npm run test             # Run unit tests
+cd backend
 
-# Benchmarking
-npm run benchmark:accuracy      # Synthetic accuracy test
-npm run benchmark:validation     # Real landmark validation (46 images)
-npm run benchmark:search        # Search performance
+npm run dev
+npm run lint
+npm run build
+npm run test
 
-# Data Collection (Zero-Cost Public Sources)
-npm run scrape:city -- --city="Tokyo" --count=100 --sources=wikimedia,flickr,openverse,mapillary,osv5m,geograph,kartaview
-npm run scrape:global -- --count=12 --sources=wikimedia,flickr,openverse,mapillary,osv5m,geograph,kartaview
-
-# Coordinate Generation
-npm run generate:coords         # Generate 500K coordinates
-
-# Gallery Building
-npm run build:dataset           # Build reference dataset
-npm run build:gallery          # Build validation gallery
-npm run build:gallery:local    # Local sample gallery
-npm run build:gallery:csv      # CSV-based gallery
-npm run build:gallery:real    # Download landmarks
-npm run smartblend            # Download SmartBlend landmarks
+npm run benchmark:validation
+npm run benchmark:accuracy
+npm run benchmark:search
 ```
 
-## Endpoints
+---
+
+## API Endpoints
 
 - `GET /health`
 - `POST /api/predict`
+- `POST /api/predict/sfm` (feature-gated)
 
-API contract: `backend/docs/openapi.yaml`
+Contract:
 
-## Data Sources (Free/Public)
+- `backend/docs/openapi.yaml`
 
-10 sources total - 7 work without API keys:
+---
 
-| Source | Description | License | API Key Required |
-|--------|-------------|---------|------------------|
-| Wikimedia Commons | Geotagged photos | CC BY-SA | No |
-| Flickr Public | Public feed photos | Various | No |
-| Openverse | CC0/PD images | CC0/PD | No |
-| Mapillary | Street-level imagery | CC BY-SA | Optional |
-| OSV-5M | 5.1M Mapillary images | CC BY-SA | No |
-| Geograph UK | UK geotagged photos | CC BY-SA | No |
-| KartaView | Open street view | CC BY-SA | No |
-| Unsplash | High-quality photos | Unsplash | Optional |
-| Pexels | High-quality photos | Pexels | Optional |
-| Pixabay | High-quality photos | Pixabay | Optional |
+## Current Validation Snapshot
 
-## Configuration
+From the active 58-image gallery benchmark:
 
-Optional environment variables (see `.env.example`):
+- Within 10km: **93.1%** (54/58)
+- `iconic_landmark`: **100.0%**
+- `generic_scene`: **88.9%**
 
-```bash
-# Coordinate reference (default: 500000)
-GEOWRAITH_COORDINATE_COUNT=500000
+For exact reproduction steps:
 
-# ANN search tiers
-GEOWRAITH_ANN_TIER1_CANDIDATES=500
-GEOWRAITH_ANN_TIER2_CANDIDATES=200
-GEOWRAITH_ANN_TIER3_CANDIDATES=50
+- [../docs/REPRODUCIBILITY_PLAYBOOK.md](../docs/REPRODUCIBILITY_PLAYBOOK.md)
 
-# DBSCAN clustering (opt-in)
-GEOWRAITH_DBSCAN_EPSILON=50000
-GEOWRAITH_DBSCAN_MIN_POINTS=3
-GEOWRAITH_DBSCAN_MAX_CLUSTERS=10
+---
 
-# Data sources
-GEOWRAITH_ENABLE_OSV5M=true
-GEOWRAITH_ENABLE_GEOGRAPH=true
-GEOWRAITH_ENABLE_KARTAVIEW=true
+## Runtime Notes
 
-# Optional: Unsplash API key
-UNSPLASH_ACCESS_KEY=your_key
+- If GeoCLIP ONNX model files are missing, backend falls back to CLIP mode.
+- Model mode must be recorded with any published benchmark result.
+- Low-confidence predictions can return withheld coordinates by design.
 
-# Optional: Mapillary token
-MAPILLARY_ACCESS_TOKEN=your_token
-```
-
-## Validation Results (v2.2)
-
-```
-Median error:      28m
-Mean error:       243m
-P95 error:        1.4km
-Max error:        5.1km
-
-Within 100m:      76.1%
-Within 1km:        93.5%
-Within 10km:       100.0%
-```
-
-## Important Notes
-
-- **Zero-cost**: All data sources are free/public (except optional Unsplash)
-- **Local-first**: No external API calls during inference
-- **Accuracy**: Validated on 46 real landmarks (median 28m, P95 1.4km)
-- **Confidence**: Low-confidence results are withheld to avoid false positives
-
-## Runtime Diagnostics
-
-`POST /api/predict` returns:
-
-- `status`: `ok` or `low_confidence`
-- `location_visibility`: `visible` or `withheld`
-- `location_reason`: why location was withheld
-- `diagnostics.embedding_source`: `geoclip` or `fallback`
-- `diagnostics.reference_index_source`: `model`, `cache`, `fallback`, or `unknown`
-- `diagnostics.reference_image_anchors`: count of multi-source image anchors
-- `diagnostics.coordinate_count`: total reference coordinates
-
-When confidence is below 0.6, GeoWraith returns `low_confidence` and withholds coordinates.
-
-## License
-
-MIT — Zero-cost, fully open source.

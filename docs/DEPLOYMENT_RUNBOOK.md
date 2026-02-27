@@ -4,7 +4,7 @@
 **Last Updated:** 2026-02-27  
 **Status:** Production Ready
 
-> **Quick Links:** [README](../README.md) | [Architecture](../ARCHITECTURE.md) | [AGENTS](../AGENTS.md) | [Status](../STATUS.md)
+> **Quick Links:** [README](../README.md) | [Architecture](../ARCHITECTURE.md) | [AGENTS](../AGENTS.md) | [Status](../STATUS.md) | [Reproducibility](./REPRODUCIBILITY_PLAYBOOK.md)
 
 ---
 

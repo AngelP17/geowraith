@@ -14,6 +14,7 @@ export default defineConfig(() => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+        'lucide-react': path.resolve(__dirname, 'src/lib/icons/lucideTablerCompat.tsx'),
       },
     },
     server: {

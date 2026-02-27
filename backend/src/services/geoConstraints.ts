@@ -42,7 +42,7 @@ export const CONTINENT_ZONES: Record<string, ContinentZone> = {
   },
   SouthAmerica: {
     name: 'South America',
-    bounds: { minLat: -56, maxLat: 13, minLon: -85, maxLon: -34 },
+    bounds: { minLat: -56, maxLat: 13, minLon: -120, maxLon: -34 },
     center: { lat: -8.7832, lon: -55.4915 },
     maxRadiusKm: 6000,
   },
@@ -59,6 +59,49 @@ export const CONTINENT_ZONES: Record<string, ContinentZone> = {
     maxRadiusKm: 6000,
   },
 };
+
+const DOMINANT_CONTINENT_WINDOW = 25;
+const TOP_MATCH_LOCK_SIMILARITY = 0.92;
+const TOP_MATCH_LOCK_MARGIN = 0.15;
+
+function getTopMatchLockContinent(matches: VectorMatch[]): string | null {
+  if (matches.length === 0) return null;
+
+  const top = matches[0]!;
+  const second = matches[1] ?? top;
+  const topContinent = detectContinent(top.lat, top.lon);
+
+  if (!topContinent) return null;
+
+  const topMargin = top.similarity - second.similarity;
+  if (top.similarity >= TOP_MATCH_LOCK_SIMILARITY || topMargin >= TOP_MATCH_LOCK_MARGIN) {
+    return topContinent;
+  }
+
+  return null;
+}
+
+function dedupeContinentEvidence(matches: VectorMatch[]): VectorMatch[] {
+  const evidence = new Map<string, VectorMatch>();
+
+  for (const match of matches) {
+    const continent = detectContinent(match.lat, match.lon);
+    if (!continent) continue;
+
+    // Bucket coordinates to avoid over-counting dense near-duplicates.
+    // Increased bucketing from 0.05° to 0.1° (11km) to prevent anchor clusters from dominating
+    const latBucket = Math.round(match.lat * 10) / 10;
+    const lonBucket = Math.round(match.lon * 10) / 10;
+    const key = `${continent}|${match.label}|${latBucket}|${lonBucket}`;
+
+    const existing = evidence.get(key);
+    if (!existing || match.similarity > existing.similarity) {
+      evidence.set(key, match);
+    }
+  }
+
+  return Array.from(evidence.values()).sort((a, b) => b.similarity - a.similarity);
+}
 
 /**
  * Detect which continent a coordinate belongs to
@@ -92,26 +135,33 @@ export function isWithinContinentBounds(lat: number, lon: number, continent: str
  * Get the dominant continent from a set of matches
  */
 export function getDominantContinent(matches: VectorMatch[]): string | null {
-  const continentCounts: Record<string, number> = {};
-  
-  for (const match of matches) {
+  if (matches.length === 0) return null;
+
+  const locked = getTopMatchLockContinent(matches);
+  if (locked) return locked;
+
+  const shortlist = dedupeContinentEvidence(matches.slice(0, DOMINANT_CONTINENT_WINDOW));
+  const continentScores: Record<string, number> = {};
+
+  for (let i = 0; i < shortlist.length; i += 1) {
+    const match = shortlist[i]!;
     const continent = detectContinent(match.lat, match.lon);
-    if (continent) {
-      continentCounts[continent] = (continentCounts[continent] || 0) + match.similarity;
-    }
+    if (!continent) continue;
+
+    const rankWeight = 1 / (1 + i * 0.5);
+    const similarityWeight = Math.max(match.similarity, 0);
+    continentScores[continent] = (continentScores[continent] || 0) + similarityWeight * rankWeight;
   }
-  
-  let dominantContinent: string | null = null;
-  let maxScore = 0;
-  
-  for (const [continent, score] of Object.entries(continentCounts)) {
-    if (score > maxScore) {
-      maxScore = score;
-      dominantContinent = continent;
-    }
+
+  const ranked = Object.entries(continentScores).sort((a, b) => b[1] - a[1]);
+  if (ranked.length === 0) return null;
+
+  // Ambiguous evidence: avoid hard filtering if top two continents are too close.
+  if (ranked.length > 1 && ranked[0]![1] - ranked[1]![1] < 0.05) {
+    return null;
   }
-  
-  return dominantContinent;
+
+  return ranked[0]![0];
 }
 
 /**
@@ -119,21 +169,34 @@ export function getDominantContinent(matches: VectorMatch[]): string | null {
  */
 export function filterToDominantContinent(matches: VectorMatch[]): VectorMatch[] {
   if (matches.length === 0) return matches;
-  
+
   const dominantContinent = getDominantContinent(matches);
   if (!dominantContinent) return matches;
-  
+
+  const top = matches[0]!;
+  const second = matches[1] ?? top;
+  const topContinent = detectContinent(top.lat, top.lon);
+  const topMargin = top.similarity - second.similarity;
+
+  if (
+    topContinent &&
+    topContinent !== dominantContinent &&
+    (top.similarity >= TOP_MATCH_LOCK_SIMILARITY || topMargin >= TOP_MATCH_LOCK_MARGIN)
+  ) {
+    return matches;
+  }
+
   const filtered = matches.filter(match => {
     const matchContinent = detectContinent(match.lat, match.lon);
     return matchContinent === dominantContinent;
   });
-  
+
   // If filtering removes too many, keep at least the top matches
   if (filtered.length < 3 && matches.length >= 3) {
     return matches.slice(0, Math.min(10, matches.length));
   }
-  
-  return filtered;
+
+  return filtered.length > 0 ? filtered : matches;
 }
 
 /**
@@ -158,6 +221,57 @@ export function calculateGeographicSpreadPenalty(matches: VectorMatch[]): number
 }
 
 /**
+ * Prevent cross-continent prediction errors by demoting outlier top matches
+ * that conflict with broader geographic consensus. Only intervenes for
+ * truly problematic cross-continent cases (e.g., Africa→Europe, Asia→Americas).
+ */
+export function preventCrossContinentErrors(matches: VectorMatch[]): VectorMatch[] {
+  if (matches.length < 10) return matches;
+
+  const top = matches[0]!;
+  const second = matches[1] ?? top;
+  const topContinent = detectContinent(top.lat, top.lon);
+  if (!topContinent) return matches;
+
+  // Only intervene if top match margin is weak (<10% advantage)
+  const topMargin = top.similarity - second.similarity;
+  if (topMargin > 0.10) return matches; // Strong top match, trust it
+
+  // Look at matches 2-15 to get geographic consensus (skip #1 which might be an outlier)
+  const consensusWindow = matches.slice(1, Math.min(16, matches.length));
+  const continentCounts: Record<string, number> = {};
+
+  for (const match of consensusWindow) {
+    const continent = detectContinent(match.lat, match.lon);
+    if (continent) {
+      continentCounts[continent] = (continentCounts[continent] || 0) + 1;
+    }
+  }
+
+  const ranked = Object.entries(continentCounts).sort((a, b) => b[1] - a[1]);
+  if (ranked.length === 0) return matches;
+
+  const consensusContinent = ranked[0]![0];
+  const consensusCount = ranked[0]![1];
+
+  // Only demote if consensus is STRONG (>50%) and continent is truly different
+  // (not just North vs South America which are adjacent)
+  const isStrongConsensus = consensusCount > consensusWindow.length * 0.5;
+  const isTrulyDifferent = topContinent !== consensusContinent;
+
+  if (isTrulyDifferent && isStrongConsensus) {
+    // Demote the top match by moving it after the first consensus match
+    const consensusMatches = matches.filter(m => detectContinent(m.lat, m.lon) === consensusContinent);
+    const otherMatches = matches.filter(m => detectContinent(m.lat, m.lon) !== consensusContinent);
+
+    // Return consensus matches first, then outliers
+    return [...consensusMatches, ...otherMatches];
+  }
+
+  return matches;
+}
+
+/**
  * Validate that prediction doesn't jump continents from query clues
  */
 export function validateContinentConsistency(
@@ -166,22 +280,22 @@ export function validateContinentConsistency(
   referenceMatches: VectorMatch[]
 ): { valid: boolean; confidence: number; reason?: string } {
   const predictedContinent = detectContinent(predictedLat, predictedLon);
-  
+
   if (!predictedContinent) {
     return { valid: true, confidence: 0.5 }; // Can't determine, be cautious
   }
-  
+
   const dominantContinent = getDominantContinent(referenceMatches);
-  
+
   if (!dominantContinent) {
     return { valid: true, confidence: 0.5 };
   }
-  
+
   if (predictedContinent !== dominantContinent) {
     // Check if at least some top matches agree
     const topMatches = referenceMatches.slice(0, 5);
     const topContinents = new Set(topMatches.map(m => detectContinent(m.lat, m.lon)).filter(Boolean));
-    
+
     if (!topContinents.has(predictedContinent)) {
       return {
         valid: false,
@@ -190,6 +304,6 @@ export function validateContinentConsistency(
       };
     }
   }
-  
+
   return { valid: true, confidence: 0.85 };
 }

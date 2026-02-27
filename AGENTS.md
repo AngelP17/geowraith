@@ -276,6 +276,7 @@ A task is complete when:
 | [Memory.md](Memory.md) | Durable high-level memory of decisions |
 | [.agent/CONTINUITY.md](.agent/CONTINUITY.md) | Task-by-task operational continuity |
 | [VALIDATION_GUIDE.md](VALIDATION_GUIDE.md) | Real-world accuracy validation workflow |
+| [docs/REPRODUCIBILITY_PLAYBOOK.md](docs/REPRODUCIBILITY_PLAYBOOK.md) | Canonical benchmark/model replication workflow |
 | [docs/DEPLOYMENT_RUNBOOK.md](docs/DEPLOYMENT_RUNBOOK.md) | Production deployment guide |
 
 **License:** MIT — You own what you build, but you are responsible for how it is used.

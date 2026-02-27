@@ -93,8 +93,8 @@ async function main() {
     }
   }
   
-  console.log(`\n\n✓ Generated ${success} vectors (${failed} failed)`;
-  
+  console.log(`\n\n✓ Generated ${success} vectors (${failed} failed)`);
+
   // Save vectors
   await fs.mkdir(path.dirname(OUTPUT_FILE), { recursive: true });
   await fs.writeFile(

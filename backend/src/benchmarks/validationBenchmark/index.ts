@@ -71,6 +71,16 @@ function printReport(report: AccuracyReport, elapsedSec: number): void {
     console.log();
   }
 
+  console.log('BY BENCHMARK COHORT');
+  console.log('-------------------');
+  for (const [cohort, stats] of Object.entries(report.byCohort)) {
+    const label = cohort === 'iconic_landmark' ? 'Iconic Landmark' : 'Generic Scene';
+    console.log(
+      `${label.padEnd(15)} Count: ${String(stats.count).padStart(3)} | Median: ${formatDistance(stats.medianErrorM).padStart(8)} | Within 10km: ${formatPercent(stats.within10km)} | Within 100km: ${formatPercent(stats.within100km)}`
+    );
+  }
+  console.log();
+
   console.log('CONFIDENCE CORRELATION');
   console.log('----------------------');
   const highThreshold = Math.round(CONFIDENCE_THRESHOLDS.high.min * 100);

@@ -22,12 +22,18 @@ const AnimatedCounter: React.FC<{ value: string; label: string; delay: number }>
 
   useEffect(() => {
     if (!isInView) return;
-    
-    const numericPart = value.replace(/[^0-9]/g, '');
-    const suffix = value.replace(/[0-9]/g, '');
-    const target = parseInt(numericPart, 10);
-    
-    if (isNaN(target)) {
+
+    const match = value.match(/^([^0-9]*)([0-9]+(?:\.[0-9]+)?)(.*)$/);
+    if (!match) {
+      setDisplayValue(value);
+      return;
+    }
+    const prefix = match[1];
+    const numericToken = match[2];
+    const suffix = match[3];
+    const target = Number(numericToken);
+    const decimals = (numericToken.split('.')[1] ?? '').length;
+    if (!Number.isFinite(target)) {
       setDisplayValue(value);
       return;
     }
@@ -41,13 +47,16 @@ const AnimatedCounter: React.FC<{ value: string; label: string; delay: number }>
         requestAnimationFrame(animate);
         return;
       }
-      
+
       const progress = Math.min(elapsed / duration, 1);
       const easeOut = 1 - Math.pow(1 - progress, 4);
-      const current = Math.floor(target * easeOut);
-      
-      setDisplayValue(current + suffix);
-      
+      const current = target * easeOut;
+      const formatted = progress >= 1
+        ? target.toFixed(decimals)
+        : (decimals > 0 ? current.toFixed(decimals) : Math.floor(current).toString());
+
+      setDisplayValue(`${prefix}${formatted}${suffix}`);
+
       if (progress < 1) {
         requestAnimationFrame(animate);
       }

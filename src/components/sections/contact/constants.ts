@@ -5,8 +5,8 @@ export const contactMethods: ContactMethod[] = [
   {
     icon: Mail,
     label: 'Email',
-    value: 'hello@geowraith.dev',
-    href: 'mailto:hello@geowraith.dev',
+    value: 'angelpinzon1706@gmail.com',
+    href: 'mailto:angelpinzon1706@gmail.com',
     description: 'For general inquiries and support',
     external: false,
   },

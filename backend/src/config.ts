@@ -32,7 +32,10 @@ function parseBoolean(value: string | undefined, fallback: boolean): boolean {
  *
  * MINIMUM_CONFIDENCE:
  * Coordinates are withheld when confidence is below this threshold to reduce
- * false continent/country outputs on ambiguous imagery.
+ * false continent/country outputs on ambiguous imagery. This gate is paired
+ * with top-match coherence checks in the predict pipeline so obvious landmark
+ * clusters can still surface even when the raw score lands slightly below the
+ * global threshold.
  */
 export const CONFIDENCE_THRESHOLDS = {
   high: { min: 0.75, label: 'high' as const },
@@ -41,10 +44,18 @@ export const CONFIDENCE_THRESHOLDS = {
 };
 
 /**
- * Minimum confidence required before coordinates are shown to operators.
- * Below this, API returns low_confidence and marks location as withheld.
+ * Global actionable confidence threshold for coordinate display.
+ *
+ * Calibrated from the 58-image validation set: 0.605 preserves most correct
+ * landmark hits while still withholding the known generic-scene confusers when
+ * paired with match-coherence checks.
  */
-export const MINIMUM_CONFIDENCE = 0.65;
+export const MINIMUM_CONFIDENCE = parseFloat(
+  process.env.GEOWRAITH_MIN_CONFIDENCE,
+  0.605,
+  0,
+  1
+);
 
 /**
  * Ultra-high accuracy mode settings

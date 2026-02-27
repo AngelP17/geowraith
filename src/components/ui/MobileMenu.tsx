@@ -64,7 +64,11 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, onOpenC
           >
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-white/10">
-              <span className="text-white font-bold text-lg">GEOWRAITH</span>
+              <img
+                src="/logo-wordmark.png"
+                alt="GeoWraith"
+                className="h-7 w-auto select-none"
+              />
               <button
                 onClick={onClose}
                 className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center

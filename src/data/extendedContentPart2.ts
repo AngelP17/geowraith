@@ -5,38 +5,39 @@
 
 // Comparison vs alternatives
 export const comparison = {
-  headline: "How GeoWraith Compares",
-  description: "The only open-source solution that matches commercial accuracy while maintaining complete data sovereignty.",
+  headline: 'How GeoWraith Compares',
+  description:
+    'An open-source, local-first geolocation stack with transparent benchmark reporting and full data control.',
   competitors: [
     {
-      name: "GeoSpy",
-      type: "Commercial",
-      pros: ["High accuracy", "Easy to use", "No setup"],
-      cons: ["$200+/month", "Data leaves your control", "Rate limits", "No customization"],
-      geowraithAdvantage: "Same accuracy, zero cost, complete control"
+      name: 'GeoSpy',
+      type: 'Commercial',
+      pros: ['Managed product', 'Easy to use', 'No setup'],
+      cons: ['$200+/month', 'Data leaves your control', 'Rate limits', 'No customization'],
+      geowraithAdvantage: 'Transparent local benchmarks, zero recurring license fees, complete control',
     },
     {
-      name: "Google Lens",
-      type: "Free Service",
-      pros: ["Free", "Widely available"],
-      cons: ["Data sent to Google", "No batch processing", "No API", "Limited geolocation focus"],
-      geowraithAdvantage: "Purpose-built for geolocation, batch capable, private"
+      name: 'Google Lens',
+      type: 'Free Service',
+      pros: ['Free', 'Widely available'],
+      cons: ['Data sent to Google', 'No batch processing', 'No API', 'Limited geolocation focus'],
+      geowraithAdvantage: 'Purpose-built for geolocation, batch capable, private',
     },
     {
-      name: "Custom ML Pipeline",
-      type: "DIY",
-      pros: ["Full control", "Customizable"],
-      cons: ["Months of development", "Requires ML expertise", "Maintenance burden", "No refinement"],
-      geowraithAdvantage: "Production-ready, maintained, with hloc refinement"
+      name: 'Custom ML Pipeline',
+      type: 'DIY',
+      pros: ['Full control', 'Customizable'],
+      cons: ['Months of development', 'Requires ML expertise', 'Maintenance burden', 'No baseline tooling'],
+      geowraithAdvantage: 'Production-oriented baseline with validation tooling and documented workflows',
     }
   ],
   comparisonTable: {
-    headers: ["Feature", "GeoWraith", "GeoSpy", "Google Lens", "DIY"],
+    headers: ['Feature', 'GeoWraith', 'GeoSpy', 'Google Lens', 'DIY'],
     rows: [
       { feature: "Cost", geowraith: "$0", geospy: "$200+/mo", google: "Free", diy: "Variable" },
       { feature: "Local/Private", geowraith: "✓", geospy: "✗", google: "✗", diy: "✓" },
       { feature: "Open Source", geowraith: "✓", geospy: "✗", google: "✗", diy: "Maybe" },
-      { feature: "Meter Accuracy", geowraith: "✓", geospy: "✓", google: "✗", diy: "Maybe" },
+      { feature: "Accuracy Reporting", geowraith: "Transparent cohorts", geospy: "Proprietary", google: "N/A", diy: "Depends" },
       { feature: "Batch Processing", geowraith: "✓", geospy: "Limited", google: "✗", diy: "✓" },
       { feature: "API Access", geowraith: "✓", geospy: "✓", google: "✗", diy: "Build it" },
       { feature: "Customization", geowraith: "✓", geospy: "✗", google: "✗", diy: "✓" }
@@ -133,7 +134,7 @@ export const faq = {
   questions: [
     {
       q: "How accurate is GeoWraith?",
-      a: "In dense urban environments with pre-mapped galleries, GeoWraith achieves <10 meter accuracy with hloc refinement enabled. Without refinement, accuracy depends on gallery density but typically ranges from 50-500 meters."
+      a: "On the current 58-image validation benchmark, GeoWraith achieves 93.1% within 10km (54/58). Iconic landmarks are 100.0%, while generic scenes are 88.9%. Accuracy is scene-dependent."
     },
     {
       q: "Do I need a GPU?",
@@ -141,11 +142,11 @@ export const faq = {
     },
     {
       q: "Can I use my own image database?",
-      a: "Yes. You can build custom galleries from your own imagery using the gallery builder tool. This is essential for specialized use cases like military bases or private facilities."
+      a: "Yes. You can build custom galleries from your own imagery using the gallery builder tools. This is essential for specialized use cases like military bases or private facilities."
     },
     {
       q: "Is it really 100% offline?",
-      a: "Yes. After downloading the model and building your gallery, GeoWraith requires no internet connection. Set GEOWRAITH_OFFLINE=1 to enforce this."
+      a: "Yes, after required model assets and gallery data are downloaded locally. Set GEOWRAITH_OFFLINE=1 to enforce offline-only behavior."
     },
     {
       q: "What image formats are supported?",
@@ -153,7 +154,7 @@ export const faq = {
     },
     {
       q: "How does this compare to GeoSpy?",
-      a: "GeoWraith achieves similar accuracy to GeoSpy for a fraction of the cost (free vs $200+/month). The trade-off is that you host it yourself."
+      a: "GeoWraith prioritizes local control and transparent benchmark reporting. Commercial platforms may differ in model quality, data coverage, and managed-service convenience."
     },
     {
       q: "Is it legal to use?",

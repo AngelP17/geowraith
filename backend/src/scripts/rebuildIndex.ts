@@ -1,32 +1,22 @@
-import { getReferenceVectors, warmupReferenceIndex } from '../services/geoclipIndex.js';
-import { getHNSWIndex, invalidateHNSWIndex } from '../services/annIndex.js';
+import 'dotenv/config';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { HNSWIndex } from '../services/annIndex.js';
 
-async function rebuild() {
-  console.log('🔄 Rebuilding GeoCLIP reference index with REAL embeddings...\n');
+const MERGED_FILE = path.resolve(process.cwd(), '.cache/geoclip/referenceImageVectors.merged_v1.json');
+const INDEX_FILE = path.resolve(process.cwd(), '.cache/geoclip/hnsw_index.merged_v1.bin');
+
+async function main() {
+  console.log('Rebuilding HNSW index...\n');
   
-  // Clear any cached index
-  invalidateHNSWIndex();
+  const data = JSON.parse(await fs.readFile(MERGED_FILE, 'utf8'));
+  console.log(`Vectors: ${data.vectors.length}`);
   
-  const startTime = Date.now();
+  const index = new HNSWIndex({ M: 16, efConstruction: 200, efSearch: 128 });
+  await index.buildIndex(data.vectors);
+  await index.saveIndex(INDEX_FILE);
   
-  // Build reference vectors with real GeoCLIP
-  console.log('Step 1: Generating reference vectors...');
-  const vectors = await getReferenceVectors();
-  console.log(`  ✓ Generated ${vectors.length} reference vectors`);
-  
-  // Build HNSW index
-  console.log('\nStep 2: Building HNSW index...');
-  const index = await getHNSWIndex();
-  console.log(`  ✓ HNSW index ready with ${index.size} vectors`);
-  
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-  console.log(`\n✅ Index rebuild complete in ${elapsed}s`);
-  console.log('\nNext: Run benchmark to verify accuracy improvement');
+  console.log(`✅ Index rebuilt: ${index.size} vectors`);
 }
 
-rebuild().catch(err => {
-  console.error('Rebuild failed:', err);
-  process.exit(1);
-});
+main().catch(console.error);

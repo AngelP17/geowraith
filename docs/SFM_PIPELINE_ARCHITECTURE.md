@@ -4,13 +4,15 @@
 **Last Updated:** 2026-02-26  
 **Status:** Design Phase / Research Ready
 
+> **Quick Links:** [Status](../STATUS.md) | [Architecture](../ARCHITECTURE.md) | [Reproducibility](./REPRODUCIBILITY_PLAYBOOK.md)
+
 ---
 
 ## Executive Summary
 
-This document outlines the architecture for a Structure-from-Motion (SfM) refinement pipeline that can improve GeoWraith's geolocation accuracy from **~220km (coarse regional)** to **meter-level precision**.
+This document outlines a future Structure-from-Motion (SfM) refinement pipeline that can improve GeoWraith from coarse/geographic localization to finer pose-level localization.
 
-**Current State:** Coarse geolocation via GeoCLIP (~222km median error)  
+**Current State:** Core pipeline validated separately (see `STATUS.md`) and SfM route is feature-gated by default.  
 **Target State:** Meter-level precision via SfM reconstruction  
 **Approach:** Hybrid pipeline combining image retrieval, 3D reconstruction, and pose estimation
 
@@ -454,7 +456,7 @@ interface SfMRefinementResponse {
 
 | Metric | Current | Phase 1 | Phase 2 | Phase 3 |
 |--------|---------|---------|---------|---------|
-| Median Error | 222 km | 50 m | 10 m | 1-5 m |
+| Core Benchmark Quality | See `STATUS.md` / validation snapshot | improved local refinement | tighter pose refinement | meter-class on covered scenes |
 | P95 Latency | 3s | 60s | 30s | 10s |
 | Success Rate | 92% | 80% | 85% | 90% |
 | Coverage | Global | Urban only | Urban + landmarks | Most populated areas |
