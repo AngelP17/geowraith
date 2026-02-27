@@ -123,8 +123,9 @@ export async function buildHierarchicalIndex(): Promise<void> {
       country,
       prompts: [
         `A photograph taken in ${country}`,
-        `Street view showing typical scenery of ${country}`,
-        `Architecture and cityscape of ${country}`,
+        `Typical scenery, landscape and buildings in ${country}`,
+        `Urban architecture in ${country}`,
+        `A place in ${country}`,
       ],
     });
   }
@@ -173,16 +174,20 @@ export async function hierarchicalGeolocate(imageBuffer: Buffer): Promise<Vector
     .map(c => ({ country: c.country, score: cosineSimilarity(imageVec, c.embedding!) }))
     .sort((a, b) => b.score - a.score);
 
-  const topCountries = new Set(countryScores.slice(0, 8).map(c => c.country));
+  const topCountries = new Set(countryScores.slice(0, 12).map(c => c.country));
+  const maxCountryScore = countryScores[0]?.score ?? 0;
+  const countryScoreMap = new Map(countryScores.map(c => [c.country, c.score]));
 
   const candidateCities = cityEmbeddings
     .filter(c => topCountries.has(c.country) && c.embedding);
 
   const cityScores = candidateCities
-    .map(c => ({
-      ...c,
-      similarity: cosineSimilarity(imageVec, c.embedding!),
-    }))
+    .map(c => {
+      const rawSim = cosineSimilarity(imageVec, c.embedding!);
+      const cScore = countryScoreMap.get(c.country) ?? 0;
+      const boost = maxCountryScore > 0 ? 0.08 * (cScore / maxCountryScore) : 0;
+      return { ...c, similarity: rawSim + boost };
+    })
     .sort((a, b) => b.similarity - a.similarity);
 
   return cityScores.slice(0, 20).map((c, i) => ({

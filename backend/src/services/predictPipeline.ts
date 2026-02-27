@@ -25,6 +25,25 @@ function rescaleClipSimilarities(matches: VectorMatch[]): VectorMatch[] {
   });
 }
 
+/**
+ * Merge flat and hierarchical search results, keeping the best similarity
+ * for each unique city and re-sorting by combined score.
+ */
+function mergeAndDedupeMatches(flat: VectorMatch[], hier: VectorMatch[], k: number): VectorMatch[] {
+  const byLabel = new Map<string, VectorMatch>();
+
+  for (const m of [...flat, ...hier]) {
+    const existing = byLabel.get(m.label);
+    if (!existing || m.similarity > existing.similarity) {
+      byLabel.set(m.label, m);
+    }
+  }
+
+  return Array.from(byLabel.values())
+    .sort((a, b) => b.similarity - a.similarity)
+    .slice(0, k);
+}
+
 /** Determine confidence tier based on empirical thresholds. */
 function getConfidenceTier(confidence: number): ConfidenceTier {
   if (confidence >= CONFIDENCE_THRESHOLDS.high.min) return 'high';
