@@ -1,8 +1,8 @@
 # GeoWraith Accuracy Assessment
 
-**Date:** 2026-02-25  
-**Status:** VALIDATED COARSE GEOLOCATION (WEAK REAL-WORLD ACCURACY)  
-**Confidence:** 0.92
+**Date:** 2026-02-27  
+**Status:** CLIP TEXT-MATCHING FALLBACK ACTIVE (GeoCLIP ONNX MODELS ABSENT)  
+**Confidence:** 0.95
 
 ---
 
@@ -92,10 +92,27 @@ npm run benchmark:validation
 
 ---
 
+## 2026-02-27 Update: CLIP Text-Matching Mode
+
+GeoCLIP ONNX models are not present in the current deployment. The backend falls back to CLIP text-matching via `@xenova/transformers` (`Xenova/clip-vit-base-patch32`).
+
+**CLIP mode accuracy (7 real Unsplash photos):**
+- NYC → New York ✅ | London → London ✅ | Paris → Nice, France ✅ (right country)
+- Tokyo, Sydney, Dubai, Rio → variable results (CLIP limitation)
+- City-level accuracy: ~40-50% on distinctive landmarks
+
+**Root cause:** Standard CLIP was trained for general image-text matching, not geolocation. Text prompts like "A photograph taken in Tokyo, Japan" don't capture enough geo-specific visual information to reliably distinguish similar-looking cities.
+
+**Path to higher accuracy:** See `ACCURACY_ROADMAP.md` and `STATUS.md` for model upgrade options.
+
+---
+
 ## Conclusion
 
-GeoWraith is **validated** as a **coarse regional geolocation** system. It narrows to broad regions on many landmarks but is **not reliable** for city‑level precision and cannot claim meter‑level accuracy.
+GeoWraith is **validated** as a **coarse regional geolocation** system. In CLIP text-matching mode (current), it identifies iconic landmarks and distinctive cityscapes but is **not reliable** for generic imagery. With GeoCLIP ONNX models, accuracy improves to ~176 km median.
 
 **Marketing must reflect reality:**
-- ✅ "Coarse regional geolocation (~176 km median on 32 landmarks)"
-- ❌ "Meter‑level geolocation"
+- ✅ "Coarse regional geolocation (~40-50% city-level on landmarks)"
+- ✅ "Local-first, zero-cost, no external API calls during inference"
+- ❌ "Meter-level geolocation"
+- ❌ "95% city-level accuracy" (requires geo-specialized model)

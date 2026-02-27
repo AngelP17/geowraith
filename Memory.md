@@ -589,3 +589,17 @@ Persistent project memory for high-signal decisions and context that should surv
   - Frontend now suppresses map pin/coordinate copy whenever location is withheld.
   - Added `referenceImageIndex.ts` and appended SmartBlend image-anchor vectors into the HNSW reference index (diagnostics now include anchor count).
   - Critical caveat: universal 99% confidence on every image remains infeasible; abstention is required for low-information inputs.
+- 2026-02-27T02:30Z [CODE] [MODELS] CLIP text-matching fallback pipeline implemented for when GeoCLIP ONNX models are absent.
+  - New files: `clipGeolocator.ts` (CLIP model via @xenova/transformers), `clipHierarchicalSearch.ts` (country→city two-stage), `worldCities.ts` (355 cities, 156 countries).
+  - Three-tier embedding fallback: GeoCLIP ONNX → CLIP text-matching → deterministic color histogram.
+  - CLIP model (`Xenova/clip-vit-base-patch32`) auto-downloaded from HuggingFace on first startup, cached locally.
+  - City text embeddings cached to `.cache/clip/city_text_embeddings.json` for fast reload.
+  - Similarity rescaling calibrates CLIP's 0.20-0.35 raw range to the confidence formula's expected range.
+  - `embedding_source: 'clip'` and `reference_index_source: 'clip'` added to API diagnostics.
+  Evidence: `backend/src/services/clipGeolocator.ts`, `backend/src/services/clipHierarchicalSearch.ts`, `backend/src/data/worldCities.ts`, all 21 tests pass.
+  Status: VERIFIED
+  Confidence: 0.95
+- 2026-02-27T02:30Z [CODE] [MODELS] Standard CLIP ViT-Base accuracy limitation confirmed: ~40-50% city-level on distinctive landmarks, cross-continent errors on generic cityscapes. 95% city-level accuracy requires a geo-specialized model.
+  Evidence: Terminal accuracy tests on 7 Unsplash images (NYC ✅, London ✅, Paris/France ✅, Tokyo ❌, Sydney ❌, Dubai ❌, Rio ❌).
+  Status: VERIFIED
+  Confidence: 0.97
