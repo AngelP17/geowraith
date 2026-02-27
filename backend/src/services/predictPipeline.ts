@@ -14,15 +14,16 @@ const WITHHELD_LOCATION_MIN_RADIUS_M = 1_000_000;
 /**
  * Rescale CLIP text-image similarities to the range expected by the aggregation
  * confidence formula. CLIP cross-modal similarities are inherently lower (0.20-0.35)
- * than within-modality similarities. This uses a non-linear mapping that amplifies
- * the gap between the top match and lower matches, which is critical for confidence.
+ * than within-modality similarities. This uses a linear mapping that preserves
+ * relative differences between candidates.
+ *
+ * Mapping: 0.15 → 0.20, 0.25 → 0.50, 0.30 → 0.65, 0.35 → 0.80
  */
 function rescaleClipSimilarities(matches: VectorMatch[]): VectorMatch[] {
-  return matches.map(m => {
-    const shifted = Math.max(0, m.similarity - 0.12);
-    const scaled = Math.pow(shifted * 4.5, 1.3);
-    return { ...m, similarity: clamp(scaled, 0, 0.98) };
-  });
+  return matches.map(m => ({
+    ...m,
+    similarity: clamp((m.similarity - 0.10) * 3.0, 0.05, 0.95),
+  }));
 }
 
 /**
@@ -90,14 +91,9 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
   const referenceIndexSource = getReferenceIndexSource();
   const referenceImageAnchors = getReferenceImageAnchorCount();
 
-  let matches: VectorMatch[];
-  if (referenceIndexSource === 'clip' && isHierarchicalReady()) {
-    matches = rescaleClipSimilarities(await hierarchicalGeolocate(parsed.imageBuffer));
-  } else {
-    matches = await searchNearestNeighborsWithFallback(signals.vector, k, true);
-    if (referenceIndexSource === 'clip') {
-      matches = rescaleClipSimilarities(matches);
-    }
+  let matches = await searchNearestNeighborsWithFallback(signals.vector, k, true);
+  if (referenceIndexSource === 'clip') {
+    matches = rescaleClipSimilarities(matches);
   }
   const aggregated = aggregateMatches(matches);
 
