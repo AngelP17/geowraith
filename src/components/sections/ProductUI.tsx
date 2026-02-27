@@ -6,20 +6,25 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { Satellite } from 'lucide-react';
-import { predictImage, type PredictResponse } from '../../lib/api';
+import { checkApiHealth, predictImage, type PredictResponse } from '../../lib/api';
 import {
   BackgroundGrid,
   ImageUploadPanel,
   ResultsPanel,
   readFileAsDataUrl,
 } from '../product';
-import type { Mode, AnalysisPhase } from '../product';
+import type { Mode, AnalysisPhase, DisplayMode } from '../product';
 import { getDemoResult } from '../../lib/demo';
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof DOMException && error.name === 'AbortError') {
     return 'Request cancelled.';
   }
+
+  if (error instanceof TypeError && error.message.toLowerCase().includes('fetch')) {
+    return 'Live API unavailable on http://localhost:8080. Start both services with "npm run start".';
+  }
+
   if (error instanceof Error && error.message) {
     return error.message;
   }
@@ -27,9 +32,11 @@ function getErrorMessage(error: unknown): string {
 }
 
 export const ProductUI: React.FC = () => {
+  const [liveApiStatus, setLiveApiStatus] = useState<'checking' | 'online' | 'offline'>('offline');
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>('accurate');
+  const [displayMode, setDisplayMode] = useState<DisplayMode>('operator-safe');
   const [dataSource, setDataSource] = useState<'demo' | 'live'>('demo');
   const [phase, setPhase] = useState<AnalysisPhase>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -116,9 +123,59 @@ export const ProductUI: React.FC = () => {
     return () => window.removeEventListener('geowraith:demo', handler);
   }, []);
 
+  const refreshLiveApiHealth = useCallback(async () => {
+    setLiveApiStatus('checking');
+    const healthy = await checkApiHealth();
+    setLiveApiStatus(healthy ? 'online' : 'offline');
+    return healthy;
+  }, []);
+
+  useEffect(() => {
+    if (dataSource !== 'live') return;
+
+    void refreshLiveApiHealth();
+
+    const interval = window.setInterval(() => {
+      void refreshLiveApiHealth();
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, [dataSource, refreshLiveApiHealth]);
+
+  const handleDataSourceChange = useCallback((value: 'demo' | 'live') => {
+    setDataSource(value);
+    setErrorMsg('');
+
+    if (value === 'demo') {
+      setLiveApiStatus('offline');
+      if (!result) {
+        setWarningMsg('');
+      }
+      return;
+    }
+
+    setWarningMsg('Checking Live API connection...');
+    setLiveApiStatus('checking');
+
+    void checkApiHealth().then((healthy) => {
+      setLiveApiStatus(healthy ? 'online' : 'offline');
+      setWarningMsg(
+        healthy
+          ? 'Live API connected. Ready for local inference.'
+          : 'Live API unavailable on http://localhost:8080. Start both services with "npm run start".'
+      );
+    });
+  }, [result]);
+
   const handleAnalyze = async () => {
     if (dataSource === 'demo') {
       applyDemoResult(getDemoResult(), mode);
+      return;
+    }
+
+    if (liveApiStatus !== 'online') {
+      setErrorMsg('Live API unavailable on http://localhost:8080. Start both services with "npm run start".');
+      setPhase('error');
       return;
     }
 
@@ -230,13 +287,14 @@ export const ProductUI: React.FC = () => {
                 previewUrl={previewUrl}
                 mode={mode}
                 dataSource={dataSource}
+                liveApiStatus={liveApiStatus}
                 phase={phase}
                 errorMsg={errorMsg}
                 warningMsg={warningMsg}
                 scanProgress={scanProgress}
                 onFileSelect={processFile}
                 onModeChange={setMode}
-                onDataSourceChange={setDataSource}
+                onDataSourceChange={handleDataSourceChange}
                 onAnalyze={handleAnalyze}
                 onClear={clearAll}
                 onDragOver={handleDragOver}
@@ -253,10 +311,12 @@ export const ProductUI: React.FC = () => {
             >
               <ResultsPanel
                 mode={mode}
+                displayMode={displayMode}
                 phase={phase}
                 result={result}
                 copied={copied}
                 onCopy={copyCoords}
+                onToggleDisplayMode={() => setDisplayMode((prev) => (prev === 'operator-safe' ? 'review' : 'operator-safe'))}
               />
             </motion.div>
           </div>
@@ -271,7 +331,7 @@ export const ProductUI: React.FC = () => {
           >
             <div className="flex items-center gap-4">
               <span className="font-mono">API: /api/predict</span>
-              <span className="font-mono">MODEL: geowraith-v2</span>
+              <span className="font-mono">PIPELINE: local-v2.2</span>
             </div>
             <div className="flex items-center gap-4">
               <span>Supports: JPEG, PNG, WebP</span>

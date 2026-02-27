@@ -25,9 +25,6 @@ interface UseMapRuntimeResult {
   mapContainer: RefObject<HTMLDivElement | null>;
   activeStyle: MapStyle;
   setActiveStyle: Dispatch<SetStateAction<MapStyle>>;
-  showStyleMenu: boolean;
-  setShowStyleMenu: Dispatch<SetStateAction<boolean>>;
-  is3D: boolean;
   viewState: ViewState;
   mapLoaded: boolean;
   mapError: string | null;
@@ -37,9 +34,11 @@ interface UseMapRuntimeResult {
   onZoomIn: () => void;
   onZoomOut: () => void;
   onResetView: () => void;
-  onToggle3D: () => void;
 }
-export function useMapRuntime(result: PredictResponse | null): UseMapRuntimeResult {
+export function useMapRuntime(
+  result: PredictResponse | null,
+  hideTarget = false
+): UseMapRuntimeResult {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const marker = useRef<maplibregl.Marker | null>(null);
@@ -50,14 +49,23 @@ export function useMapRuntime(result: PredictResponse | null): UseMapRuntimeResu
   const queuedStyleRef = useRef<{ baseStyle: BaseMapStyle; nextIs3D: boolean } | null>(null);
   const is3DRef = useRef(false);
   const [activeStyle, setActiveStyle] = useState<MapStyle>('standard');
-  const [is3D, setIs3D] = useState(false);
   const [viewState, setViewState] = useState<ViewState>({ zoom: 2, pitch: 0, bearing: 0 });
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [mapWarning, setMapWarning] = useState<string | null>(null);
-  const [showStyleMenu, setShowStyleMenu] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const [cacheStats, setCacheStats] = useState<TileCacheStats | null>(null);
+  const downgradeToStreet = useCallback(() => {
+    setActiveStyle(is3DRef.current ? 'terrain' : 'standard');
+  }, []);
+  const updateViewState = useCallback(() => {
+    if (!map.current) return;
+    setViewState({
+      zoom: map.current.getZoom(),
+      pitch: map.current.getPitch(),
+      bearing: map.current.getBearing(),
+    });
+  }, []);
   const detectWebGLSupport = useCallback(() => {
     if (typeof window === 'undefined') return false;
     const canvas = document.createElement('canvas');
@@ -78,7 +86,6 @@ export function useMapRuntime(result: PredictResponse | null): UseMapRuntimeResu
     if (!map.current) return;
     map.current.easeTo({ pitch: enable ? 60 : 0, bearing: 0, duration: 900 });
     is3DRef.current = enable;
-    setIs3D(enable);
   }, []);
   const updateMarkerAndFly = useCallback((location: { lat: number; lon: number }) => {
     if (!map.current) return;
@@ -95,35 +102,47 @@ export function useMapRuntime(result: PredictResponse | null): UseMapRuntimeResu
     } else {
       marker.current.setLngLat([location.lon, location.lat]);
     }
-    map.current.resize();
     map.current.flyTo({ center: [location.lon, location.lat], zoom: 16, pitch: is3DRef.current ? 60 : 0, bearing: 0, duration: 1800, essential: true });
   }, []);
   const activateFallbackStyle = useCallback(() => {
-    if (!map.current || baseStyleRef.current === 'fallback') return;
+    if (!map.current) return;
+    const nextBaseStyle: BaseMapStyle = isOffline
+      ? 'offline'
+      : baseStyleRef.current === 'satellite'
+        ? 'standard'
+        : 'standard';
+
+    if (baseStyleRef.current === nextBaseStyle) return;
+
     marker.current?.remove();
     marker.current = null;
-    map.current.setStyle(fallbackStyle);
-    baseStyleRef.current = 'fallback';
+    map.current.setStyle(resolveStyle(nextBaseStyle));
+    baseStyleRef.current = nextBaseStyle;
+    if (nextBaseStyle === 'standard') {
+      downgradeToStreet();
+    }
     map.current.once('style.load', () => {
       const last = lastLocationRef.current;
       if (last) updateMarkerAndFly(last);
       apply3D(is3DRef.current);
     });
-  }, [apply3D, updateMarkerAndFly]);
+  }, [apply3D, downgradeToStreet, isOffline, updateMarkerAndFly]);
   const scheduleTileWatchdog = useCallback(() => {
     if (typeof window === 'undefined') return;
-    if (baseStyleRef.current !== 'standard' && baseStyleRef.current !== 'satellite') {
-      clearTileWatchdog();
-      return;
-    }
+      if (baseStyleRef.current !== 'satellite') {
+        clearTileWatchdog();
+        return;
+      }
     clearTileWatchdog();
     tileWatchdogRef.current = window.setTimeout(() => {
       if (!map.current || map.current.areTilesLoaded()) return;
-      setMapWarning('Tile provider timeout. Using local fallback basemap.');
+      setMapWarning(
+        'Satellite imagery timeout. Reverting to street basemap.'
+      );
       activateFallbackStyle();
       // eslint-disable-next-line no-console
-      console.warn('[MapView] tiles did not load within watchdog window');
-    }, 5000);
+      console.warn('[MapView] satellite tiles did not load within watchdog window');
+    }, 8000);
   }, [activateFallbackStyle, clearTileWatchdog]);
   const runBaseStyleSwitch = useCallback((baseStyle: BaseMapStyle, nextIs3D: boolean) => {
     if (!map.current) return;
@@ -132,9 +151,19 @@ export function useMapRuntime(result: PredictResponse | null): UseMapRuntimeResu
     marker.current = null;
     map.current.setStyle(resolveStyle(baseStyle));
     baseStyleRef.current = baseStyle;
-    map.current.once('style.load', () => {
+
+    let styleLoadHandled = false;
+    let fallbackTimeout: number | null = null;
+
+    const handleStyleLoad = () => {
+      if (styleLoadHandled) return;
+      styleLoadHandled = true;
+      if (fallbackTimeout !== null) {
+        window.clearTimeout(fallbackTimeout);
+        fallbackTimeout = null;
+      }
       styleSwitchInFlightRef.current = false;
-      if (baseStyle === 'standard' || baseStyle === 'satellite') scheduleTileWatchdog();
+      if (baseStyle === 'satellite') scheduleTileWatchdog();
       else clearTileWatchdog();
       const last = lastLocationRef.current;
       if (last) updateMarkerAndFly(last);
@@ -144,7 +173,15 @@ export function useMapRuntime(result: PredictResponse | null): UseMapRuntimeResu
       if (!queued) return;
       if (queued.baseStyle !== baseStyle) runBaseStyleSwitch(queued.baseStyle, queued.nextIs3D);
       else apply3D(queued.nextIs3D);
-    });
+    };
+
+    map.current.once('style.load', handleStyleLoad);
+
+    // Fallback timeout in case style.load never fires (2 second timeout)
+    fallbackTimeout = window.setTimeout(() => {
+      console.warn('[runBaseStyleSwitch] style.load timeout - forcing completion after 2s');
+      handleStyleLoad();
+    }, 2000);
   }, [apply3D, clearTileWatchdog, scheduleTileWatchdog, updateMarkerAndFly]);
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
@@ -182,19 +219,24 @@ export function useMapRuntime(result: PredictResponse | null): UseMapRuntimeResu
         bearing: 0,
         attributionControl: { compact: true },
         maxPitch: 85,
+        pixelRatio: Math.min(window.devicePixelRatio || 1, 1.5),
       });
       map.current.on('load', () => {
         setMapLoaded(true);
         setMapError(null);
         if (!initialOffline) setMapWarning(null);
-        scheduleTileWatchdog();
+        updateViewState();
+        if (baseStyleRef.current === 'satellite') scheduleTileWatchdog();
       });
-      map.current.on('style.load', () => scheduleTileWatchdog());
+      map.current.on('style.load', () => {
+        if (baseStyleRef.current === 'satellite') scheduleTileWatchdog();
+        else clearTileWatchdog();
+      });
       map.current.on('idle', clearTileWatchdog);
-      map.current.on('move', () => {
-        if (!map.current) return;
-        setViewState({ zoom: map.current.getZoom(), pitch: map.current.getPitch(), bearing: map.current.getBearing() });
-      });
+      map.current.on('moveend', updateViewState);
+      map.current.on('zoomend', updateViewState);
+      map.current.on('pitchend', updateViewState);
+      map.current.on('rotateend', updateViewState);
       map.current.on('error', (event) => {
         const message = event.error instanceof Error ? event.error.message : 'Unknown map runtime error';
         const normalized = message.toLowerCase();
@@ -221,7 +263,7 @@ export function useMapRuntime(result: PredictResponse | null): UseMapRuntimeResu
       setMapLoaded(false);
       unregisterCachedProtocol();
     };
-  }, [clearTileWatchdog, detectWebGLSupport, loadCacheStats, scheduleTileWatchdog]);
+  }, [clearTileWatchdog, detectWebGLSupport, loadCacheStats, scheduleTileWatchdog, updateViewState]);
   useEffect(() => {
     if (!map.current || !mapLoaded || !hasValidLocation(result?.location)) return;
     if (!map.current.isStyleLoaded()) {
@@ -235,10 +277,20 @@ export function useMapRuntime(result: PredictResponse | null): UseMapRuntimeResu
   useEffect(() => {
     if (!map.current || !mapLoaded) return;
     if (hasValidLocation(result?.location)) return;
+    const hadTarget = Boolean(lastLocationRef.current || marker.current);
     marker.current?.remove();
     marker.current = null;
     lastLocationRef.current = null;
-  }, [mapLoaded, result]);
+    if (hideTarget && hadTarget) {
+      map.current.flyTo({
+        center: [DEFAULT_CENTER.lon, DEFAULT_CENTER.lat],
+        zoom: 2,
+        pitch: 0,
+        bearing: 0,
+        duration: 900,
+      });
+    }
+  }, [hideTarget, mapLoaded, result]);
   useEffect(() => {
     if (!map.current || !mapLoaded) return;
     const baseStyle: BaseMapStyle = isOffline ? 'offline' : activeStyle === 'satellite' ? 'satellite' : 'standard';
@@ -257,23 +309,10 @@ export function useMapRuntime(result: PredictResponse | null): UseMapRuntimeResu
     if (!map.current || !hasValidLocation(result?.location)) return;
     map.current.flyTo({ center: [result.location.lon, result.location.lat], zoom: 16, pitch: is3DRef.current ? 60 : 0, bearing: 0, duration: 1500 });
   }, [result]);
-  const onToggle3D = useCallback(() => {
-    if (!map.current) return;
-    if (is3D) {
-      setActiveStyle('standard');
-      apply3D(false);
-      return;
-    }
-    setActiveStyle('terrain');
-    apply3D(true);
-  }, [apply3D, is3D]);
   return {
     mapContainer,
     activeStyle,
     setActiveStyle,
-    showStyleMenu,
-    setShowStyleMenu,
-    is3D,
     viewState,
     mapLoaded,
     mapError,
@@ -283,6 +322,5 @@ export function useMapRuntime(result: PredictResponse | null): UseMapRuntimeResu
     onZoomIn: () => map.current?.zoomIn(),
     onZoomOut: () => map.current?.zoomOut(),
     onResetView,
-    onToggle3D,
   };
 }

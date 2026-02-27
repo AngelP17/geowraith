@@ -7,6 +7,7 @@ import type { PredictResponse } from '../../lib/api';
 
 export type Mode = 'fast' | 'accurate';
 export type AnalysisPhase = 'idle' | 'uploading' | 'scanning' | 'processing' | 'complete' | 'error';
+export type DisplayMode = 'operator-safe' | 'review';
 
 export interface AnalysisState {
   phase: AnalysisPhase;

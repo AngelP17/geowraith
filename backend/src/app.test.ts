@@ -6,6 +6,8 @@ import { createApp } from './app.js';
 
 const ONE_PIXEL_PNG_BASE64 =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO8B9RkAAAAASUVORK5CYII=';
+const ONE_PIXEL_WEBP_BASE64 =
+  'UklGRjwAAABXRUJQVlA4IDAAAADQAQCdASoCAAIAAUAmJaACdLoB+AADsAD+8ut//NgVzXPv9//S4P0uD9Lg/9KQAAA=';
 
 let server: Server;
 let baseUrl = '';
@@ -97,5 +99,32 @@ test('POST /api/predict returns prediction payload for valid image', async () =>
   assert.ok(
     ['high', 'medium', 'low'].includes(data.confidence_tier),
     `unexpected confidence_tier: ${data.confidence_tier}`
+  );
+});
+
+test('POST /api/predict accepts valid WebP without EXIF warning spam', async () => {
+  const originalWarn = console.warn;
+  const warnings: string[] = [];
+  console.warn = (...args: unknown[]) => {
+    warnings.push(args.map((value) => String(value)).join(' '));
+  };
+
+  try {
+    const response = await fetch(`${baseUrl}/api/predict`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image_base64: ONE_PIXEL_WEBP_BASE64,
+        options: { mode: 'accurate' },
+      }),
+    });
+    assert.equal(response.status, 200);
+  } finally {
+    console.warn = originalWarn;
+  }
+
+  assert.equal(
+    warnings.some((warning) => warning.includes('[imageSignals] EXIF parse failed')),
+    false
   );
 });

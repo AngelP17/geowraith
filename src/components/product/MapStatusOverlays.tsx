@@ -8,6 +8,7 @@ interface MapStatusOverlaysProps {
   mapWarning: string | null;
   mapError: string | null;
   mapLoaded: boolean;
+  hiddenTarget: boolean;
 }
 
 export const MapStatusOverlays: React.FC<MapStatusOverlaysProps> = ({
@@ -16,11 +17,20 @@ export const MapStatusOverlays: React.FC<MapStatusOverlaysProps> = ({
   mapWarning,
   mapError,
   mapLoaded,
+  hiddenTarget,
 }) => {
   return (
     <>
+      {hiddenTarget && !mapError && (
+        <div className="absolute left-3 right-3 top-3 z-20 rounded-lg border border-amber-500/25 bg-black/72 px-3 py-2 backdrop-blur-md">
+          <p className="text-[10px] font-mono uppercase tracking-wider text-amber-300">
+            Operator-safe mode active. Switch to review to inspect withheld coordinates.
+          </p>
+        </div>
+      )}
+
       {isOffline && (
-        <div className="absolute left-3 top-16 z-20 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2">
+        <div className="absolute left-3 bottom-3 z-20 rounded-lg border border-emerald-500/30 bg-black/72 px-3 py-2 backdrop-blur-md">
           <p className="text-[10px] font-mono uppercase tracking-wider text-emerald-400">
             Offline Mode · {cacheStats ? `${cacheStats.count} tiles cached` : 'Using cached tiles'}
           </p>
@@ -28,14 +38,14 @@ export const MapStatusOverlays: React.FC<MapStatusOverlaysProps> = ({
       )}
 
       {mapWarning && !mapError && (
-        <div className="absolute left-3 right-3 top-16 z-20 rounded-lg border border-amber-500/30 bg-black/65 px-3 py-2">
+        <div className="absolute left-3 right-3 bottom-3 z-20 rounded-lg border border-amber-500/30 bg-black/72 px-3 py-2 backdrop-blur-md">
           <p className="text-[10px] font-mono uppercase tracking-wider text-amber-300">{mapWarning}</p>
         </div>
       )}
 
       {mapError && (
-        <div className="absolute inset-0 flex items-center justify-center px-6">
-          <div className="max-w-sm text-center">
+        <div className="absolute inset-0 z-20 flex items-center justify-center px-6 bg-[#050505]/70 backdrop-blur-sm">
+          <div className="max-w-sm rounded-xl border border-amber-500/20 bg-black/60 px-5 py-4 text-center">
             <p className="text-xs font-mono text-amber-300/90 uppercase tracking-wider">Map Engine Unavailable</p>
             <p className="mt-2 text-sm text-white/60">{mapError}</p>
           </div>
@@ -43,7 +53,7 @@ export const MapStatusOverlays: React.FC<MapStatusOverlaysProps> = ({
       )}
 
       {!mapLoaded && !mapError && (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 z-10 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <motion.div
               animate={{ rotate: 360 }}

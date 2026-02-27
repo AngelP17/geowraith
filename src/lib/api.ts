@@ -7,6 +7,8 @@ export interface PredictRequest {
 }
 
 export type ConfidenceTier = 'high' | 'medium' | 'low';
+export type SceneType = 'landmark' | 'nature' | 'urban' | 'rural' | 'unknown';
+export type CohortHint = 'iconic_landmark' | 'generic_scene';
 
 export interface PredictResponse {
   request_id: string;
@@ -21,11 +23,16 @@ export interface PredictResponse {
   location_reason?: string;
   confidence: number;
   confidence_tier?: ConfidenceTier;
+  scene_context?: {
+    scene_type: SceneType;
+    cohort_hint: CohortHint;
+    confidence_calibration: string;
+  };
   elapsed_ms: number;
   notes?: string;
   diagnostics?: {
-    embedding_source: 'geoclip' | 'fallback';
-    reference_index_source: 'model' | 'cache' | 'fallback' | 'unknown';
+    embedding_source: 'geoclip' | 'clip' | 'fallback';
+    reference_index_source: 'model' | 'cache' | 'clip' | 'fallback' | 'unknown';
     reference_image_anchors?: number;
   };
 }
@@ -54,12 +61,24 @@ export async function predictImage(
   payload: PredictRequest,
   signal?: AbortSignal
 ): Promise<PredictResponse> {
-  const res = await fetch(`${API_BASE}/api/predict`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-    signal,
-  });
+  let res: Response;
+
+  try {
+    res = await fetch(`${API_BASE}/api/predict`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal,
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw error;
+    }
+
+    throw new Error(
+      `Live API unavailable at ${API_BASE}. Start both services with "npm run start" or run "cd backend && npm run dev".`
+    );
+  }
 
   if (!res.ok) {
     let message = `Request failed with status ${res.status}`;

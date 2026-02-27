@@ -2,7 +2,8 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MapPin, Target, Clock, Copy, CheckCircle2, AlertTriangle, Cpu, Database } from 'lucide-react';
 import { ConfidenceIndicator } from './ConfidenceIndicator';
-import { Mode, AnalysisPhase } from './types';
+import { SceneContextBadge } from './SceneContextBadge';
+import { Mode, AnalysisPhase, DisplayMode } from './types';
 import type { PredictResponse } from '../../lib/api';
 import { formatCoords } from './utils';
 import { MapView } from './MapView';
@@ -10,12 +11,14 @@ import { MapView } from './MapView';
 interface ResultsPanelProps {
   mode: Mode;
   phase: AnalysisPhase;
+  displayMode: DisplayMode;
   result: PredictResponse | null;
   copied: boolean;
   onCopy: () => void;
+  onToggleDisplayMode: () => void;
 }
 
-export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result, copied, onCopy }) => {
+export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, displayMode, result, copied, onCopy, onToggleDisplayMode }) => {
   const isAnalyzing = phase === 'uploading' || phase === 'scanning' || phase === 'processing';
 
   const statusText = {
@@ -40,12 +43,17 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
     result.diagnostics?.embedding_source === 'fallback' ||
     result.diagnostics?.reference_index_source === 'fallback'
   );
+  const hasClip = result && (
+    result.diagnostics?.embedding_source === 'clip' ||
+    result.diagnostics?.reference_index_source === 'clip'
+  );
 
   const isLowConfidence = result?.status === 'low_confidence';
   const isLocationWithheld = Boolean(
     result && (result.location_visibility === 'withheld' || result.status === 'low_confidence')
   );
-  const canDisplayLocation = Boolean(result && !isLocationWithheld);
+  const isWithheldInReviewMode = displayMode === 'review' && isLocationWithheld;
+  const canDisplayLocation = Boolean(result && (!isLocationWithheld || isWithheldInReviewMode));
 
   const getModelStatus = () => {
     if (!result?.diagnostics) return { text: 'Unknown', color: 'text-white/40', icon: null };
@@ -66,6 +74,13 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
         icon: <Database className="w-3 h-3 text-amber-400" />
       };
     }
+    if (embedding_source === 'clip' || reference_index_source === 'clip') {
+      return {
+        text: 'CLIP Mode',
+        color: 'text-amber-400',
+        icon: <Cpu className="w-3 h-3 text-amber-400" />
+      };
+    }
     return { 
       text: 'Fallback Mode', 
       color: 'text-red-400',
@@ -84,7 +99,16 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
           </div>
           <span className="text-xs font-mono text-white/30 uppercase tracking-wider">Results Terminal</span>
         </div>
-        <span className="text-[10px] font-mono text-white/20">{result?.request_id?.slice(0, 8) || 'IDLE'}</span>
+        <button
+          onClick={onToggleDisplayMode}
+          className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-mono transition-colors ${
+            displayMode === 'review'
+              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+              : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+          }`}
+        >
+          {displayMode === 'review' ? 'REVIEW' : 'SAFE'}
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -111,6 +135,27 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
                     <p className="text-[10px] font-mono text-white/60">
                       {result?.diagnostics?.embedding_source === 'fallback' && 'GeoCLIP model unavailable. Using color histogram fallback.'}
                       {result?.diagnostics?.reference_index_source === 'fallback' && ' Reference vectors using fallback mode.'}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {hasClip && !hasFallback && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20"
+              >
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-amber-400">CLIP Fallback Active</p>
+                    <p className="text-[10px] font-mono text-white/60">
+                      GeoCLIP ONNX is unavailable. Running CLIP city matching with wider uncertainty.
                     </p>
                   </div>
                 </div>
@@ -154,8 +199,19 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
             <AnimatePresence mode="wait">
               {canDisplayLocation && result ? (
                 <motion.div key="coords" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                  {isWithheldInReviewMode && (
+                    <div className="flex items-center gap-1.5 mb-2 px-2 py-1 rounded bg-amber-500/20 border border-amber-500/30">
+                      <AlertTriangle className="w-3 h-3 text-amber-400" />
+                      <span className="text-[10px] font-mono text-amber-400 uppercase tracking-tight">Review Mode — Unverified</span>
+                    </div>
+                  )}
                   <p className="text-2xl font-mono text-white tracking-tight">{formatCoords(result.location.lat, result.location.lon)}</p>
                   <p className="text-xs font-mono text-white/40 mt-1">±{Math.round(result.location.radius_m)}m accuracy radius</p>
+                  {isWithheldInReviewMode && result.location_reason && (
+                    <p className="text-[10px] font-mono text-amber-400/60 mt-1">
+                      Reason: {result.location_reason.replace(/_/g, ' ')}
+                    </p>
+                  )}
                 </motion.div>
               ) : result ? (
                 <motion.div key="withheld" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
@@ -177,9 +233,26 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
               >
-                <ConfidenceIndicator 
-                  confidence={result.confidence} 
-                  tier={result.confidence_tier || 'medium'} 
+                <ConfidenceIndicator
+                  confidence={result.confidence}
+                  tier={result.confidence_tier || 'medium'}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {result?.scene_context && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <SceneContextBadge
+                  sceneType={result.scene_context.scene_type}
+                  cohortHint={result.scene_context.cohort_hint}
+                  confidenceCalibration={result.scene_context.confidence_calibration}
                 />
               </motion.div>
             )}
@@ -238,18 +311,25 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono text-white/30 uppercase">Image Embedding</span>
-                  <span className={`text-xs font-mono ${result.diagnostics.embedding_source === 'geoclip' ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {result.diagnostics.embedding_source === 'geoclip' ? 'GeoCLIP' : 'Fallback'}
+                  <span className={`text-xs font-mono ${
+                    result.diagnostics.embedding_source === 'geoclip' ? 'text-emerald-400' :
+                    result.diagnostics.embedding_source === 'clip' ? 'text-amber-400' : 'text-red-400'
+                  }`}>
+                    {result.diagnostics.embedding_source === 'geoclip' ? 'GeoCLIP' :
+                     result.diagnostics.embedding_source === 'clip' ? 'CLIP' : 'Fallback'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono text-white/30 uppercase">Reference Index</span>
                   <span className={`text-xs font-mono ${
                     result.diagnostics.reference_index_source === 'model' ? 'text-emerald-400' :
+                    result.diagnostics.reference_index_source === 'clip' ? 'text-amber-400' :
                     result.diagnostics.reference_index_source === 'cache' ? 'text-amber-400' : 'text-red-400'
                   }`}>
                     {result.diagnostics.reference_index_source === 'model' ? 'Model (HNSW)' :
-                     result.diagnostics.reference_index_source === 'cache' ? 'Cached' : 'Fallback'}
+                     result.diagnostics.reference_index_source === 'cache' ? 'Cached (HNSW)' :
+                     result.diagnostics.reference_index_source === 'clip' ? 'CLIP Cities' :
+                     result.diagnostics.reference_index_source === 'unknown' ? 'Unknown' : 'Fallback'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -268,6 +348,12 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
               <span className="text-xs font-mono text-white/60">{mode.toUpperCase()}</span>
             </div>
             <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono text-white/30 uppercase">Display Mode</span>
+              <span className={`text-xs font-mono ${displayMode === 'review' ? 'text-amber-400' : 'text-emerald-400'}`}>
+                {displayMode === 'review' ? 'REVIEW' : 'OPERATOR SAFE'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono text-white/30 uppercase">Request ID</span>
               <span className="text-xs font-mono text-white/60">{result?.request_id?.slice(0, 16) || 'PENDING'}</span>
             </div>
@@ -282,7 +368,7 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, result,
               <span className="text-[10px] font-mono text-white/30 uppercase">Map View</span>
               <span className="text-[10px] font-mono text-white/40">Standard · Satellite · 3D</span>
             </div>
-            <MapView result={canDisplayLocation ? result : null} />
+            <MapView result={result} displayMode={displayMode} />
           </div>
         </div>
       </div>

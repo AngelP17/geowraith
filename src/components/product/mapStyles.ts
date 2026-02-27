@@ -8,25 +8,28 @@ import type { StyleSpecification } from 'maplibre-gl';
 export type MapStyle = 'standard' | 'satellite' | 'terrain';
 export type BaseMapStyle = 'standard' | 'satellite' | 'offline' | 'fallback';
 
-const ESRI_STREET_TILES = [
-  'https://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-];
-
 const ESRI_SATELLITE_TILES = [
   'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
 ];
 
-export const STYLE_CONFIG: Record<MapStyle, { label: string; description: string }> = {
+const DIRECT_OSM_TILES = ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'];
+
+const CACHED_OSM_TILES = ['cached://{z}/{x}/{y}'];
+
+export const STYLE_CONFIG: Record<MapStyle, { label: string; shortLabel: string; description: string }> = {
   standard: {
     label: 'STANDARD',
-    description: 'Esri street map base',
+    shortLabel: 'Standard',
+    description: 'OpenStreetMap street base',
   },
   satellite: {
     label: 'SATELLITE',
+    shortLabel: 'Satellite',
     description: 'High-resolution satellite imagery',
   },
   terrain: {
     label: '3D PERSPECTIVE',
+    shortLabel: '3D',
     description: '3D perspective view with elevated pitch',
   },
 };
@@ -36,9 +39,9 @@ export const standardStyle: StyleSpecification = {
   sources: {
     streets: {
       type: 'raster',
-      tiles: ESRI_STREET_TILES,
+      tiles: DIRECT_OSM_TILES,
       tileSize: 256,
-      attribution: 'Tiles © Esri',
+      attribution: '© OpenStreetMap contributors',
     },
   },
   layers: [

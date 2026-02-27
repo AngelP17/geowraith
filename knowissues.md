@@ -362,19 +362,22 @@ Living list of known issues, gaps, and risks. Keep this concise, factual, and cu
 - Evidence: Backend tests now pass (5/5) with `[HNSW] Loaded cached index with 50000 vectors` message.
 
 ## KI-0021: Wikimedia rate limits affect batch downloads
-- Status: resolved
-- Severity: low
+- Status: mitigated
+- Severity: medium
 - First Seen: 2026-02-25
-- Last Updated: 2026-02-26
-- Area: `backend/src/scripts/city/wikimedia.ts`
+- Last Updated: 2026-02-27
+- Area: `backend/src/scripts/city/wikimedia.ts`, `backend/src/scripts/rebuildStrictFailureAnchors.ts`
 - Description: Wikimedia Commons applies rate limiting (HTTP 429) when downloading multiple images rapidly.
 - Reproduction: Rapid successive requests to Wikimedia API would trigger rate limits.
 - Expected: Reliable downloads with automatic rate limit handling.
-- Actual: Automatic rate limiting (2s between requests) and retry logic with exponential backoff implemented.
-- Impact: None - downloads now reliable with built-in rate limiting.
-- Workaround: None needed.
-- Resolution: Added automatic rate limiting (2s delay between Wikimedia requests) and retry logic with exponential backoff to city scraper. Also added proper User-Agent headers with contact info.
-- Evidence: `backend/src/scripts/city/wikimedia.ts` uses `enforceRateLimit()` and `withRetry()` utilities from `backend/src/scripts/city/retry.ts`.
+- Actual: City scraper mitigation exists, but high-volume image fetches still trigger strict Wikimedia upload throttling (`HTTP 429`) in this environment.
+- Impact: Bulk anchor-refresh workflows can under-deliver replacement images and risk degrading quality if not safeguarded.
+- Workaround: Prefer thumbnail URLs, throttle aggressively, and keep per-landmark fallback to existing vectors when replacements are insufficient.
+- Resolution: Added thumbnail-first + retry/backoff + safe fallback behavior in strict rebuild tooling so rate-limited runs do not wipe target landmark anchors.
+- Evidence:
+  - `backend/src/scripts/city/wikimedia.ts` (`enforceRateLimit`, `withRetry`)
+  - `backend/src/scripts/rebuildStrictFailureAnchors.ts` (retry, safe fallback guard)
+  - `npm run rebuild:strict-anchors` run on 2026-02-27 shows repeated `429` from `upload.wikimedia.org`
 
 ## KI-0022: City scraper yields low success rate and Openverse returns HTTP 401
 - Status: resolved
@@ -485,8 +488,9 @@ Living list of known issues, gaps, and risks. Keep this concise, factual, and cu
 - Reproduction: Submit ambiguous images (indoor scenes, generic roads, low-texture crops) to `/api/predict`; predictions can cross countries/continents if confidence is not gated.
 - Expected: System should avoid false certainty and withhold weak predictions.
 - Actual: Mitigated by confidence gating and location withholding:
-  - Actionable threshold raised to 60%
+  - Actionable threshold calibrated to 60.5%
   - `location_visibility: "withheld"` for weak/fallback/wide-spread matches
+  - Top-match coherence gating blocks high-score but geographically inconsistent confusers
   - Frontend hides map pin/coordinate copy when location is withheld
   - Multi-source image-anchor vectors added from SmartBlend gallery to improve landmark retrieval
   - Consensus aggregation now collapses duplicate coordinates and uses a strong-anchor path so dense city-anchor duplicates no longer override dominant landmark matches
@@ -494,8 +498,9 @@ Living list of known issues, gaps, and risks. Keep this concise, factual, and cu
 - Workaround: Use geolocatable imagery (clear landmarks, outdoor context), and treat withheld results as indeterminate rather than failures.
 - Resolution: Not fully resolvable as a hard guarantee; enforced abstain behavior and retrieval augmentation are implemented.
 - Evidence:
-  - `backend/src/config.ts` (`MINIMUM_CONFIDENCE = 0.6`, confidence tiers 0.75/0.60)
+  - `backend/src/config.ts` (`MINIMUM_CONFIDENCE = 0.605`, confidence tiers 0.75/0.60)
   - `backend/src/services/predictPipeline.ts` (`location_visibility`, `location_reason`, withholding notes)
+  - `backend/src/services/confidenceGate.ts` (match-coherence visibility checks)
   - `backend/src/services/vectorSearch.ts` (coordinate dedupe + strong-anchor aggregation path)
   - `backend/src/services/referenceImageIndex.ts` (multi-source anchor vectors)
   - `backend/src/services/geoclipIndex.ts` (anchor integration into HNSW index)
@@ -545,3 +550,196 @@ Living list of known issues, gaps, and risks. Keep this concise, factual, and cu
 - Workaround: Use images with clearly identifiable landmarks, signage, or architecture. Check confidence score — lower confidence correlates with less reliable predictions.
 - Resolution: Requires a geo-specialized model. Options: (1) StreetCLIP (fine-tuned CLIP for geolocation), (2) GeoCLIP with proper ONNX exports, (3) PIGEON model, (4) reference image database of geotagged photos instead of text-only embeddings.
 - Evidence: Terminal accuracy tests showing NYC/London/Paris correct but Tokyo/Dubai/Sydney variable (2026-02-27).
+
+## KI-0030: Validation benchmark stalls at 93.1% due hard confuser anchors in nature/coastal scenes
+- Status: open
+- Severity: medium
+- First Seen: 2026-02-27
+- Last Updated: 2026-02-27
+- Area: `backend/src/services/geoConstraints.ts`, `backend/src/services/vectorSearch.ts`, anchor corpus in `.cache/geoclip/referenceImageVectors.merged_v1.json`
+- Description: After fixing continent-vote overrides and refining failing-landmark anchors, benchmark improved from 86.2% to 93.1% within 10km, but four scenes still fail: Marrakech, Cape Point, Copacabana, and Table Mountain.
+- Reproduction: `cd backend && npm run benchmark:validation` on the 58-image gallery.
+- Expected: ≥95% within 10km on the current validation set.
+- Actual: 93.1% within 10km (54/58); remaining failures are dominated by visually similar confuser anchors (notably Park Güell/Great Barrier style matches) on nature/coastal images.
+- Impact: Blocks the current 95% benchmark gate despite broad regional recovery.
+- Workaround: Curate and add higher-precision geotagged anchors specifically for the remaining 4 failure classes; avoid blind/random densification.
+- Resolution: In progress. Applied fixes so far:
+  - rank-aware continent voting + top-match lock
+  - South America bound fix for Easter Island
+  - deterministic refinement script (`npm run refine:anchors`) for targeted hard labels
+  - confuser-anchor cap experiment (`Sagrada Familia` + `Great Barrier Reef` from 30→10) tested with no net gain (remained 93.1%)
+  - benchmark now reports split cohorts (`iconic_landmark` vs `generic_scene`) so hard-scene regressions are explicitly visible even when aggregate score is stable
+- Evidence:
+  - `backend/src/services/geoConstraints.ts`
+  - `backend/src/scripts/refineFailingAnchors.ts`
+  - `backend/src/scripts/rebuildStrictFailureAnchors.ts`
+  - `backend/src/benchmarks/validationBenchmark/{types.ts,geo.ts,runner.ts,index.ts}`
+  - `backend/.cache/validation_gallery/benchmark_report.json` (2026-02-27 runs: 93.1% within 10km)
+
+## KI-0031: Documentation drift across benchmark/model claims
+- Status: resolved
+- Severity: medium
+- First Seen: 2026-02-27
+- Last Updated: 2026-02-27
+- Area: root markdown docs (`README.md`, `STATUS.md`, `ARCHITECTURE.md`, `VALIDATION_GUIDE.md`, accuracy notes)
+- Description: Multiple markdown files reported conflicting states (32/46/58 image benchmarks, contradictory model modes, outdated quick links), making replication unreliable.
+- Reproduction: Compare old metrics and mode statements across `README.md`, `STATUS.md`, `backend/README.md`, and `VALIDATION_GUIDE.md`.
+- Expected: One coherent benchmark snapshot, explicit model mode declaration, and stable cross-references for reproducibility.
+- Actual: Docs now normalized around a single snapshot and linked to a canonical playbook.
+- Impact: Reduces operator confusion and prevents accidental over-claiming from stale docs.
+- Workaround: none
+- Resolution: Added canonical reproducibility source (`docs/REPRODUCIBILITY_PLAYBOOK.md`), rewrote core docs, and marked stale accuracy notes as superseded/archived with pointers to current references.
+- Evidence:
+  - `docs/REPRODUCIBILITY_PLAYBOOK.md`
+  - `README.md`, `STATUS.md`, `ARCHITECTURE.md`, `VALIDATION_GUIDE.md`
+  - `backend/README.md`, `docs/baseline_metrics.md`
+
+## KI-0032: Combined launcher failed local Live API flow when frontend was already running
+- Status: resolved
+- Severity: medium
+- First Seen: 2026-02-27
+- Last Updated: 2026-02-27
+- Area: `start.sh`, local dev runtime startup
+- Description: `npm run start` exited early if port `3001` was already in use, and backend startup used
+  `npm start` (compiled `dist`) with a short health timeout. This commonly caused frontend Live API calls to
+  hit `ERR_CONNECTION_REFUSED` on `http://localhost:8080/api/predict`.
+- Reproduction:
+  1. Run frontend separately on `3001`.
+  2. Run `npm run start`.
+  3. Script exits at port check or before backend model warmup finishes.
+- Expected: Launcher should start/reuse both services and wait long enough for backend model/index warmup.
+- Actual (before fix): Startup aborted with no working backend on `8080`.
+- Impact: Frontend Live API mode appeared broken even though code paths were correct.
+- Workaround (before fix): Start backend manually with `cd backend && npm run dev`.
+- Resolution:
+  - `start.sh` now defaults to backend `npm run dev`.
+  - Reuses already-running services on `3001`/`8080` instead of hard-failing.
+  - Adds configurable startup windows:
+    - `BACKEND_STARTUP_RETRIES` (default `240`)
+    - `FRONTEND_STARTUP_RETRIES` (default `60`)
+    - `STARTUP_POLL_SECONDS` (default `0.5`)
+  - Prints backend log tail on startup failure for faster diagnosis.
+- Evidence:
+  - `./start.sh` verification run (2026-02-27): backend reached `/health` after GeoCLIP warmup while
+    frontend on `3001` was reused, then both services reported ready.
+
+## KI-0033: Duplicate libvips libraries logged at backend startup
+- Status: open
+- Severity: low
+- First Seen: 2026-02-27
+- Last Updated: 2026-02-27
+- Area: backend native dependencies (`sharp`, `@xenova/transformers` nested `sharp`)
+- Description: Backend startup logs report duplicate Objective-C symbol registration for
+  `GNotificationCenterDelegate` because two different `libvips-cpp` dylibs are loaded.
+- Reproduction: Run `./start.sh` or `cd backend && npm run dev`; inspect backend logs.
+- Expected: A single `libvips` runtime loaded without duplicate class warnings.
+- Actual: Startup logs include:
+  `Class GNotificationCenterDelegate is implemented in both .../sharp-libvips... and .../transformers/node_modules/sharp/vendor...`
+- Impact: Current runs still start and serve requests, but warning indicates potential instability risk under
+  image-processing heavy paths.
+- Workaround: None required for current functionality; monitor for crashes.
+- Resolution: pending (requires dependency/runtime consolidation so only one `sharp/libvips` stack loads).
+- Evidence:
+  - `/tmp/geowraith-backend.log` from `./start.sh` verification on 2026-02-27.
+
+## KI-0034: Frontend copy drifted from current validated model/runtime state
+- Status: resolved
+- Severity: medium
+- First Seen: 2026-02-27
+- Last Updated: 2026-02-27
+- Area: `src/data/*`, `src/components/sections/*`, `src/components/product/*`
+- Description: Several frontend sections still referenced superseded architecture/accuracy language
+  (`LanceDB`, meter-level defaults, commercial-parity wording), and diagnostics UI did not explicitly represent
+  CLIP mode.
+- Reproduction: Search frontend copy for stale terms:
+  `rg -n "LanceDB|meter-level|same accuracy|matches commercial accuracy|hloc|COLMAP" src`
+- Expected: Frontend claims should match the current verified snapshot and runtime modes.
+- Actual (before fix): Stale copy remained in hero, features, what-it-is, how-it-works, FAQ/comparison,
+  and mode subtitles.
+- Impact: Could mislead users about active architecture and benchmark guarantees.
+- Workaround: none
+- Resolution:
+  - Replaced stale copy with current snapshot-aligned language (`93.1%/58 images`, `100.0/88.9` cohorts,
+    HNSW index, confidence gating).
+  - Removed unsupported meter-level default claims from landing sections.
+  - Updated diagnostics UI to render CLIP mode explicitly instead of treating it as generic fallback.
+  - Updated startup snippet to one-command `npm run start`.
+- Evidence:
+  - `npm run lint` ✅
+  - `npm run build` ✅
+  - `rg -n "LanceDB|hloc|COLMAP|meter-level|same accuracy|matches commercial accuracy" src` → no matches
+  - Section audit + patch pass also aligned:
+    - `src/components/sections/{Docs.tsx,Gallery.tsx,Footer.tsx,ProductUI.tsx}`
+    - `src/data/features.ts`
+
+## KI-0035: GeoCLIP live inference crashed after CLIP hierarchical startup warmed `@xenova/transformers`
+- Status: resolved
+- Severity: high
+- First Seen: 2026-02-27
+- Last Updated: 2026-02-27
+- Area: `backend/src/index.ts`, `backend/src/services/clipExtractor.ts`, backend runtime startup order
+- Description: Backend startup preloaded the CLIP hierarchical index (`buildHierarchicalIndex()`), which initializes `@xenova/transformers`. On macOS, that conflicted with later GeoCLIP vision inference through `onnxruntime-node`, so the first `/api/predict` request aborted the backend process with `Ort::Exception: Specified device is not supported`.
+- Reproduction:
+  1. Start backend.
+  2. `curl http://localhost:8080/health` succeeds.
+  3. POST any image to `/api/predict`.
+- Expected: First prediction returns JSON and backend stays healthy.
+- Actual (before fix): First prediction caused `Empty reply from server`; backend process terminated immediately afterward.
+- Impact: Live API mode was unusable even though `/health` and startup logs looked healthy.
+- Workaround (before fix): none reliable in the combined startup path.
+- Resolution:
+  - Removed `buildHierarchicalIndex()` startup warmup from `backend/src/index.ts` because the live predict path does not currently depend on it.
+  - Explicitly pinned GeoCLIP ONNX session creation to CPU execution provider in `backend/src/services/clipExtractor.ts`.
+  - Verified with a real `/api/predict` request that the backend now returns JSON and remains healthy afterward.
+- Evidence:
+  - live repro on 2026-02-27: `/health` OK → first POST crashed with `Ort::Exception`
+  - post-fix live repro on 2026-02-27: `/health` OK → POST `/api/predict` returned JSON → `/health` remained OK
+
+## KI-0036: Esri street basemap experiment regressed to black-map fallback in browser conditions
+- Status: resolved
+- Severity: medium
+- First Seen: 2026-02-27
+- Last Updated: 2026-02-27
+- Area: `src/components/product/mapStyles.ts`, `src/components/product/useMapRuntime.ts`
+- Description: The temporary switch of Standard mode to Esri World Street introduced a brittle blank-map path in browser conditions where the remote raster source did not settle before the watchdog fired. The degradation path used a plain dark fallback, so operators saw a black map pane across modes.
+- Reproduction: Open the Product map panel and wait for the tile watchdog to fire under the affected provider/network/browser conditions; the map degrades to a blank dark pane.
+- Expected: Standard and 3D should render a readable street basemap; Satellite should degrade to a readable street view if imagery fails.
+- Actual (before fix): Timeout could collapse to a black diagnostic fallback, producing the appearance that all map modes were broken.
+- Impact: Core map visualization looked non-functional even when the UI and runtime were otherwise healthy.
+- Workaround (before fix): none reliable.
+- Resolution:
+  - Restored Standard mode to cached OSM raster tiles (`cached://` protocol with network-backed fetch).
+  - Kept Satellite on Esri imagery, but changed timeout degradation to fall back to Standard street basemap instead of a black pane.
+  - Left the diagnostic fallback only as the last-resort path for street-basemap failure.
+- Evidence:
+  - `src/components/product/mapStyles.ts`
+  - `src/components/product/useMapRuntime.ts`
+  - HTTP 200 probes for OSM and Esri tile endpoints on 2026-02-27
+  - `npm run lint` and `npm run build` passed after the change
+
+## KI-0037: Optional EXIF parsing produced warning spam on valid WebP/GIF uploads
+- Status: resolved
+- Severity: low
+- First Seen: 2026-02-27
+- Last Updated: 2026-02-27
+- Area: `backend/src/services/imageSignals.ts`, `backend/src/app.test.ts`
+- Description: EXIF GPS extraction was attempted on every decoded image. `sharp` accepts valid
+  WebP/GIF uploads, but `exifr` throws `Unknown file format` for those inputs, so backend logs
+  filled with warnings even though prediction requests succeeded.
+- Reproduction:
+  1. POST a valid WebP image to `/api/predict`.
+  2. Observe successful JSON response plus `[imageSignals] EXIF parse failed ... Unknown file format`
+     in backend logs before the fix.
+- Expected: Valid uploads without EXIF metadata should skip the EXIF path silently and continue
+  through inference.
+- Actual (before fix): Successful requests generated repeated warning noise.
+- Impact: Operator logs looked unhealthy and obscured real failures during live testing.
+- Workaround (before fix): none
+- Resolution:
+  - Gate EXIF parsing on `sharp(...).metadata().exif` so only images that actually contain EXIF
+    metadata enter the EXIF parser.
+  - Keep warning logs only for genuine parse failures on images that advertise EXIF metadata.
+- Evidence:
+  - `backend/src/services/imageSignals.ts`
+  - `backend/src/app.test.ts`
+  - `cd backend && npm run test -- src/app.test.ts`

@@ -584,11 +584,26 @@ Persistent project memory for high-signal decisions and context that should surv
   Confidence: 0.99
 
 - 2026-02-26T20:40:00Z [CODE] [MODELS] Accuracy-hardening pass added abstain semantics and multi-source reference anchors for `/api/predict`:
-  - `MINIMUM_CONFIDENCE` set to 0.5 (actionable threshold).
+  - `MINIMUM_CONFIDENCE` initially set to 0.5 (actionable threshold).
   - Backend returns `location_visibility` / `location_reason` and withholds coordinates on weak/fallback/wide-spread matches.
   - Frontend now suppresses map pin/coordinate copy whenever location is withheld.
   - Added `referenceImageIndex.ts` and appended SmartBlend image-anchor vectors into the HNSW reference index (diagnostics now include anchor count).
   - Critical caveat: universal 99% confidence on every image remains infeasible; abstention is required for low-information inputs.
+- 2026-02-27T22:45:00Z [CODE] [MODELS] Coordinate display gating is now calibrated separately from raw retrieval accuracy.
+  - `MINIMUM_CONFIDENCE` is now `0.605`, derived from the 58-image validation set.
+  - Runtime display gating no longer trusts inferred scene cohort for visibility decisions.
+  - Coordinates are shown only when the result clears the global confidence floor or when top matches form a strong local consensus; geographically inconsistent top-match sets are withheld even at high confidence.
+  - Validation evidence after the fix: `54/58` within 10km remains unchanged, while visible benchmark outputs became `33` correct and `0` incorrect (`25` withheld, including all four known confusers).
+  Evidence: `backend/src/services/confidenceGate.ts`, `backend/src/services/predictPipeline.ts`, `cd backend && npm run benchmark:validation`, live probes on Golden Gate / Tower Bridge / Milford Sound / Sugarloaf / Table Mountain / Cape Point.
+  Status: VERIFIED
+  Confidence: 0.97
+- 2026-02-27T23:05:00Z [CODE] [USER] Frontend display policy now distinguishes map rendering from target disclosure.
+  - `operator-safe` keeps the basemap visible but does not reveal or center on withheld targets.
+  - `review` may reveal withheld targets with caution labeling for analyst inspection.
+  - This prevents the map layer from leaking coordinates while avoiding the previous empty/black-pane user experience.
+  Evidence: `src/components/product/{MapView.tsx,useMapRuntime.ts,MapHeader.tsx,MapStatusOverlays.tsx,MapControls.tsx,ResultsPanel.tsx}`, `npm run lint`, `npm run build`.
+  Status: VERIFIED
+  Confidence: 0.95
 - 2026-02-27T02:30Z [CODE] [MODELS] CLIP text-matching fallback pipeline implemented for when GeoCLIP ONNX models are absent.
   - New files: `clipGeolocator.ts` (CLIP model via @xenova/transformers), `clipHierarchicalSearch.ts` (country→city two-stage), `worldCities.ts` (355 cities, 156 countries).
   - Three-tier embedding fallback: GeoCLIP ONNX → CLIP text-matching → deterministic color histogram.
@@ -603,3 +618,86 @@ Persistent project memory for high-signal decisions and context that should surv
   Evidence: Terminal accuracy tests on 7 Unsplash images (NYC ✅, London ✅, Paris/France ✅, Tokyo ❌, Sydney ❌, Dubai ❌, Rio ❌).
   Status: VERIFIED
   Confidence: 0.97
+- 2026-02-27T18:54:00Z [CODE] [MODELS] Validation benchmark recovery work improved within-10km accuracy from 86.2% to 93.1% via continent-vote logic hardening and targeted anchor refinement.
+  Evidence: `backend/src/services/geoConstraints.ts`, `backend/src/scripts/refineFailingAnchors.ts`, `cd backend && npm run benchmark:validation` (54/58 within 10km).
+  Status: VERIFIED
+  Confidence: 0.94
+- 2026-02-27T18:54:00Z [CODE] [MODELS] Remaining misses are concentrated in four nature/coastal cases (Marrakech, Cape Point, Copacabana, Table Mountain); crossing 95% likely requires cleaner geotagged anchors or stronger geo-specialized embeddings rather than more random densification.
+  Evidence: latest `benchmark_report.json` plus top-match probes from `runPredictPipeline` on failing files.
+  Status: PARTIAL
+  Confidence: 0.90
+- 2026-02-27T19:11:46Z [TOOL] [MODELS] Confuser-cap A/B (`Sagrada Familia` + `Great Barrier Reef` 30→10) did not improve benchmark ceiling; within-10km remained 93.1%.
+  Evidence: `backend/.cache/validation_gallery/benchmark_report.json` after cap run.
+  Status: VERIFIED
+  Confidence: 0.93
+- 2026-02-27T19:11:46Z [CODE] [DETERMINISM] Added strict failure-anchor rebuild tool with guardrails (`rebuildStrictFailureAnchors.ts`) and npm script `rebuild:strict-anchors`.
+  Evidence: `backend/src/scripts/rebuildStrictFailureAnchors.ts`, `backend/package.json`.
+  Status: VERIFIED
+  Confidence: 0.95
+- 2026-02-27T19:11:46Z [TOOL] [MODELS] Wikimedia upload endpoints still throttle high-volume anchor refreshes (`HTTP 429`), so strict geosearch replacement must preserve existing vectors on sparse retrieval.
+  Evidence: `npm run rebuild:strict-anchors` output (2026-02-27) and restored index count back to 1081.
+  Status: VERIFIED
+  Confidence: 0.94
+- 2026-02-27T19:34:50Z [CODE] [MODELS] Validation benchmark now reports cohort-split accuracy (`iconic_landmark` vs `generic_scene`) in addition to overall metrics, to avoid masking hard-scene failure modes.
+  Evidence: `backend/src/benchmarks/validationBenchmark/{types.ts,geo.ts,runner.ts,index.ts}`, `npm run benchmark:validation`.
+  Status: VERIFIED
+  Confidence: 0.96
+- 2026-02-27T19:46:46Z [CODE] [DETERMINISM] Cohort benchmark output now handles empty cohorts safely (`N/A` for non-finite distances), and cohort classifier tests are in a glob-matched path so they execute under the current test script.
+  Evidence: `backend/src/benchmarks/validationBenchmark/format.ts`, `backend/src/benchmarks/validationBenchmarkCohort.test.ts`, `cd backend && npm run test` (`tests: 28`, `suites: 10`).
+  Status: VERIFIED
+  Confidence: 0.97
+- 2026-02-27T20:04:22Z [CODE] [DETERMINISM] Frontend now uses a Tabler-backed Lucide compatibility layer (`lucide-react` aliased to `src/lib/icons/lucideTablerCompat.tsx`) to swap icon engines without mass component rewrites; landing typography/color system is centralized in `src/index.css` using Geist + Satoshi tokens, and `App.tsx` no longer injects inline style/font imports.
+  Evidence: `vite.config.ts`, `tsconfig.json`, `src/lib/icons/lucideTablerCompat.tsx`, `src/index.css`, `src/App.tsx`, `npm run lint`, `npm run build`.
+  Status: VERIFIED
+  Confidence: 0.96
+- 2026-02-27T20:10:58Z [USER] [DETERMINISM] Frontend icon language constraint updated: no sparkle icon usage in UI. Pricing badge now uses a neutral dot marker; compatibility layer no longer exports `Sparkles`.
+  Evidence: `src/components/sections/Pricing.tsx`, `src/lib/icons/lucideTablerCompat.tsx`, `rg "Sparkles|sparkle" src` (no matches), `npm run lint`, `npm run build`.
+  Status: VERIFIED
+  Confidence: 0.98
+- 2026-02-27T20:18:34Z [USER] [DOCS] Documentation now uses `docs/REPRODUCIBILITY_PLAYBOOK.md` as canonical replication source, with core docs (`README`, `STATUS`, `ARCHITECTURE`, `VALIDATION_GUIDE`, `backend/README`) normalized to a single benchmark/mode snapshot and legacy accuracy notes downgraded to archived/superseded references.
+  Evidence: updated markdown set + `knowissues.md` KI-0031 resolved entry.
+  Status: VERIFIED
+  Confidence: 0.97
+- 2026-02-27T20:18:34Z [TOOL] [MODELS] Post-doc-sync validation rerun confirms published snapshot is still current: 58 images, 93.1% within 10km, cohort split 100.0% iconic / 88.9% generic.
+  Evidence: `cd backend && npm run benchmark:validation`, updated `backend/.cache/validation_gallery/benchmark_report.json`.
+  Status: VERIFIED
+  Confidence: 0.98
+- 2026-02-27T20:27:29Z [CODE] [DETERMINISM] Local combined launcher (`npm run start`) is now the
+  recommended path for frontend+backend bring-up in Live API testing:
+  - backend defaults to `npm run dev` (not `npm start` on stale/missing `dist`)
+  - launcher reuses already-running services on `3001`/`8080` instead of failing fast on occupied ports
+  - backend/frontend startup windows are configurable for heavy model warmup (`*_STARTUP_RETRIES`,
+    `STARTUP_POLL_SECONDS`)
+  Evidence: `start.sh` verification run on 2026-02-27 reached
+  `GeoWraith API listening on http://localhost:8080` while frontend on `3001` was reused.
+  Status: VERIFIED
+  Confidence: 0.97
+- 2026-02-27T20:38:06Z [CODE] [DETERMINISM] Frontend truth-alignment baseline established:
+  user-facing copy must reflect the currently verified benchmark/runtime snapshot (58-image validation at 93.1%
+  within 10km, cohort split 100.0% iconic / 88.9% generic, HNSW index, confidence gating), and must not claim
+  default meter-level accuracy or unverified commercial parity.
+  Evidence: updates in `src/data/extendedContent*.ts`, `src/data/features.ts`, `src/components/sections/*`,
+  `src/components/product/ResultsPanel.tsx`, plus `npm run lint` and `npm run build` on 2026-02-27.
+  Status: VERIFIED
+  Confidence: 0.96
+- 2026-02-27T20:42:18Z [CODE] [DETERMINISM] Gallery section now derives displayed coordinates/confidence/radius
+  directly from demo payloads (`getDemoResult(key)`) instead of duplicated literals, reducing frontend drift risk
+  when demo fixtures change.
+  Evidence: `src/components/sections/Gallery.tsx`, `npm run lint`, `npm run build`.
+  Status: VERIFIED
+  Confidence: 0.95
+- 2026-02-27T22:02:00Z [CODE] [DETERMINISM] GeoCLIP live inference on macOS must not initialize the CLIP hierarchical warmup path in the same backend process. Loading `@xenova/transformers` during startup conflicted with `onnxruntime-node` GeoCLIP vision inference and caused `/api/predict` to abort the process with `Ort::Exception: Specified device is not supported` on the first request. Startup now warms GeoCLIP sessions/reference index only; hierarchical CLIP search remains available as code but is not preloaded.
+  Evidence: isolated repro showed `/health` OK then first POST crashed before fix; after removing `buildHierarchicalIndex()` from `backend/src/index.ts`, real `/api/predict` returned JSON and `/health` stayed healthy.
+  Status: VERIFIED
+  Confidence: 0.98
+- 2026-02-27T22:02:00Z [CODE] [FRONTEND] Standard basemap has been superseded back to cached OSM-backed raster tiles, and satellite timeout now downgrades to street basemap instead of a plain black fallback. This explicitly supersedes the temporary Esri street-map experiment recorded on 2026-02-26T20:14:22Z.
+  Evidence: `src/components/product/mapStyles.ts`, `src/components/product/useMapRuntime.ts`, root `npm run build`, HTTP 200 probes for OSM tile endpoints.
+  Status: VERIFIED
+  Confidence: 0.93
+- 2026-02-27T23:40:00Z [CODE] [DETERMINISM] Optional EXIF GPS extraction is now gated by decoded
+  metadata presence (`metadata.exif`) before calling `exifr`, which prevents warning spam on valid
+  WebP/GIF uploads while preserving warnings for real EXIF parse failures.
+  Evidence: `backend/src/services/imageSignals.ts`, `backend/src/app.test.ts`,
+  `cd backend && npm run test -- src/app.test.ts`, `cd backend && npm run lint`
+  Status: VERIFIED
+  Confidence: 0.98

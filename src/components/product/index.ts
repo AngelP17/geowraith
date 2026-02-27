@@ -9,4 +9,4 @@ export { ResultsPanel } from './ResultsPanel';
 export { ScanningOverlay } from './ScanningOverlay';
 export { MapView } from './MapView';
 export { readFileAsDataUrl, formatCoords } from './utils';
-export type { Mode, AnalysisPhase, AnalysisState, ViewState } from './types';
+export type { Mode, AnalysisPhase, DisplayMode, AnalysisState, ViewState } from './types';

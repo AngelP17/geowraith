@@ -14,6 +14,7 @@ interface ImageUploadPanelProps {
   previewUrl: string | null;
   mode: Mode;
   dataSource: 'demo' | 'live';
+  liveApiStatus: 'checking' | 'online' | 'offline';
   phase: AnalysisPhase;
   errorMsg: string;
   warningMsg: string;
@@ -35,7 +36,7 @@ const modeConfig = {
   },
   accurate: {
     label: 'PRECISION LOCK',
-    subtitle: 'Multi-factor analysis with hloc refinement',
+    subtitle: 'Multi-factor analysis with confidence calibration',
     icon: <Target className="w-4 h-4" />,
   },
 };
@@ -45,6 +46,7 @@ export const ImageUploadPanel: React.FC<ImageUploadPanelProps> = ({
   previewUrl,
   mode,
   dataSource,
+  liveApiStatus,
   phase,
   errorMsg,
   warningMsg,
@@ -59,7 +61,7 @@ export const ImageUploadPanel: React.FC<ImageUploadPanelProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isAnalyzing = phase === 'uploading' || phase === 'scanning' || phase === 'processing';
-  const isLiveDisabled = dataSource === 'live' && !file;
+  const isLiveDisabled = dataSource === 'live' && (!file || liveApiStatus !== 'online');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -157,6 +159,20 @@ export const ImageUploadPanel: React.FC<ImageUploadPanelProps> = ({
           </div>
         </div>
 
+        {dataSource === 'live' && (
+          <div className={`mb-5 rounded-lg border px-3 py-2 text-[11px] font-mono uppercase tracking-wider ${
+            liveApiStatus === 'online'
+              ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300'
+              : liveApiStatus === 'checking'
+                ? 'border-amber-500/25 bg-amber-500/10 text-amber-300'
+                : 'border-red-500/25 bg-red-500/10 text-red-300'
+          }`}>
+            {liveApiStatus === 'online' && 'Live API online'}
+            {liveApiStatus === 'checking' && 'Checking API health'}
+            {liveApiStatus === 'offline' && 'Live API offline · run npm run start'}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3">
           {(Object.keys(modeConfig) as Mode[]).map((m) => {
             const config = modeConfig[m];
@@ -210,6 +226,8 @@ export const ImageUploadPanel: React.FC<ImageUploadPanelProps> = ({
             <><CheckCircle2 className="w-4 h-4" />Analysis Complete</>
           ) : dataSource === 'demo' && !file ? (
             <><Crosshair className="w-4 h-4 group-hover:scale-110 transition-transform" />Run Demo</>
+          ) : dataSource === 'live' && liveApiStatus !== 'online' ? (
+            <><AlertTriangle className="w-4 h-4" />Live API Offline</>
           ) : (
             <><Crosshair className="w-4 h-4 group-hover:scale-110 transition-transform" />Begin Analysis</>
           )}

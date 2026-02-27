@@ -1,8 +1,10 @@
 # Physical Device Validation Guide
 
 **Version:** 1.0  
-**Last Updated:** 2026-02-26  
+**Last Updated:** 2026-02-27  
 **Status:** Ready for Testing
+
+> **Quick Links:** [README](../README.md) | [Status](../STATUS.md) | [Validation Guide](../VALIDATION_GUIDE.md) | [Reproducibility](./REPRODUCIBILITY_PLAYBOOK.md)
 
 ---
 
@@ -30,17 +32,13 @@ This guide provides step-by-step instructions for validating GeoWraith on physic
 ### 1. Server Preparation
 
 ```bash
-# Start backend with watch mode
-cd /path/to/geowraith/backend
-npm run watch
-
-# In another terminal, start frontend
+# Recommended: start both services together
 cd /path/to/geowraith
-npm run dev
+npm run start
 
-# Verify both services
-# Backend: http://localhost:8080/health
-# Frontend: http://localhost:3001
+# Alternative: run frontend/backend separately
+# cd backend && npm run dev
+# cd .. && npm run dev
 ```
 
 ### 2. Network Setup
@@ -104,6 +102,7 @@ Prepare 10 test images with known GPS coordinates:
 - [ ] Upload completes without error
 - [ ] Progress indicator shows
 - [ ] Results panel displays with map
+- [ ] Valid JPEG and valid WebP/PNG uploads do not create repeated EXIF parser warnings
 - [ ] No JavaScript errors in console
 
 **Platforms:** All
@@ -112,7 +111,7 @@ Prepare 10 test images with known GPS coordinates:
 
 ### Test 2: WebGL Map Rendering
 
-**Objective:** Verify 3D map displays correctly
+**Objective:** Verify Standard, Satellite, and 3D map runtime behavior
 
 **Steps:**
 1. Upload any test image
@@ -121,13 +120,21 @@ Prepare 10 test images with known GPS coordinates:
    - Pan (drag)
    - Zoom (pinch/spread)
    - Rotate (two-finger rotate)
+4. Switch map modes:
+   - Standard
+   - Satellite
+   - 3D
+5. If the result is withheld, confirm the basemap remains visible without revealing the target
 
 **Pass Criteria:**
-- [ ] Map tiles load
-- [ ] Marker appears at predicted location
+- [ ] Fixed-height map pane renders without collapsing to black/empty
+- [ ] Standard mode loads a readable street basemap
+- [ ] Satellite mode loads or degrades back to street view with a visible warning
+- [ ] 3D mode applies pitch/bearing without hanging on style switch
+- [ ] Marker appears when location is visible, or target stays hidden when withheld
 - [ ] Pan/zoom/rotate smooth (>30fps)
 - [ ] No WebGL context lost errors
-- [ ] Map style switcher works (if available)
+- [ ] Map style buttons respond reliably across repeated switches
 
 **Platforms:** All (critical for mobile)
 

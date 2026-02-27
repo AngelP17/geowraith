@@ -52,7 +52,14 @@ function getLuma(r: number, g: number, b: number): number {
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 }
 
-async function extractExifLocation(imageBuffer: Buffer): Promise<ImageGpsLocation | null> {
+async function extractExifLocation(
+  imageBuffer: Buffer,
+  hasExif: boolean
+): Promise<ImageGpsLocation | null> {
+  if (!hasExif) {
+    return null;
+  }
+
   try {
     const gps = await exifr.gps(imageBuffer);
     if (!gps || !Number.isFinite(gps.latitude) || !Number.isFinite(gps.longitude)) {
@@ -73,6 +80,7 @@ async function decodeForFeatureExtraction(imageBuffer: Buffer): Promise<{
   format: string;
   width: number;
   height: number;
+  hasExif: boolean;
   pixels: Buffer;
 }> {
   try {
@@ -96,6 +104,7 @@ async function decodeForFeatureExtraction(imageBuffer: Buffer): Promise<{
       format,
       width,
       height,
+      hasExif: Boolean(metadata.exif),
       pixels,
     };
   } catch (error) {
@@ -176,10 +185,8 @@ function expandVector(base: number[], targetSize: number): number[] {
 
 /** Extract GeoCLIP embeddings and optional EXIF geolocation from an image payload. */
 export async function extractImageSignals(imageBuffer: Buffer): Promise<ImageSignals> {
-  const [decoded, exifLocation] = await Promise.all([
-    decodeForFeatureExtraction(imageBuffer),
-    extractExifLocation(imageBuffer),
-  ]);
+  const decoded = await decodeForFeatureExtraction(imageBuffer);
+  const exifLocation = await extractExifLocation(imageBuffer, decoded.hasExif);
 
   let vector: number[];
   let embeddingSource: ImageSignals['embeddingSource'] = 'geoclip';

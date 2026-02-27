@@ -1,361 +1,160 @@
 # GeoWraith v2.2
 
-**Local-First • Open-Source Visual Geolocation Work in Progress**
+Local-first visual geolocation with explicit confidence gating and reproducible validation.
 
-> **Quick Links:** [Architecture](ARCHITECTURE.md) | [API Docs](ARCHITECTURE.md#api-endpoints) | [) | [KnownStatus](STATUS.md Issues](knowissues.md)
-
-GeoWraith is an experimental, local-first visual geolocation system exploring privacy-preserving approaches to image-based location inference.
-No data leaves your machine. No external services are required after setup.
-
-It aims to become a privacy-preserving, owner-controlled alternative to commercial platforms such as GeoSpy, but is currently a work-in-progress MVP with accuracy limitations.
+> **Quick Links:** [Status](STATUS.md) | [Architecture](ARCHITECTURE.md) | [Validation Guide](VALIDATION_GUIDE.md) | [Reproducibility Playbook](docs/REPRODUCIBILITY_PLAYBOOK.md) | [Known Issues](knowissues.md)
 
 ---
 
-## What This Is
+## What GeoWraith Is
 
-GeoWraith is a **visual place recognition + geometric refinement system** composed of:
+GeoWraith is an experimental geolocation system that predicts coordinates from images using a local pipeline:
 
-- A deterministic local inference and search core with GeoCLIP ONNX embeddings (MVP implemented)
-- A local GeoCLIP reference index (50,000 sampled coordinates + in-memory index) (accuracy still requires real-world validation)
-- Potential meter-level refinement using structure-from-motion (future research)
-- A modern web interface (React/Vite/TypeScript)
-- A host-first Node/Express API service for local inference
+- EXIF passthrough when image GPS metadata exists
+- GeoCLIP ONNX embeddings (preferred)
+- CLIP text-matching fallback if ONNX files are unavailable
+- Deterministic fallback if model paths fail
+- ANN/HNSW retrieval over coordinate vectors plus image anchors
+- Confidence and match-consensus gating with location withholding for uncertain results
 
-Everything runs locally. The network is optional and only used during initial data preparation, never during inference or testing.
-
----
-
-## What This Is Not
-
-- Not a tracking tool
-- Not a surveillance service
-- Not a cloud platform
-- Not a consumer product
-
-This is an engineering system intended for authorized, professional use only.
+Inference is local-first and does not require paid APIs.
 
 ---
 
-## Responsible Use (Non-Negotiable)
+## Current Verified Snapshot (2026-02-27)
 
-GeoWraith is designed for the same ethical and legal boundaries publicly advertised by GeoSpy:
+From `backend/.cache/validation_gallery/benchmark_report.json`:
 
-**Allowed use cases:**
-- Your own imagery
-- Public-domain or Creative Commons imagery
-- Authorized government, law-enforcement, or search-and-rescue work
-- Verified OSINT on publicly available content
+- Validation set: **58 images**
+- Within 10km: **93.1%** (54/58)
+- Cohorts:
+  - `iconic_landmark`: **100.0%** (22/22)
+  - `generic_scene`: **88.9%** (32/36)
 
-**Prohibited use:**
-- Targeting private individuals without authorization
-- Stalking, harassment, or covert monitoring
-- Any use that violates local, state, or federal law
+Remaining hard failures (generic scenes): Marrakech, Cape Point, Copacabana, Table Mountain.
 
-In California and many other jurisdictions, unauthorized geolocation of individuals constitutes criminal stalking and privacy violations.
-The software does not enforce policy. Responsibility lies entirely with the operator.
-
-GeoWraith:
-- Never phones home
-- Logs nothing by default
-- Stores data only where you explicitly mount volumes
+Important: these numbers are tied to the current GeoCLIP + anchor corpus in this workspace. Do not generalize without running your own benchmark.
 
 ---
 
-## Key Features
+## Models
 
-- **Modern React Frontend**
-  Vite + React + TypeScript + Motion. Current implementation runs locally from the repo root.
+GeoWraith supports three inference tiers:
 
-- **Local Inference API**
-  Express-based API with CLIP-based geolocation. Uses `@xenova/transformers` CLIP model to match images against 355 world-city text embeddings when GeoCLIP ONNX models are unavailable. Falls back gracefully through GeoCLIP → CLIP → deterministic color histogram.
+1. **GeoCLIP ONNX**
+- `backend/.cache/geoclip/vision_model_q4.onnx`
+- `backend/.cache/geoclip/location_model_uint8.onnx`
 
-- **Hybrid Demo Mode**
-  Product UI can run in Demo mode (offline) or Live API mode (backend running).
+2. **CLIP fallback** (`@xenova/transformers`)
+- Auto-downloads `Xenova/clip-vit-base-patch32`
+- Used when GeoCLIP ONNX files are missing
 
-- **Reproducible builds**
-  Host-first workflow with `npm run build` and `npm run lint` as the standard checks.
-
-- **Deterministic testing**
-  Backend includes local API tests and host verification via lint/build/test commands.
-
-- **Offline enforcement**
-  Remote URL fetches are blocked in the backend local pipeline; `GEOWRAITH_OFFLINE=1` keeps strict local-only mode.
-
-- **MIT license**
-  Fork, audit, extend, deploy. Zero cost, fully open source.
-
-- **Ultra Accuracy Mode** (v2.2+)
-  Aggressive accuracy tuning for 10m median / 1km P95 targets. Features:
-  - Geographic constraints to prevent continent-jumping errors (e.g., Sheffield→China)
-  - IQR-based outlier rejection for robust P95 accuracy
-  - Weighted median centroid calculation (less sensitive to outliers)
-  - 500K stratified coordinate dataset with global coverage
-  - 10 data source scrapers (7 work without API keys)
-  
-  Enable with `GEOWRAITH_ULTRA_ACCURACY=true`.
+3. **Deterministic fallback**
+- Last-resort path when model extraction fails
 
 ---
 
-## Current Repo Structure
+## Runtime Notes
 
-```
-./
-├── src/                 # React app source
-├── dist/                # Production build output
-├── bg.mp4               # Hero background video
-├── backend/             # API service (local inference MVP)
-│   ├── src/
-│   ├── docs/
-│   ├── package.json
-│   └── tsconfig.json
-├── package.json
-├── package-lock.json
-├── tsconfig.json
-├── vite.config.ts
-└── README.md
-```
+- Product map uses a fixed-height viewport so the basemap does not collapse into a black pane.
+- Standard, Satellite, and 3D style switches use a guarded completion path so stalled
+  `style.load` events do not leave the map stuck between modes.
+- Operator-safe mode keeps the basemap visible while withheld coordinates remain hidden.
+- EXIF GPS extraction only runs when the uploaded image actually contains EXIF metadata, so
+  valid WebP/GIF uploads no longer spam backend logs with `Unknown file format` warnings.
 
 ---
 
-## Quick Start (Under 60 Seconds)
-
-### Option 1: One-Command Start (Both Services)
+## Quick Start
 
 ```bash
+# repo root
 npm install
-cd backend && npm install && cd ..
-./start.sh
-```
 
-This starts both backend (port 8080) and frontend (port 3001) with live logs.
-Press `Ctrl+C` to stop both services.
-
-### Option 2: Manual Start
-
-**Frontend:**
-```bash
-npm install
-npm run dev
-```
-
-**Backend (separate terminal):**
-```bash
+# backend
 cd backend
 npm install
+
+# run backend
+npm run dev
+
+# run frontend (new terminal, repo root)
+cd ..
 npm run dev
 ```
 
-API will be available at `http://localhost:8080`.
-Frontend at `http://localhost:3001/`.
+Frontend: `http://localhost:3001`  
+Backend health: `http://localhost:8080/health`
 
-Optional environment variables (see `backend/.env.example`):
-- `MAPILLARY_ACCESS_TOKEN` enables Mapillary reference retrieval for `/api/predict/sfm`.
-- `GEOWRAITH_ENABLE_SFM` controls whether `/api/predict/sfm` is active (`false` by default while SfM remains a staged update).
-- `GEOWRAITH_OFFLINE`, `GEOWRAITH_API_PORT`, and `GEOWRAITH_MAX_IMAGE_BYTES` tune local runtime behavior.
+### Start Both Services Together
 
-**Backend checks:**
 ```bash
+# repo root
+npm run start
+```
+
+`start.sh` now defaults to backend `npm run dev` (TypeScript runtime), reuses already-running services on
+`3001`/`8080`, and waits through model/index warmup before failing health checks.
+
+Optional overrides:
+
+```bash
+BACKEND_START_CMD="npm run dev:watch" npm run start
+BACKEND_STARTUP_RETRIES=360 STARTUP_POLL_SECONDS=0.5 npm run start
+```
+
+---
+
+## Reproduce Latest Validation Result
+
+```bash
+cd backend
+npm run benchmark:validation
+```
+
+See full reproducibility instructions in:
+
+- [docs/REPRODUCIBILITY_PLAYBOOK.md](docs/REPRODUCIBILITY_PLAYBOOK.md)
+
+---
+
+## Core Commands
+
+### Frontend (repo root)
+
+```bash
+npm run dev
 npm run lint
 npm run build
-npm run test
-npm run benchmark:accuracy
-npm run build:dataset
 ```
 
-City dataset scrape example (multi-source fallback):
+### Backend (`backend/`)
+
 ```bash
-npm run scrape:city -- --city="Istanbul" --count=50 --sources=flickr,openverse,wikimedia,mapillary
-# Global run across configured world cities (zero-cost/public sources)
-npm run scrape:global -- --count=12 --sources=flickr,openverse,wikimedia,mapillary
+npm run dev
+npm run lint
+npm run test
+npm run build
+npm run benchmark:validation
 ```
 
-**Demo mode:** Demo and Live API are explicit operator modes. Live mode now surfaces request failures instead of silently switching to demo output.
+---
+
+## Accuracy and Claims Policy
+
+- Always report **model mode** (GeoCLIP ONNX vs CLIP fallback)
+- Always report **validation set size**
+- Always report **cohort split** (`iconic_landmark` vs `generic_scene`)
+- Do not claim meter-level precision from aggregate benchmarks alone
 
 ---
 
-## API Contract (Minimal)
+## Ethics and Responsible Use
 
-`backend/docs/openapi.yaml` defines the contract for:
-
-- `GET /health`
-- `POST /api/predict`
-
-The backend returns EXIF GPS coordinates when present, otherwise an approximate location from local GeoCLIP nearest-neighbor search.
-Remote image URL fetches are blocked to preserve local-first operation.
-Weak matches now return `low_confidence` with `location_visibility: "withheld"` so the UI does not present a false precise location.
-If `.cache/smartblend_gallery/metadata.csv` exists, GeoWraith also appends multi-source image anchors to the reference index to improve landmark retrieval stability.
-
-**Inference modes (automatic fallback chain):**
-
-1. **GeoCLIP mode** (best accuracy): Requires ONNX models in `backend/.cache/geoclip/`:
-   - `vision_model_q4.onnx`
-   - `location_model_uint8.onnx`
-   - `coordinates_100K.json` (for rebuilding coordinate samples)
-
-2. **CLIP text-matching mode** (no ONNX files needed): Uses `@xenova/transformers` to auto-download
-   `Xenova/clip-vit-base-patch32` from HuggingFace on first startup. Matches images against
-   text embeddings for 355 world cities. Model is cached locally after first download.
-
-3. **Deterministic fallback** (last resort): Color histogram features matched against
-   trigonometric coordinate vectors. Very low accuracy — used only when both CLIP paths fail.
-
----
-
-## Demo Behavior
-
-- **Docs/Examples/Gallery** sections are interactive and scroll to the Product UI.
-- Examples and Gallery tiles trigger a demo result in the console.
-
-## Current Limitations
-
-- **Accuracy**: Without GeoCLIP ONNX models, the CLIP text-matching fallback achieves ~40-50% city-level accuracy on distinctive landmark photos. Standard CLIP (ViT-Base-Patch32) was not trained for geolocation. For 95%+ city-level accuracy globally, a geo-specialized model (StreetCLIP, GeoCLIP with ONNX exports, or PIGEON) is needed.
-- **CLIP fallback range**: CLIP text-image similarities are inherently low (0.20-0.35 raw), so confidence scores are rescaled and may appear moderate even on correct predictions.
-- **Reference Dataset**: 355 cities in CLIP mode; 696K coordinates available for GeoCLIP mode when ONNX models are present.
-- **Offline Maps**: Map tiles require internet connectivity (offline tile caching implemented with IndexedDB but depends on prior tile viewing).
-
----
-
-## Current Frontend Baseline (As of 2026-02-24)
-
-This is the documented baseline for the current landing-page implementation so future edits can avoid content drift.
-
-### Visual Snapshot (Landing Hero)
-
-- Dark, cinematic hero with animated grid overlay and center-focused composition.
-- Brand mark `GEOWRAITH` centered in top navigation, with `Docs`, `Examples`, `Gallery`, `Contact` links.
-- Badge above headline: `v2.2 | Fully Local | MIT Licensed`.
-- Headline layout:
-  - `Meter-Level`
-  - `Geolocation` (emerald/cyan/blue gradient accent)
-  - `from Any Photo`
-- Subtitle emphasizes local-first operation and no data exfiltration.
-- Primary CTAs: `Start Building` and `Learn More`.
-- Scroll affordance at hero bottom (`Explore` indicator).
-
-### Implemented Frontend Sections (Code-Verified)
-
-Rendered in order by `src/App.tsx`:
-
-1. `Navbar`
-2. `Hero`
-3. `ProductUI`
-4. `Docs`
-5. `Examples`
-6. `Gallery`
-7. `WhatItIs`
-8. `Features`
-9. `UseCases`
-10. `Industries`
-11. `HowItWorks`
-12. `Outcomes`
-13. `Comparison`
-14. `PrivacyDeepDive`
-15. `TechStack`
-16. `Pricing`
-17. `FAQ`
-18. `Contact`
-19. `FinalCTA`
-20. `Footer`
-
-### Baseline Claim Record
-
-- Claim: Frontend landing page with the above hero look is implemented.
-  - Status: `VERIFIED`
-  - Confidence: `0.97`
-  - Evidence: current React component code (`src/components/sections/Hero.tsx`, `src/components/Navbar.tsx`, `src/App.tsx`).
-
----
-
-## Consistency and Drift-Control Protocol
-
-To reduce content drift and false completion claims, use this reporting standard in docs, PR notes, and agent updates:
-
-- **Claim classes:** mark statements as `VERIFIED`, `PARTIAL`, or `UNCONFIRMED`.
-- **Confidence score:** attach a numeric score `0.00-1.00` to non-trivial claims.
-- **Evidence required for `VERIFIED`:** include concrete command/test evidence (for example: `npm run build`, `npm run lint`, `npm run test` if present).
-- **Recency rule:** for fast-changing facts (hosting tiers, package versions, advisories), include the exact verification date (ISO format).
-- **No silent assumptions:** if data is missing, state `UNCONFIRMED` instead of inferring completion.
-- **Diagram format standard:** any graph/diagram in Markdown must be authored as Mermaid.js (` ```mermaid ` blocks).
-
-### Completion Truthfulness Gate
-
-Do not state "complete", "done", "ready for commit", or equivalent unless all applicable checks were actually run and passed.
-
-Use this minimum completion block:
-
-```text
-Status: PARTIAL | COMPLETE
-Confidence: <0.00-1.00>
-Evidence:
-- <command/check 1 + result>
-- <command/check 2 + result>
-Not Run:
-- <explicitly list skipped validations>
-```
-
-If any required check is not executed, status must be `PARTIAL`.
-
----
-
-## Memory and Continuity
-
-Maintain durable task memory in `.agent/CONTINUITY.md`:
-
-- Read it at the start of each task.
-- Append only meaningful decisions, discoveries, and superseding facts.
-- Include ISO timestamps and provenance (`[USER]`, `[CODE]`, `[TOOL]`, `[ASSUMPTION]`).
-- Keep entries short and evidence-linked; no raw logs.
-
-Use the repository memory stack together:
-
-- `.agent/CONTINUITY.md`: task-by-task operational continuity and superseding facts.
-- `Memory.md`: durable high-level memory of stable decisions and assumptions.
-- `knowissues.md`: tracked known issues/risks with lifecycle status.
-
-Synchronization rule:
-
-- Decision changes: update `.agent/CONTINUITY.md` + `Memory.md`.
-- Issue discovery/status change: update `.agent/CONTINUITY.md` + `knowissues.md`.
-- Issue resolution: update all relevant docs and mark status `resolved` in `knowissues.md`.
-
----
-
-## Contributing
-
-1. Fork the repository
-2. Add or update tests when applicable
-3. Update docs that changed behavior/state: `README.md`, `.agent/CONTINUITY.md`, `Memory.md`, `knowissues.md`, `ARCHITECTURE.md`, `AGENTS.md`
-4. Ensure `npm run build` and `npm run lint` pass
-
-Pull requests that break determinism will not be accepted.
-
----
-
-## Documentation
-
-| Document | Description |
-|----------|-------------|
-| [README.md](README.md) | Main project documentation (this file) |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture, API contracts, models, pipelines |
-| [AGENTS.md](AGENTS.md) | Build/lint/test commands and code style for agents |
-| [STATUS.md](STATUS.md) | Current project status and component matrix |
-| [knowissues.md](knowissues.md) | Known issues, gaps, and risks |
-| [Memory.md](Memory.md) | Durable high-level memory of decisions |
-| [.agent/CONTINUITY.md](.agent/CONTINUITY.md) | Task-by-task operational continuity |
-| [VALIDATION_GUIDE.md](VALIDATION_GUIDE.md) | Real-world accuracy validation workflow |
-| [SMARTBLEND_GUIDE.md](SMARTBLEND_GUIDE.md) | SmartBlend landmark database guide |
-| [CSV_WORKFLOW_GUIDE.md](CSV_WORKFLOW_GUIDE.md) | CSV-based validation workflow |
-| [docs/DEPLOYMENT_RUNBOOK.md](docs/DEPLOYMENT_RUNBOOK.md) | Production deployment guide |
-| [docs/SFM_PIPELINE_ARCHITECTURE.md](docs/SFM_PIPELINE_ARCHITECTURE.md) | SfM refinement pipeline design |
-| [docs/PHYSICAL_DEVICE_VALIDATION.md](docs/PHYSICAL_DEVICE_VALIDATION.md) | Physical device testing guide |
+GeoWraith is intended for authorized and lawful use only. Operators are responsible for legal and ethical compliance in their jurisdiction.
 
 ---
 
 ## License
 
-MIT License.
-You own what you build with it.
-
----
-
-Made for ethical, local-first geospatial AI.
+MIT
