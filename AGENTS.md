@@ -342,5 +342,6 @@ The CPU-only ONNX runtime binaries (napi-v6) are bundled in the package and load
 ### Gotchas
 
 - No proxy in `vite.config.ts` — frontend makes direct fetch to `http://localhost:8080`. CORS is handled server-side.
-- GeoCLIP model files (`backend/.cache/geoclip/`) are not in the repo. Without them the backend runs but `/api/predict` returns errors for real inference. Demo mode works fine without models.
+- GeoCLIP model files (`backend/.cache/geoclip/`) are not in the repo. Without them, the backend falls back to CLIP-based text matching via `@xenova/transformers`. The CLIP model (`Xenova/clip-vit-base-patch32`) is auto-downloaded from HuggingFace on first backend startup and cached locally.
 - `npm run lint` in both root and `backend/` runs `tsc --noEmit` (type checking only, no ESLint).
+- **CLIP accuracy limitation**: Standard CLIP ViT-Base without geo-specific fine-tuning achieves limited city-level accuracy (~40-50% for distinctive landmark photos). To reach 95% city-level accuracy globally, the project needs a geo-specialized model (e.g., StreetCLIP, GeoCLIP with proper ONNX exports, or PIGEON) and/or a reference image database of geotagged photos.
