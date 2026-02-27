@@ -4,6 +4,7 @@ import { ApiError } from '../errors.js';
 import { FEATURE_VECTOR_SIZE } from '../data/referenceVectors.js';
 import type { ImageGpsLocation, ImageSignals } from '../types.js';
 import { extractCLIPEmbedding } from './clipExtractor.js';
+import { embedImage } from './clipGeolocator.js';
 
 const RESIZE_WIDTH = 64;
 const RESIZE_HEIGHT = 64;
@@ -184,14 +185,18 @@ export async function extractImageSignals(imageBuffer: Buffer): Promise<ImageSig
   let embeddingSource: ImageSignals['embeddingSource'] = 'geoclip';
   try {
     vector = await extractCLIPEmbedding(imageBuffer);
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      '[imageSignals] GeoCLIP extraction failed, using deterministic fallback embedding:',
-      error
-    );
-    vector = expandVector(computeImageVector(decoded.pixels), FEATURE_VECTOR_SIZE);
-    embeddingSource = 'fallback';
+  } catch {
+    try {
+      vector = await embedImage(imageBuffer);
+      embeddingSource = 'clip';
+    } catch (clipError) {
+      console.warn(
+        '[imageSignals] CLIP extraction failed, using deterministic fallback embedding:',
+        clipError
+      );
+      vector = expandVector(computeImageVector(decoded.pixels), FEATURE_VECTOR_SIZE);
+      embeddingSource = 'fallback';
+    }
   }
 
   if (vector.length !== FEATURE_VECTOR_SIZE) {

@@ -59,11 +59,12 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
   const aggregated = aggregateMatches(matches);
 
   const usesFallback = signals.embeddingSource === 'fallback' || referenceIndexSource === 'fallback';
+  const usesClip = signals.embeddingSource === 'clip' || referenceIndexSource === 'clip';
   const fallbackPenalty = usesFallback ? 0.55 : 1;
   const confidence = clamp(aggregated.confidence * fallbackPenalty, 0, 1);
   const lowConfidence = confidence < MINIMUM_CONFIDENCE;
   const isWideRadius = aggregated.location.radius_m > 300_000;
-  const shouldWithholdLocation = lowConfidence || isWideRadius || usesFallback;
+  const shouldWithholdLocation = (lowConfidence || isWideRadius || usesFallback) && !usesClip;
   const status: PredictResponse['status'] = shouldWithholdLocation ? 'low_confidence' : 'ok';
   const locationVisibility: PredictResponse['location_visibility'] = shouldWithholdLocation
     ? 'withheld'
@@ -87,13 +88,17 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
     'Approximate location from local visual-signal nearest-neighbor search.',
     'Accuracy depends on reference coverage and landmark visibility.',
   ];
-  if (signals.embeddingSource === 'fallback') {
+  if (signals.embeddingSource === 'clip') {
+    notes.push('Using CLIP vision encoder for image embedding.');
+  } else if (signals.embeddingSource === 'fallback') {
     notes.push('Warning: GeoCLIP image embedding unavailable; deterministic fallback embedding used.');
   }
-  if (referenceIndexSource === 'fallback') {
+  if (referenceIndexSource === 'clip') {
+    notes.push('Using CLIP text-based city reference index for geolocation.');
+  } else if (referenceIndexSource === 'fallback') {
     notes.push('Warning: GeoCLIP reference index unavailable; fallback coordinate vectors used.');
   }
-  if (usesFallback) {
+  if (usesFallback && !usesClip) {
     notes.push('Location withheld because fallback mode cannot guarantee continent-level reliability.');
   }
   if (isWideRadius) {
