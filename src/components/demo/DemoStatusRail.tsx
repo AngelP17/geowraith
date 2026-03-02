@@ -42,8 +42,10 @@ export function DemoStatusRail({
   readinessData,
   result,
 }: DemoStatusRailProps) {
-  const isLiveReady = dataSource === 'live' && liveApiStatus === 'online' && liveReadiness === 'ready';
-  const runtimeLabel = isLiveReady ? 'Live Local Inference' : 'Replay Mode';
+  const isLiveSelected = dataSource === 'live';
+  const isLiveReady =
+    isLiveSelected && liveApiStatus === 'online' && liveReadiness === 'ready';
+  const runtimeLabel = isLiveSelected ? 'Live Local Inference' : 'Replay Mode';
 
   const backendTone =
     liveApiStatus === 'online'
@@ -69,6 +71,8 @@ export function DemoStatusRail({
         <p className="mt-2 text-sm leading-relaxed text-white/55">
           {isLiveReady
             ? 'Backend, corpus, and readiness checks are green. The console is running local inference.'
+            : isLiveSelected
+              ? 'Live mode is selected, but the local stack is still offline or warming. Replay data remains available while services stabilize.'
             : 'Curated replay data stays available while the local stack is offline or still warming.'}
         </p>
 

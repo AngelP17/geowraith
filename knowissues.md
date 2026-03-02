@@ -36,6 +36,42 @@ Living list of known issues, gaps, and risks. Keep this concise, factual, and cu
 
 ## Current Known Issues
 
+## KI-0045: `/demo` live-mode polling caused visible workbench flicker
+- Status: resolved
+- Severity: high
+- First Seen: 2026-03-02
+- Last Updated: 2026-03-02
+- Area: `src/components/demo/usePredictionWorkbench.ts`, `src/pages/DemoPage.tsx`, `src/components/demo/DemoStatusRail.tsx`
+- Description: The Mission Console flipped between live and replay presentation while Live API mode
+  was already selected. Background readiness polls forced `liveReadiness` back to `checking`, and
+  the page/status rail treated that transient state as `Replay Mode`, which created visible flicker
+  and made the uploaded preview feel unstable.
+- Reproduction:
+  1. Open `/demo?scenario=harbor&mode=fast`.
+  2. Switch to `Live API`.
+  3. Upload a local image and leave the console open while the readiness poll runs.
+- Expected: Once Live API mode is selected, the console should remain visually in live mode while
+  background polling refreshes readiness in place.
+- Actual: Resolved on 2026-03-02. Live mode now stays visually stable, and background polling no
+  longer bounces the console through replay/checking states.
+- Impact: Upload/live-mode UX is stable again, which restores predictable file preview behavior and
+  stops distracting layout flicker in the core demo surface.
+- Workaround: Before the fix, repeatedly switching modes or reloading could temporarily settle the
+  UI, but the next poll cycle would reintroduce the bounce.
+- Resolution:
+  - Background refreshes now preserve the current ready state and only mark `checking` during the
+    explicit switch into Live API mode.
+  - `/demo` runtime labels now reflect the selected source (`demo` vs `live`) rather than transient
+    readiness transitions.
+- Evidence:
+  - `src/components/demo/usePredictionWorkbench.ts`
+  - `src/pages/DemoPage.tsx`
+  - `src/components/demo/DemoStatusRail.tsx`
+  - `npm run lint`
+  - `npm run build`
+  - Timed Playwright probe against `/demo?scenario=harbor&mode=fast` with stable `Live API ready`
+    and `Live Local Inference` state across repeated samples
+
 ## KI-0041: Confidence calibration underreported exact curated/recovered matches
 - Status: resolved
 - Severity: medium

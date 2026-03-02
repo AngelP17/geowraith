@@ -5,6 +5,50 @@
 ---
 
 ## 2026-03-02T23:02:00Z [CODE] [USER] [MODELS] Holdout benchmark path added; hard-failure investigation shows Marrakech and Copacabana are model/preprocessing-limited, not simple coverage misses
+## 2026-03-02T23:32:00Z [CODE] [USER] [FRONTEND] `/demo` live-mode flicker fixed by stabilizing readiness polling and preserving live selection
+
+**Task:** Fix the broken `/demo` workbench state where Live API mode visually flickered, the
+runtime banner bounced between replay/live, and the upload panel felt unstable after switching away
+from replay scenarios.
+
+**Root cause findings:**
+- `usePredictionWorkbench.ts` re-entered `checking` on every background readiness poll, even after
+  the stack was already `ready`.
+- The polling effect depended on a callback that changed with readiness state, so the interval kept
+  being torn down and restarted, which amplified the bounce.
+- `DemoPage.tsx` and `DemoStatusRail.tsx` both derived the headline runtime label from transient
+  readiness instead of the operator-selected data source, so the UI kept oscillating between
+  `Replay Mode` and `Live Local Inference`.
+
+**Implemented:**
+- `src/components/demo/usePredictionWorkbench.ts`
+  - changed environment refresh to accept `{ checkReadiness, markChecking }`
+  - preserves the current live-ready state during background polls instead of bouncing through
+    `checking`
+  - only shows the transient `checking` state during the explicit switch into Live API mode
+- `src/pages/DemoPage.tsx`
+  - runtime label now reflects the selected source (`demo` vs `live`) instead of temporary polling
+    transitions
+- `src/components/demo/DemoStatusRail.tsx`
+  - mission status headline now stays in live mode once selected and uses readiness/offline state
+    only for descriptive copy
+
+**Verification evidence:**
+- `npm run lint` ✅
+- `npm run build` ✅
+- Timed Playwright probe against `/demo?scenario=harbor&mode=fast` after switching to Live API and
+  uploading `public/demo/campus-quadrant.svg` ✅
+  - `src` stayed on the same blob URL across 8 samples
+  - runtime label stayed `Live Local Inference`
+  - status text stayed `Live API ready`
+  - no page console errors were emitted during the probe
+
+**Status class:** VERIFIED
+**Confidence:** 0.98
+**Unrun checks:** manual browser validation in the user’s active Chrome session with extensions
+enabled; broader `/demo` interaction QA after long-running live-mode polling.
+
+## 2026-03-02T23:02:00Z [CODE] [USER] [MODELS] Holdout benchmark path added; hard-failure investigation shows Marrakech and Copacabana are model/preprocessing-limited, not simple coverage misses
 ## 2026-03-03T00:32:00Z [CODE] [USER] [DETERMINISM] Holdout gallery expanded to 17 non-overlapping images and leaked helper scripts removed from the worktree
 
 **Task:** Remove the benchmark-leakage helper scripts from the worktree and expand the holdout

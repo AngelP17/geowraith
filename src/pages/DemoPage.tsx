@@ -14,7 +14,6 @@ export function DemoPage() {
   useEffect(() => {
     if (
       workbench.activeScenarioId !== scenarioId ||
-      workbench.dataSource !== 'demo' ||
       (mode && workbench.mode !== mode)
     ) {
       workbench.applyScenario(scenarioId, mode);
@@ -24,16 +23,11 @@ export function DemoPage() {
     scenarioId,
     workbench.activeScenarioId,
     workbench.applyScenario,
-    workbench.dataSource,
     workbench.mode,
   ]);
 
   const runtimeLabel =
-    workbench.dataSource === 'live' &&
-    workbench.liveApiStatus === 'online' &&
-    workbench.liveReadiness === 'ready'
-      ? 'Live Local Inference'
-      : 'Replay Mode';
+    workbench.dataSource === 'live' ? 'Live Local Inference' : 'Replay Mode';
 
   const handleScenarioSelect = (nextScenarioId: typeof scenarioId, nextMode?: typeof mode) => {
     const params = new URLSearchParams();

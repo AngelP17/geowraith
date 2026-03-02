@@ -71,6 +71,11 @@ function resolveReadinessState(
   return readiness ? 'not_ready' : 'idle';
 }
 
+interface RefreshEnvironmentOptions {
+  checkReadiness?: boolean;
+  markChecking?: boolean;
+}
+
 export interface PredictionWorkbench {
   activeScenario: DemoScenario;
   activeScenarioId: DemoKey;
@@ -165,22 +170,25 @@ export function usePredictionWorkbench(): PredictionWorkbench {
     setResult(getDemoResult(scenario.id, scenarioMode));
   }, [replacePreviewUrl]);
 
-  const refreshEnvironment = useCallback(async (forLiveMode: boolean) => {
+  const refreshEnvironment = useCallback(async ({
+    checkReadiness = false,
+    markChecking = false,
+  }: RefreshEnvironmentOptions = {}) => {
     try {
       const health = await fetchApiHealth();
       setHealthData(health);
       setLiveApiStatus('online');
 
-      if (!forLiveMode) {
-        const nextReadiness = resolveReadinessState(health, readinessData, true);
-        setLiveReadiness(nextReadiness);
+      if (!checkReadiness) {
         return {
           online: true,
-          readiness: nextReadiness,
+          readiness: 'idle' as const,
         };
       }
 
-      setLiveReadiness('checking');
+      if (markChecking) {
+        setLiveReadiness((current) => (current === 'ready' ? current : 'checking'));
+      }
       try {
         const readiness = await fetchApiReadiness();
         setReadinessData(readiness);
@@ -212,7 +220,7 @@ export function usePredictionWorkbench(): PredictionWorkbench {
         readiness: 'offline' as const,
       };
     }
-  }, [readinessData]);
+  }, []);
 
   useEffect(() => {
     if (phase === 'scanning' || phase === 'processing') {
@@ -241,9 +249,9 @@ export function usePredictionWorkbench(): PredictionWorkbench {
   }, [applyScenario]);
 
   useEffect(() => {
-    void refreshEnvironment(dataSource === 'live');
+    void refreshEnvironment({ checkReadiness: dataSource === 'live' });
     const interval = window.setInterval(() => {
-      void refreshEnvironment(dataSource === 'live');
+      void refreshEnvironment({ checkReadiness: dataSource === 'live' });
     }, 5000);
 
     return () => window.clearInterval(interval);
@@ -260,6 +268,7 @@ export function usePredictionWorkbench(): PredictionWorkbench {
     setDataSource('live');
     setFile(selected);
     setPhase('idle');
+    setResult(null);
     setErrorMsg('');
     setWarningMsg(
       liveApiStatus === 'online'
@@ -313,8 +322,13 @@ export function usePredictionWorkbench(): PredictionWorkbench {
       return;
     }
 
+    setPhase('idle');
+    setResult(null);
+    if (!file) {
+      replacePreviewUrl(null, false);
+    }
     setWarningMsg('Checking local services...');
-    void refreshEnvironment(true).then((environment) => {
+    void refreshEnvironment({ checkReadiness: true, markChecking: true }).then((environment) => {
       if (!environment?.online) {
         setWarningMsg('Backend offline. Replay mode remains available.');
         return;
@@ -327,7 +341,7 @@ export function usePredictionWorkbench(): PredictionWorkbench {
 
       setWarningMsg('Backend online but still warming. Replay mode remains available.');
     });
-  }, [activeScenarioId, applyScenario, mode, refreshEnvironment]);
+  }, [activeScenarioId, applyScenario, file, mode, refreshEnvironment, replacePreviewUrl]);
 
   const handleAnalyze = useCallback(async () => {
     if (dataSource === 'demo') {

@@ -28,6 +28,14 @@ Persistent project memory for high-signal decisions and context that should surv
 
 ## Current Memory
 
+- 2026-03-02T23:32Z [CODE] [FRONTEND] `/demo` readiness polling must not drive the console back
+  through transient replay/checking states once Live API mode is selected. Background health polls
+  should preserve the current live state, and route/status headlines should reflect the selected
+  data source rather than temporary readiness transitions.
+  Evidence: `src/components/demo/usePredictionWorkbench.ts`, `src/pages/DemoPage.tsx`, `src/components/demo/DemoStatusRail.tsx`, timed Playwright probe against `/demo?scenario=harbor&mode=fast`
+  Status: VERIFIED
+  Confidence: 0.98
+
 - 2026-03-03T00:10Z [CODE] [MODELS] Simple preprocessing swaps do not solve the remaining
   Marrakech/Copacabana failures. A four-mode ablation (`none`, `jpeg-only`, `contain-224-jpeg`,
   `cover-224-jpeg`) left both scenes wrong; `cover-224-jpeg` is still the least-bad current mode
