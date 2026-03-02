@@ -79,5 +79,7 @@ For exact reproduction steps:
 - `GEOWRAITH_IMAGE_PREPROCESS_MODE` supports `none`, `jpeg-only`, `contain-224-jpeg`, and `cover-224-jpeg`.
 - `GEOWRAITH_IMAGE_EMBEDDING_BACKEND` and `GEOWRAITH_REFERENCE_BACKEND` are intended for controlled
   benchmarking and failure analysis.
+- the rebuilt holdout seed gallery currently contains `17` non-overlapping images and is still a
+  sanity-check benchmark, not a release-grade scorecard.
 - If GeoCLIP ONNX model files are missing, backend falls back to CLIP mode.
 - Do not mix validation and holdout results in one headline claim.

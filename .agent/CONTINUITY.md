@@ -5,6 +5,44 @@
 ---
 
 ## 2026-03-02T23:02:00Z [CODE] [USER] [MODELS] Holdout benchmark path added; hard-failure investigation shows Marrakech and Copacabana are model/preprocessing-limited, not simple coverage misses
+## 2026-03-03T00:32:00Z [CODE] [USER] [DETERMINISM] Holdout gallery expanded to 17 non-overlapping images and leaked helper scripts removed from the worktree
+
+**Task:** Remove the benchmark-leakage helper scripts from the worktree and expand the holdout
+gallery before making stronger public accuracy claims.
+
+**Implemented:**
+- Deleted:
+  - `backend/src/scripts/addValidationAnchors.ts`
+  - `backend/src/scripts/addMultipleValidationCopies.ts`
+- `backend/src/scripts/buildHoldoutGallery.ts`
+  - expands the seed list from `11` to `17` locally available non-validation images
+  - adds `sceneType` metadata per seed so holdout summaries are less distorted
+  - rebuilds the holdout directory from scratch on each run
+  - refuses sources from:
+    - `.cache/validation_gallery`
+    - `.cache/smartblend_gallery`
+    - `.cache/validation_anchors`
+  - keeps the existing active-corpus overlap check against merged reference vectors
+
+**Key discoveries:**
+- The rebuilt holdout gallery now covers `17` images across landmark, nature, and urban scenes.
+- The expanded holdout still scores `100.0%` within `10km`, which is useful as a stronger
+  contamination-resistant sanity check than the earlier `11/11` seed, but it is still too small and
+  curated for product-level public claims.
+
+**Verification evidence:**
+- `cd backend && npm run build:gallery:holdout` ✅
+  - rebuilt `.cache/holdout_gallery` with `17` images
+- `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:holdout` ✅
+  - `17/17`, `100.0% within 10km`
+  - `nature: 8`, `landmark: 8`, `urban: 1`
+
+**Status class:** PARTIAL
+**Confidence:** 0.98
+**Unrun checks:** expand the holdout set beyond `17` images; add more low-distinctiveness generic
+scenes and more viewpoint diversity before using holdout results in release messaging.
+
+## 2026-03-02T23:02:00Z [CODE] [USER] [MODELS] Holdout benchmark path added; hard-failure investigation shows Marrakech and Copacabana are model/preprocessing-limited, not simple coverage misses
 ## 2026-03-03T00:10:00Z [CODE] [USER] [MODELS] Preprocessing ablation and model-profile harness added; docs synchronized to the clean 96.6% baseline and qwen3.5:9b default
 
 **Task:** Run the next pass on Marrakech/Copacabana with preprocessing ablations, wire a

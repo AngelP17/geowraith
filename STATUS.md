@@ -43,14 +43,14 @@ Latest validated benchmark:
 | Coordinate vectors | 54,646 (`backend/src/data/geoclipCoordinates.json`) |
 | Unified reference vectors | 1,468 (`backend/.cache/geoclip/referenceVectors.v3-unified-endgame.json`) |
 | Validation set | 58 images |
-| Holdout seed set | 11 images |
+| Holdout seed set | 17 images |
 
 ---
 
 ## Verified Investigation Results
 
 - A separate holdout benchmark path now exists and guards against obvious corpus leakage, but the
-  current `11`-image seed set is too small to be release-grade.
+  current `17`-image seed set is still too small to be release-grade.
 - Preprocessing ablation on the two remaining failures did **not** recover them:
   `none`, `jpeg-only`, `contain-224-jpeg`, and `cover-224-jpeg` all remained wrong.
 - The current `cover-224-jpeg` path is still the least-bad preprocessing option for Marrakech.

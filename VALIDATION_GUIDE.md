@@ -41,8 +41,8 @@ Known hard misses:
 - Marrakech Medina
 - Copacabana Beach
 
-The current seed holdout set is separate and uncontaminated, but at `11` images it is still too
-small to replace the main validation benchmark in release claims.
+The current seed holdout set is separate and uncontaminated, but at `17` images it is still too
+  small to replace the main validation benchmark in release claims.
 
 ---
 
@@ -130,7 +130,7 @@ Do not:
 
 - publish a single blended score without cohort context
 - claim verifier gains without a measured delta
-- claim holdout parity from the current `11`-image seed alone
+- claim holdout parity from the current `17`-image seed alone
 
 ---
 

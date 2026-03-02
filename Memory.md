@@ -51,6 +51,13 @@ Persistent project memory for high-signal decisions and context that should surv
   Status: VERIFIED
   Confidence: 0.96
 
+- 2026-03-03T00:32Z [CODE] [DETERMINISM] The holdout gallery has been expanded from `11` to `17`
+  non-overlapping local images, and the builder now rejects validation-gallery, smartblend-gallery,
+  and validation-anchor sources in addition to checking the active merged corpus for overlap.
+  Evidence: `backend/src/scripts/buildHoldoutGallery.ts`, `cd backend && npm run build:gallery:holdout`, `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:holdout`
+  Status: VERIFIED
+  Confidence: 0.98
+
 - 2026-03-02T23:02Z [CODE] [DETERMINISM] Benchmark galleries must remain separate from the active
   retrieval corpus. The benchmark runner now supports a distinct holdout gallery path and fails fast
   on obvious benchmark-prefix leakage (`validation_`, `holdout_`) instead of silently scoring a

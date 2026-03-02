@@ -64,6 +64,7 @@ Holdout seed set:
 
 - `backend/.cache/holdout_gallery/images/`
 - `backend/.cache/holdout_gallery/manifest.json`
+- current rebuilt size: `17` images
 
 ---
 

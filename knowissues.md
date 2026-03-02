@@ -633,26 +633,28 @@ Living list of known issues, gaps, and risks. Keep this concise, factual, and cu
 - Status: mitigated
 - Severity: medium
 - First Seen: 2026-03-02
-- Last Updated: 2026-03-02
+- Last Updated: 2026-03-03
 - Area: `backend/src/benchmarks/validationBenchmark/index.ts`, `backend/src/scripts/buildHoldoutGallery.ts`
-- Description: A dedicated holdout benchmark path now exists, but the current seed gallery is only
-  `11` locally cached landmark/generic-scene images. It is useful for leakage prevention and quick
+- Description: A dedicated holdout benchmark path now exists, and the seed gallery was expanded to
+  `17` locally cached landmark/generic-scene images. It is useful for leakage prevention and quick
   sanity checks, but it is too small and too curated to replace the main validation benchmark.
 - Reproduction:
   1. Run `cd backend && npm run build:gallery:holdout`.
   2. Run `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:holdout`.
 - Expected: Holdout results should be treated as secondary evidence unless the gallery is large
   enough and demonstrably independent from corpus-building assets.
-- Actual: The current seed holdout reports `100%` on `11/11`, which is real for that small set but
-  not broad enough for product-level accuracy claims.
+- Actual: The rebuilt seed holdout reports `100%` on `17/17`, which is real for that small set but
+  still not broad enough for product-level accuracy claims.
 - Impact: Without this caveat, the holdout path could recreate the same overclaim pattern as the
   earlier benchmark-leakage episode, just with a cleaner but still too-easy gallery.
 - Workaround: Use the 58-image validation benchmark as the primary scorecard and expand the holdout
-  set with more non-overlapping generic scenes before using it for release claims.
+  set further with more non-overlapping generic scenes before using it for release claims.
 - Resolution:
   - Added a dedicated `benchmark:holdout` path and a separate `.cache/holdout_gallery`.
   - Added benchmark-leakage guards keyed to benchmark prefixes so the runner fails fast if
     benchmark-derived anchors are injected into the active corpus.
+  - Rebuilt the holdout gallery on 2026-03-03 from `17` non-validation local images and tightened
+    the builder so it refuses validation-gallery, smartblend-gallery, and validation-anchor sources.
 - Evidence:
   - `backend/src/benchmarks/validationBenchmark/config.ts`
   - `backend/src/benchmarks/validationBenchmark/leakage.ts`

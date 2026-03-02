@@ -46,7 +46,7 @@ Separate holdout path:
 
 - A distinct seed holdout benchmark now lives under `backend/.cache/holdout_gallery`
 - It is built from local images that are checked against the active merged corpus before use
-- The current seed set is intentionally small (`11` images) and should be treated as a leakage guard
+- The current seed set is intentionally small (`17` images) and should be treated as a leakage guard
   plus sanity check, not as a replacement for the 58-image validation benchmark
 - A preprocessing ablation across `none`, `jpeg-only`, `contain-224-jpeg`, and `cover-224-jpeg`
   showed that simple preprocessing swaps do not fix Marrakech or Copacabana
