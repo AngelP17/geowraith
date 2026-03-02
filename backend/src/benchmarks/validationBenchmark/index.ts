@@ -8,22 +8,25 @@
  */
 
 import { readFile } from 'node:fs/promises';
-import path from 'node:path';
 import { CONFIDENCE_THRESHOLDS } from '../../config.js';
 import type { GalleryManifest, AccuracyReport } from './types.js';
 import { runBenchmark } from './runner.js';
 import { formatDistance, formatPercent } from './format.js';
+import { getBenchmarkConfig } from './config.js';
+import { assertNoBenchmarkLeakage } from './leakage.js';
 
-const MANIFEST_PATH = path.resolve(process.cwd(), '.cache/validation_gallery/manifest.json');
-
-async function loadManifest(): Promise<GalleryManifest> {
-  const manifestRaw = await readFile(MANIFEST_PATH, 'utf8');
+async function loadManifest(manifestPath: string): Promise<GalleryManifest> {
+  const manifestRaw = await readFile(manifestPath, 'utf8');
   return JSON.parse(manifestRaw) as GalleryManifest;
 }
 
-function printReport(report: AccuracyReport, elapsedSec: number): void {
+function printReport(
+  report: AccuracyReport,
+  elapsedSec: number,
+  benchmarkName: string,
+): void {
   console.log('\n========================================');
-  console.log('  GeoWraith Validation Benchmark Report');
+  console.log(`  GeoWraith ${benchmarkName} Benchmark Report`);
   console.log('========================================\n');
 
   console.log('SUMMARY');
@@ -93,37 +96,49 @@ function printReport(report: AccuracyReport, elapsedSec: number): void {
   console.log('========================================');
 }
 
-async function saveReport(report: AccuracyReport): Promise<void> {
-  const reportPath = path.resolve(process.cwd(), '.cache/validation_gallery/benchmark_report.json');
+async function saveReport(report: AccuracyReport, reportPath: string, benchmarkName: string): Promise<void> {
   const { writeFile } = await import('node:fs/promises');
   await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-  console.log(`[ValidationBenchmark] Detailed report saved to: ${reportPath}`);
+  console.log(`[${benchmarkName}Benchmark] Detailed report saved to: ${reportPath}`);
 }
 
 export async function main() {
-  console.log('[ValidationBenchmark] Starting validation benchmark\n');
+  const benchmarkConfig = getBenchmarkConfig();
+  console.log(
+    `[${benchmarkConfig.name}Benchmark] Starting ${benchmarkConfig.name.toLowerCase()} benchmark\n`,
+  );
 
   // Load manifest
   let manifest: GalleryManifest;
   try {
-    manifest = await loadManifest();
+    await assertNoBenchmarkLeakage(benchmarkConfig);
+    manifest = await loadManifest(benchmarkConfig.manifestPath);
   } catch (error) {
-    console.error(`[ValidationBenchmark] Failed to load manifest from ${MANIFEST_PATH}`);
-    console.error('Please run "npm run build:gallery" first to create the validation gallery.');
+    console.error(
+      `[${benchmarkConfig.name}Benchmark] Failed to initialize benchmark: ` +
+        `${error instanceof Error ? error.message : String(error)}`,
+    );
+    console.error(
+      `[${benchmarkConfig.name}Benchmark] Expected manifest at ${benchmarkConfig.manifestPath}`,
+    );
+    console.error('Please build the benchmark gallery first.');
     console.error('');
     console.error('Quick start:');
     console.error('  npm run build:gallery -- --demo    # Create demo gallery with landmarks');
     console.error('  npm run build:gallery              # Scrape from Wikimedia Commons');
+    console.error('  npm run build:gallery:holdout      # Seed a separate holdout gallery');
     process.exit(1);
   }
 
   if (manifest.images.length === 0) {
-    console.error('[ValidationBenchmark] No images in gallery.');
+    console.error(`[${benchmarkConfig.name}Benchmark] No images in gallery.`);
     process.exit(1);
   }
 
-  console.log(`[ValidationBenchmark] Loaded gallery with ${manifest.images.length} images`);
-  console.log(`[ValidationBenchmark] Gallery created: ${manifest.created_at}\n`);
+  console.log(
+    `[${benchmarkConfig.name}Benchmark] Loaded gallery with ${manifest.images.length} images`,
+  );
+  console.log(`[${benchmarkConfig.name}Benchmark] Gallery created: ${manifest.created_at}\n`);
 
   // Run benchmark
   const startedAt = Date.now();
@@ -131,14 +146,15 @@ export async function main() {
   const elapsedSec = (Date.now() - startedAt) / 1000;
 
   // Print results
-  printReport(report, elapsedSec);
-  console.log('[ValidationBenchmark] Complete!');
+  printReport(report, elapsedSec, benchmarkConfig.name);
+  console.log(`[${benchmarkConfig.name}Benchmark] Complete!`);
 
   // Write detailed report to file
-  await saveReport(report);
+  await saveReport(report, benchmarkConfig.reportPath, benchmarkConfig.name);
 }
 
 main().catch((error) => {
-  console.error('[ValidationBenchmark] Fatal error:', error);
+  const benchmarkConfig = getBenchmarkConfig();
+  console.error(`[${benchmarkConfig.name}Benchmark] Fatal error:`, error);
   process.exit(1);
 });

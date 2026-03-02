@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ChevronDown, Menu } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { MobileMenu } from './ui/MobileMenu';
 import { navLinks } from '../data/features';
 
@@ -25,8 +26,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenComingSoon }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, label: string) => {
-    // Handle placeholder links
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith('#')) {
       e.preventDefault();
       const target = document.querySelector(href);
@@ -36,9 +36,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenComingSoon }) => {
     }
   };
 
-  // Split nav links: 2 on left, 2 on right of logo
+  // Split nav links: 2 on left, remaining on right of logo
   const leftNavLinks = navLinks.slice(0, 2); // Docs, Examples
-  const rightNavLinks = navLinks.slice(2);   // Gallery, Contact
+  const rightNavLinks = navLinks.slice(2);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -71,22 +71,33 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenComingSoon }) => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
                   >
-                    <motion.a
-                      href={item.href}
-                      onClick={(e) => handleNavClick(e, item.href, item.label)}
-                      whileHover={{ y: -1 }}
-                      className="group flex items-center gap-1 text-white/62 text-[13px] font-medium
-                                 tracking-[0.04em] hover:text-white transition-colors duration-200
-                                 cursor-pointer"
-                    >
-                      {item.label}
-                      {item.hasDropdown && (
-                        <ChevronDown
-                          size={12}
-                          className="text-white/30 group-hover:text-white/50 transition-colors"
-                        />
-                      )}
-                    </motion.a>
+                    {item.href.startsWith('/') ? (
+                      <Link
+                        to={item.href}
+                        className="group flex items-center gap-1 text-white/62 text-[13px] font-medium
+                                   tracking-[0.04em] hover:text-white transition-colors duration-200
+                                   cursor-pointer"
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <motion.a
+                        href={item.href}
+                        onClick={(e) => handleNavClick(e, item.href)}
+                        whileHover={{ y: -1 }}
+                        className="group flex items-center gap-1 text-white/62 text-[13px] font-medium
+                                   tracking-[0.04em] hover:text-white transition-colors duration-200
+                                   cursor-pointer"
+                      >
+                        {item.label}
+                        {item.hasDropdown && (
+                          <ChevronDown
+                            size={12}
+                            className="text-white/30 group-hover:text-white/50 transition-colors"
+                          />
+                        )}
+                      </motion.a>
+                    )}
                   </motion.li>
                 ))}
               </ul>
@@ -119,22 +130,33 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenComingSoon }) => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.5 + i * 0.1 }}
                   >
-                    <motion.a
-                      href={item.href}
-                      onClick={(e) => handleNavClick(e, item.href, item.label)}
-                      whileHover={{ y: -1 }}
-                      className="group flex items-center gap-1 text-white/62 text-[13px] font-medium
-                                 tracking-[0.04em] hover:text-white transition-colors duration-200
-                                 cursor-pointer"
-                    >
-                      {item.label}
-                      {item.hasDropdown && (
-                        <ChevronDown
-                          size={12}
-                          className="text-white/30 group-hover:text-white/50 transition-colors"
-                        />
-                      )}
-                    </motion.a>
+                    {item.href.startsWith('/') ? (
+                      <Link
+                        to={item.href}
+                        className="group flex items-center gap-1 text-white/62 text-[13px] font-medium
+                                   tracking-[0.04em] hover:text-white transition-colors duration-200
+                                   cursor-pointer"
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <motion.a
+                        href={item.href}
+                        onClick={(e) => handleNavClick(e, item.href)}
+                        whileHover={{ y: -1 }}
+                        className="group flex items-center gap-1 text-white/62 text-[13px] font-medium
+                                   tracking-[0.04em] hover:text-white transition-colors duration-200
+                                   cursor-pointer"
+                      >
+                        {item.label}
+                        {item.hasDropdown && (
+                          <ChevronDown
+                            size={12}
+                            className="text-white/30 group-hover:text-white/50 transition-colors"
+                          />
+                        )}
+                      </motion.a>
+                    )}
                   </motion.li>
                 ))}
               </ul>

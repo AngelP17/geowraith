@@ -1,7 +1,7 @@
 # GeoWraith Backend
 
 **Version:** 0.2.0  
-**Last Updated:** 2026-02-27
+**Last Updated:** 2026-03-02
 
 > **Quick Links:** [Main README](../README.md) | [Status](../STATUS.md) | [Architecture](../ARCHITECTURE.md) | [Validation Guide](../VALIDATION_GUIDE.md) | [Reproducibility Playbook](../docs/REPRODUCIBILITY_PLAYBOOK.md)
 
@@ -12,11 +12,12 @@
 `backend` provides local image geolocation inference via:
 
 - EXIF GPS passthrough
-- GeoCLIP ONNX embeddings (preferred)
-- CLIP text-matching fallback
-- deterministic fallback safety path
-- ANN/HNSW search over coordinate vectors + image anchors
-- confidence tiering and coordinate withholding
+- configurable image preprocessing before embedding
+- GeoCLIP ONNX embeddings (preferred validated path)
+- CLIP fallback and deterministic fallback paths for controlled comparisons and recovery
+- HNSW retrieval over unified reference vectors
+- confidence calibration and coordinate withholding
+- optional verifier, intelligence brief, anomaly detection, and health/metrics endpoints
 
 ---
 
@@ -31,8 +32,10 @@ npm run build
 npm run test
 
 npm run benchmark:validation
-npm run benchmark:accuracy
-npm run benchmark:search
+npm run benchmark:holdout
+npm run investigate:failures
+npm run ablate:preprocess
+npm run benchmark:compare-models -- --benchmark=validation
 ```
 
 ---
@@ -40,6 +43,9 @@ npm run benchmark:search
 ## API Endpoints
 
 - `GET /health`
+- `GET /ready`
+- `GET /live`
+- `GET /metrics`
 - `POST /api/predict`
 - `POST /api/predict/sfm` (feature-gated)
 
@@ -51,11 +57,15 @@ Contract:
 
 ## Current Validation Snapshot
 
-From the active 58-image gallery benchmark:
+From the clean 58-image validation gallery:
 
-- Within 10km: **93.1%** (54/58)
+- Within 10km: **96.6%** (56/58)
+- Within 1km: **91.4%**
 - `iconic_landmark`: **100.0%**
-- `generic_scene`: **88.9%**
+- `generic_scene`: **94.4%**
+- Remaining hard misses: Marrakech Medina and Copacabana Beach
+
+The current verifier-enabled rerun with `qwen3.5:9b` did not beat this result.
 
 For exact reproduction steps:
 
@@ -65,7 +75,9 @@ For exact reproduction steps:
 
 ## Runtime Notes
 
+- `GEOWRAITH_USE_UNIFIED_INDEX=true` is the current best validated path.
+- `GEOWRAITH_IMAGE_PREPROCESS_MODE` supports `none`, `jpeg-only`, `contain-224-jpeg`, and `cover-224-jpeg`.
+- `GEOWRAITH_IMAGE_EMBEDDING_BACKEND` and `GEOWRAITH_REFERENCE_BACKEND` are intended for controlled
+  benchmarking and failure analysis.
 - If GeoCLIP ONNX model files are missing, backend falls back to CLIP mode.
-- Model mode must be recorded with any published benchmark result.
-- Low-confidence predictions can return withheld coordinates by design.
-
+- Do not mix validation and holdout results in one headline claim.

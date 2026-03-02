@@ -5,6 +5,8 @@ import type { DisplayMode } from './types';
 import { MapControls } from './MapControls';
 import { MapHeader } from './MapHeader';
 import { MapStatusOverlays } from './MapStatusOverlays';
+import { MapLayers } from './MapLayers';
+import { AnomalyBanner } from './AnomalyBanner';
 import { useMapRuntime } from './useMapRuntime';
 
 interface MapViewProps {
@@ -25,6 +27,7 @@ export const MapView: React.FC<MapViewProps> = ({
   const visibleResult = hiddenTargetInSafeMode ? null : result;
   const {
     mapContainer,
+    map,
     activeStyle,
     setActiveStyle,
     viewState,
@@ -49,7 +52,22 @@ export const MapView: React.FC<MapViewProps> = ({
       />
 
       <div className="relative w-full h-[500px] bg-[#050505]">
+        {/* Anomaly Alert Banner */}
+        {result?.anomaly_alert && (
+          <div className="absolute top-4 left-4 right-20 z-10">
+            <AnomalyBanner
+              message={result.anomaly_alert.message}
+              level={result.anomaly_alert.level}
+              signalsCount={result.anomaly_alert.signals_count}
+            />
+          </div>
+        )}
+
         <div ref={mapContainer} className="w-full h-full bg-[#050505]" />
+        
+        {/* Map Layers Toggle */}
+        <MapLayers map={map} />
+        
         <MapStatusOverlays
           isOffline={isOffline}
           cacheStats={cacheStats}

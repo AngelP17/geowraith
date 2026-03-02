@@ -1,6 +1,6 @@
 # Geolocation Accuracy Notes
 
-**Last Updated:** 2026-02-27  
+**Last Updated:** 2026-03-02  
 **Status:** Archived working note; use [README](README.md), [STATUS](STATUS.md), and
 [docs/REPRODUCIBILITY_PLAYBOOK.md](docs/REPRODUCIBILITY_PLAYBOOK.md) for canonical claims.
 
@@ -9,10 +9,11 @@
 ## Current Verified Snapshot
 
 - Validation set: **58 images**
-- Within 10km: **93.1%** (54/58)
+- Within 10km: **96.6%** (56/58)
+- Within 1km: **91.4%** (53/58)
 - `iconic_landmark`: **100.0%** (22/22)
-- `generic_scene`: **88.9%** (32/36)
-- Remaining misses: Marrakech Medina, Cape Point, Copacabana, Table Mountain
+- `generic_scene`: **94.4%** (34/36)
+- Remaining misses: Marrakech Medina, Copacabana Beach
 
 These numbers are tied to the current GeoCLIP ONNX + anchor corpus in this workspace.
 
@@ -40,7 +41,7 @@ If GeoCLIP ONNX files are unavailable, do not expect the same 58-image benchmark
 ## Claim Boundaries
 
 - Safe claim: strong landmark geolocation with explicit withholding for weak matches
-- Safe claim: 93.1% within 10km on the current 58-image validation gallery
+- Safe claim: 96.6% within 10km on the current 58-image validation gallery
 - Unsafe claim: universal 95%+ accuracy across scene types
 - Unsafe claim: meter-level precision from single-image inference alone
 

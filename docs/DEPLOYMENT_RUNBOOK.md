@@ -1,8 +1,8 @@
 # GeoWraith Production Deployment Runbook
 
-**Version:** 1.0  
-**Last Updated:** 2026-02-27  
-**Status:** Production Ready
+**Version:** 1.1  
+**Last Updated:** 2026-03-02  
+**Status:** Operational runbook for experimental deployments; not a blanket production-readiness claim
 
 > **Quick Links:** [README](../README.md) | [Architecture](../ARCHITECTURE.md) | [AGENTS](../AGENTS.md) | [Status](../STATUS.md) | [Reproducibility](./REPRODUCIBILITY_PLAYBOOK.md)
 
@@ -42,9 +42,10 @@
 ### External Dependencies
 
 None required for core functionality. System is fully local-first:
-- No cloud APIs needed for inference
+- No cloud APIs needed for core retrieval
 - No database required
-- Optional: Map tile CDN for online mode
+- Optional: local Ollama for verifier/intelligence features
+- Optional: map tile CDN for online mode
 
 ---
 
@@ -149,8 +150,9 @@ npm run build
 cd /opt/geowraith/backend
 npm ci
 
-# Build reference dataset (one-time, ~10 minutes)
+# If required, build reference dataset / benchmark galleries
 npm run build:dataset
+npm run build:gallery:holdout
 
 # Verify installation
 npm run test
@@ -166,6 +168,10 @@ NODE_ENV=production
 PORT=8080
 GEOWRAITH_OFFLINE=0
 CACHE_MAX_AGE_MS=86400000
+GEOWRAITH_USE_UNIFIED_INDEX=true
+GEOWRAITH_ENABLE_VERIFIER=false
+GEOWRAITH_LLM_MODEL=qwen3.5:9b
+OLLAMA_ENDPOINT=http://localhost:11434
 ```
 
 Create `/opt/geowraith/.env`:
@@ -237,6 +243,10 @@ pm2 start ecosystem.config.js
 pm2 save
 pm2 startup
 ```
+
+`serve -s dist -l 3001` already supports SPA history fallback, so the current `/demo` client route
+works correctly behind PM2. If you later move to a direct static host or CDN, add an explicit
+rewrite rule that serves `dist/index.html` for unknown paths.
 
 ### 5. Reverse Proxy (nginx)
 
@@ -312,6 +322,13 @@ sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t
 sudo systemctl reload nginx
 ```
+
+Notes:
+- The frontend now uses BrowserRouter with a dedicated `/demo` route.
+- The documented `serve -s dist -l 3001` frontend process already handles SPA history fallback, so
+  `/demo` reloads correctly behind this nginx proxy.
+- If you replace `serve -s` with a direct static-host setup later, add an explicit rewrite so
+  unknown frontend paths fall back to `index.html`.
 
 ### 6. SSL Certificates (Let's Encrypt)
 

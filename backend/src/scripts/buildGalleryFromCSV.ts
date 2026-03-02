@@ -11,6 +11,7 @@
 import { readFile, writeFile, mkdir, copyFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
+import type { GalleryManifest } from '../benchmarks/validationBenchmark/types.js';
 
 interface CsvRow {
   filename: string;
@@ -19,46 +20,6 @@ interface CsvRow {
   label: string;
   accuracyRadius: number;
 }
-
-interface GalleryManifest {
-  images: Array<{
-    id: string;
-    source: string;
-    filename: string;
-    url: string;
-    local_path: string;
-    coordinates: { lat: number; lon: number };
-    accuracy_radius: number;
-    image_info: {
-      width: number;
-      height: number;
-      size_bytes: number;
-      mime_type: string;
-    };
-    metadata: {
-      title: string;
-      description?: string;
-      categories: string[];
-    };
-  }>;
-  stats: {
-    total: number;
-    by_continent: Record<string, number>;
-    by_country_estimate: Record<string, number>;
-    by_scene_type: {
-      urban: number;
-      rural: number;
-      landmark: number;
-      nature: number;
-      unknown: number;
-    };
-  };
-  created_at: string;
-}
-
-const OUTPUT_DIR = path.resolve(process.cwd(), '.cache/validation_gallery');
-const IMAGES_DIR = path.join(OUTPUT_DIR, 'images');
-const MANIFEST_FILE = path.join(OUTPUT_DIR, 'manifest.json');
 
 function getArg(args: string[], key: string): string | null {
   const hit = args.find((arg) => arg.startsWith(`${key}=`));
@@ -151,15 +112,24 @@ async function main() {
   const args = process.argv.slice(2);
   const imagesDir = getArg(args, '--images');
   const csvPath = getArg(args, '--csv');
+  const outputDir = path.resolve(
+    process.cwd(),
+    getArg(args, '--output-dir') ?? '.cache/validation_gallery',
+  );
 
   if (!imagesDir || !csvPath) {
-    throw new Error('Usage: --images=/path/to/photos --csv=/path/to/metadata.csv');
+    throw new Error(
+      'Usage: --images=/path/to/photos --csv=/path/to/metadata.csv ' +
+        '[--output-dir=.cache/holdout_gallery]',
+    );
   }
 
   const csvRaw = await readFile(csvPath, 'utf8');
   const rows = parseCsv(csvRaw);
+  const benchmarkImagesDir = path.join(outputDir, 'images');
+  const manifestFile = path.join(outputDir, 'manifest.json');
 
-  await mkdir(IMAGES_DIR, { recursive: true });
+  await mkdir(benchmarkImagesDir, { recursive: true });
 
   const manifest: GalleryManifest = {
     images: [],
@@ -185,7 +155,7 @@ async function main() {
       : path.join(imagesDir, row.filename);
 
     const targetName = `${String(i + 1).padStart(4, '0')}_${path.basename(row.filename)}`;
-    const targetPath = path.join(IMAGES_DIR, targetName);
+    const targetPath = path.join(benchmarkImagesDir, targetName);
 
     await copyFile(sourcePath, targetPath);
     const info = await getImageInfo(targetPath);
@@ -214,10 +184,10 @@ async function main() {
     manifest.stats.by_scene_type.unknown += 1;
   }
 
-  await writeFile(MANIFEST_FILE, JSON.stringify(manifest, null, 2));
+  await writeFile(manifestFile, JSON.stringify(manifest, null, 2));
 
   // eslint-disable-next-line no-console
-  console.log(`[CSVGallery] Wrote ${manifest.stats.total} images to ${MANIFEST_FILE}`);
+  console.log(`[CSVGallery] Wrote ${manifest.stats.total} images to ${manifestFile}`);
 }
 
 main().catch((error) => {

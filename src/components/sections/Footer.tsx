@@ -6,6 +6,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Github, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { footerSections } from '../../data/features';
 
 interface FooterProps {
@@ -118,6 +119,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenComingSoon }) => {
                 <ul className="space-y-2.5">
                   {section.links.map((link) => {
                     const isExternal = link.href.startsWith('http');
+                    const isInternalRoute = link.href.startsWith('/');
                     const isPlaceholder = link.href.startsWith('#') && ![
                       '#contact',
                       '#docs',
@@ -132,20 +134,30 @@ export const Footer: React.FC<FooterProps> = ({ onOpenComingSoon }) => {
                     
                     return (
                       <li key={link.label}>
-                        <motion.a
-                          href={link.href}
-                          target={isExternal ? '_blank' : undefined}
-                          rel={isExternal ? 'noopener noreferrer' : undefined}
-                          onClick={(e) => isPlaceholder && handleLinkClick(e, link.href, link.label)}
-                          whileHover={{ x: 2 }}
-                          className="group flex items-center gap-1 text-white/40 text-sm hover:text-white/70 
-                                     transition-colors duration-200"
-                        >
-                          {link.label}
-                          {isExternal && (
-                            <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          )}
-                        </motion.a>
+                        {isInternalRoute ? (
+                          <Link
+                            to={link.href}
+                            className="group flex items-center gap-1 text-white/40 text-sm hover:text-white/70 
+                                       transition-colors duration-200"
+                          >
+                            {link.label}
+                          </Link>
+                        ) : (
+                          <motion.a
+                            href={link.href}
+                            target={isExternal ? '_blank' : undefined}
+                            rel={isExternal ? 'noopener noreferrer' : undefined}
+                            onClick={(e) => isPlaceholder && handleLinkClick(e, link.href, link.label)}
+                            whileHover={{ x: 2 }}
+                            className="group flex items-center gap-1 text-white/40 text-sm hover:text-white/70 
+                                       transition-colors duration-200"
+                          >
+                            {link.label}
+                            {isExternal && (
+                              <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            )}
+                          </motion.a>
+                        )}
                       </li>
                     );
                   })}

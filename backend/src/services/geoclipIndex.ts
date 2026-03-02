@@ -5,7 +5,7 @@ import type { ReferenceVectorRecord } from '../types.js';
 import { embedGeoLocations } from './clipExtractor.js';
 import { HNSWIndex } from './annIndex.js';
 import { getReferenceImageVectors } from './referenceImageIndex.js';
-import { COORDINATE_CONFIG } from '../config.js';
+import { COORDINATE_CONFIG, CORPUS_CONFIG, config } from '../config.js';
 import { buildCityReferenceVectors } from './clipGeolocator.js';
 
 interface CoordinateRecord {
@@ -15,12 +15,44 @@ interface CoordinateRecord {
   lon: number;
 }
 
+interface CachedReferencePayload {
+  version?: string;
+  vectors?: unknown[];
+}
+
+interface OsvAnchorRecord {
+  id?: string;
+  label?: string;
+  lat?: number;
+  lon?: number;
+  source?: string;
+  vector?: unknown;
+}
+
+type ReferenceCatalog = 'standard' | 'osv' | 'unified';
+
 const CHUNK_SIZE = COORDINATE_CONFIG.chunkSize;
 const TARGET_COORDINATES = COORDINATE_CONFIG.targetCount;
 const CACHE_VERSION = `v2-geoclip-${TARGET_COORDINATES}-model-v2`;
 const COORDINATES_FILE = path.resolve(process.cwd(), 'src/data/geoclipCoordinates.json');
 const CACHE_FILE = path.resolve(process.cwd(), `.cache/geoclip/referenceVectors.${TARGET_COORDINATES}.json`);
-const HNSW_INDEX_FILE = path.resolve(process.cwd(), `.cache/geoclip/hnsw_index.${CACHE_VERSION}.bin`);
+const STANDARD_HNSW_INDEX_FILE = path.resolve(
+  process.cwd(),
+  `.cache/geoclip/hnsw_index.${CACHE_VERSION}.bin`
+);
+const OSV_HNSW_INDEX_FILE = path.resolve(
+  process.cwd(),
+  `.cache/geoclip/hnsw_index.${CORPUS_CONFIG.osvIndexVersion}.bin`
+);
+const OSV_METADATA_FILE = path.resolve(process.cwd(), '.cache/geoclip/osv5m_anchors_metadata.json');
+const UNIFIED_HNSW_INDEX_FILE = path.resolve(
+  process.cwd(),
+  `.cache/geoclip/hnsw_index.${CORPUS_CONFIG.unifiedIndexVersion}.bin`
+);
+const UNIFIED_VECTORS_FILE = path.resolve(
+  process.cwd(),
+  `.cache/geoclip/referenceVectors.${CORPUS_CONFIG.unifiedIndexVersion}.json`
+);
 
 /** HNSW index configuration. */
 const HNSW_CONFIG = {
@@ -32,6 +64,7 @@ const HNSW_CONFIG = {
 let indexPromise: Promise<ReferenceVectorRecord[]> | null = null;
 let indexSource: 'model' | 'cache' | 'clip' | 'fallback' | 'unknown' = 'unknown';
 let referenceImageAnchorCount = 0;
+let activeReferenceCatalog: ReferenceCatalog = 'standard';
 
 /** Global HNSW index instance. */
 let hnswIndex: HNSWIndex | null = null;
@@ -90,6 +123,94 @@ function normalizeReference(input: unknown): ReferenceVectorRecord {
   };
 }
 
+function parseStoredVectors(raw: string): unknown[] | null {
+  const parsed = JSON.parse(raw) as unknown;
+  if (Array.isArray(parsed)) {
+    return parsed;
+  }
+  if (parsed && typeof parsed === 'object' && Array.isArray((parsed as CachedReferencePayload).vectors)) {
+    return (parsed as CachedReferencePayload).vectors ?? null;
+  }
+  return null;
+}
+
+function createZeroVector(): number[] {
+  return new Array<number>(FEATURE_VECTOR_SIZE).fill(0);
+}
+
+function normalizeOsvReference(input: unknown): ReferenceVectorRecord {
+  if (!input || typeof input !== 'object') {
+    throw new Error('invalid OSV anchor record: expected object');
+  }
+
+  const obj = input as OsvAnchorRecord;
+  const rawId = typeof obj.id === 'string' && obj.id ? obj.id : null;
+  if (!rawId) {
+    throw new Error('invalid OSV anchor record: missing id');
+  }
+  if (!isFiniteCoordinate(obj.lat) || !isFiniteCoordinate(obj.lon)) {
+    throw new Error(`invalid OSV anchor ${rawId}: invalid coordinates`);
+  }
+
+  const label = typeof obj.label === 'string' && obj.label
+    ? obj.label
+    : typeof obj.source === 'string' && obj.source
+      ? `OSV-${obj.source}`
+      : rawId;
+  const rawVector = Array.isArray(obj.vector) ? obj.vector : null;
+  const hasVector = rawVector !== null && rawVector.length === FEATURE_VECTOR_SIZE;
+
+  return {
+    id: rawId.startsWith('osv-') ? rawId : `osv-${rawId}`,
+    label,
+    lat: obj.lat,
+    lon: obj.lon,
+    vector: hasVector
+      ? rawVector.map((value) => (Number.isFinite(value) ? Number(value) : 0))
+      : createZeroVector(),
+  };
+}
+
+async function loadOsvReferenceVectors(): Promise<ReferenceVectorRecord[] | null> {
+  try {
+    const raw = await readFile(OSV_METADATA_FILE, 'utf8');
+    const storedVectors = parseStoredVectors(raw);
+    if (!storedVectors || storedVectors.length === 0) {
+      return null;
+    }
+    return storedVectors.map((record) => normalizeOsvReference(record));
+  } catch {
+    return null;
+  }
+}
+
+async function loadUnifiedReferenceVectors(): Promise<ReferenceVectorRecord[] | null> {
+  try {
+    const raw = await readFile(UNIFIED_VECTORS_FILE, 'utf8');
+    const vectors = JSON.parse(raw) as ReferenceVectorRecord[];
+    if (!vectors || vectors.length === 0) {
+      return null;
+    }
+    return vectors;
+  } catch {
+    return null;
+  }
+}
+
+function getActiveHNSWIndexFile(): string {
+  if (activeReferenceCatalog === 'unified') return UNIFIED_HNSW_INDEX_FILE;
+  if (activeReferenceCatalog === 'osv') return OSV_HNSW_INDEX_FILE;
+  return STANDARD_HNSW_INDEX_FILE;
+}
+
+function hasUsableEmbeddings(vectors: ReferenceVectorRecord[]): boolean {
+  return vectors.some((record) => record.vector.some((value) => value !== 0));
+}
+
+function shouldAppendImageAnchors(): boolean {
+  return indexSource === 'model' || indexSource === 'cache';
+}
+
 async function loadCoordinates(): Promise<CoordinateRecord[]> {
   const raw = await readFile(COORDINATES_FILE, 'utf8');
   const parsed = JSON.parse(raw) as unknown[];
@@ -102,10 +223,7 @@ async function loadCoordinates(): Promise<CoordinateRecord[]> {
 async function loadIndexFromCache(): Promise<ReferenceVectorRecord[] | null> {
   try {
     const raw = await readFile(CACHE_FILE, 'utf8');
-    const parsed = JSON.parse(raw) as {
-      version?: string;
-      vectors?: unknown[];
-    };
+    const parsed = JSON.parse(raw) as CachedReferencePayload;
 
     if (parsed.version !== CACHE_VERSION || !Array.isArray(parsed.vectors)) {
       return null;
@@ -191,6 +309,47 @@ async function buildFallbackIndex(): Promise<ReferenceVectorRecord[]> {
 export async function getReferenceVectors(): Promise<ReferenceVectorRecord[]> {
   if (!indexPromise) {
     indexPromise = (async () => {
+      if (config.referenceBackend === 'clip') {
+        activeReferenceCatalog = 'standard';
+        indexSource = 'clip';
+        referenceImageAnchorCount = 0;
+        const clipVectors = await buildCityReferenceVectors();
+        console.log(`[CLIP] Forced CLIP reference backend with ${clipVectors.length} city vectors`);
+        return clipVectors;
+      }
+
+      if (config.referenceBackend === 'fallback') {
+        activeReferenceCatalog = 'standard';
+        indexSource = 'fallback';
+        referenceImageAnchorCount = 0;
+        return buildFallbackIndex();
+      }
+
+      // Priority: Unified > OSV > Standard
+      if (CORPUS_CONFIG.useUnifiedIndex) {
+        const unifiedVectors = await loadUnifiedReferenceVectors();
+        if (unifiedVectors && unifiedVectors.length > 0) {
+          activeReferenceCatalog = 'unified';
+          indexSource = 'cache';
+          referenceImageAnchorCount = unifiedVectors.length;
+          console.log(`[GeoCLIP] Using unified index with ${unifiedVectors.length} vectors`);
+          return unifiedVectors;
+        }
+        console.warn('[GeoCLIP] GEOWRAITH_USE_UNIFIED_INDEX enabled but index not found. Falling back...');
+      }
+      
+      if (CORPUS_CONFIG.useOSVEnrichedIndex) {
+        const osvVectors = await loadOsvReferenceVectors();
+        if (osvVectors && osvVectors.length > 0) {
+          activeReferenceCatalog = 'osv';
+          indexSource = 'cache';
+          referenceImageAnchorCount = osvVectors.length;
+          return osvVectors;
+        }
+        console.warn('[GeoCLIP] GEOWRAITH_USE_OSV_INDEX enabled but no OSV metadata found. Falling back...');
+      }
+
+      activeReferenceCatalog = 'standard';
       let baseVectors: ReferenceVectorRecord[];
       const cached = await loadIndexFromCache();
       if (cached && cached.length > 0) {
@@ -215,18 +374,20 @@ export async function getReferenceVectors(): Promise<ReferenceVectorRecord[]> {
       }
 
       // COMBINED MODE: Use both coordinate embeddings AND image anchors for best accuracy
-      try {
-        const imageAnchors = await getReferenceImageVectors();
-        referenceImageAnchorCount = imageAnchors.length;
-        if (imageAnchors.length > 0) {
+      if (shouldAppendImageAnchors()) {
+        try {
+          const imageAnchors = await getReferenceImageVectors();
+          referenceImageAnchorCount = imageAnchors.length;
+          if (imageAnchors.length > 0) {
+            // eslint-disable-next-line no-console
+            console.log(`[GeoCLIP] COMBINED MODE: ${baseVectors.length} coordinate vectors + ${imageAnchors.length} image anchors`);
+            // Combine coordinate embeddings with image anchors for best accuracy
+            return [...baseVectors, ...imageAnchors];
+          }
+        } catch (error) {
           // eslint-disable-next-line no-console
-          console.log(`[GeoCLIP] COMBINED MODE: ${baseVectors.length} coordinate vectors + ${imageAnchors.length} image anchors`);
-          // Combine coordinate embeddings with image anchors for best accuracy
-          return [...baseVectors, ...imageAnchors];
+          console.warn('[GeoCLIP] Failed to load image anchors:', error);
         }
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.warn('[GeoCLIP] Failed to load image anchors:', error);
       }
       referenceImageAnchorCount = 0;
       // Fallback only if no image anchors available
@@ -252,6 +413,11 @@ export function getReferenceImageAnchorCount(): number {
   return referenceImageAnchorCount;
 }
 
+/** Active reference catalog currently backing the ANN index. */
+export function getActiveReferenceCatalog(): ReferenceCatalog {
+  return activeReferenceCatalog;
+}
+
 /**
  * Get or build the HNSW ANN index.
  * Loads from disk cache if available, otherwise builds from reference vectors.
@@ -265,15 +431,22 @@ export async function getHNSWIndex(): Promise<HNSWIndex> {
     hnswIndexPromise = (async () => {
       // Load reference vectors first to verify index size
       const vectors = await getReferenceVectors();
+      const indexFile = getActiveHNSWIndexFile();
 
       // Try to load existing HNSW index from disk
       const cachedIndex = new HNSWIndex(HNSW_CONFIG);
-      const loaded = await cachedIndex.loadIndex(HNSW_INDEX_FILE, vectors.length, vectors);
+      const loaded = await cachedIndex.loadIndex(indexFile, vectors.length, vectors);
       if (loaded) {
         // eslint-disable-next-line no-console
         console.log(`[HNSW] Loaded cached index with ${cachedIndex.size} vectors`);
         hnswIndex = cachedIndex;
         return cachedIndex;
+      }
+
+      if ((activeReferenceCatalog === 'osv' || activeReferenceCatalog === 'unified') && !hasUsableEmbeddings(vectors)) {
+        throw new Error(
+          `${activeReferenceCatalog} index could not be loaded from ${indexFile}. Re-run build:unified or disable GEOWRAITH_USE_UNIFIED_INDEX.`
+        );
       }
 
       // Build new index from reference vectors
@@ -282,8 +455,8 @@ export async function getHNSWIndex(): Promise<HNSWIndex> {
 
       // Save to cache for future runs
       try {
-        await mkdir(path.dirname(HNSW_INDEX_FILE), { recursive: true });
-        await newIndex.saveIndex(HNSW_INDEX_FILE);
+        await mkdir(path.dirname(indexFile), { recursive: true });
+        await newIndex.saveIndex(indexFile);
         // eslint-disable-next-line no-console
         console.log(`[HNSW] Built and cached index with ${vectors.length} vectors`);
       } catch (error) {
@@ -303,4 +476,49 @@ export async function getHNSWIndex(): Promise<HNSWIndex> {
 export function invalidateHNSWIndex(): void {
   hnswIndex = null;
   hnswIndexPromise = null;
+  activeReferenceCatalog = 'standard';
+}
+
+export function getHNSWIndexSnapshot(): {
+  ready: boolean;
+  vectorCount: number;
+  pending: boolean;
+  catalog: ReferenceCatalog;
+} {
+  return {
+    ready: Boolean(hnswIndex?.ready),
+    vectorCount: hnswIndex?.size ?? 0,
+    pending: Boolean(hnswIndexPromise) && !Boolean(hnswIndex?.ready),
+    catalog: activeReferenceCatalog,
+  };
+}
+
+/**
+ * Health check for HNSW index.
+ * Returns status and vector count for monitoring.
+ */
+export async function getHNSWIndexHealth(): Promise<{
+  healthy: boolean;
+  vectorCount?: number;
+  error?: string;
+}> {
+  try {
+    if (!hnswIndex?.ready) {
+      // Try to load
+      const index = await getHNSWIndex();
+      return {
+        healthy: index.ready,
+        vectorCount: index.size,
+      };
+    }
+    return {
+      healthy: true,
+      vectorCount: hnswIndex.size,
+    };
+  } catch (error) {
+    return {
+      healthy: false,
+      error: error instanceof Error ? error.message : 'Index not available',
+    };
+  }
 }

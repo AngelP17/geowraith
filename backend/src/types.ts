@@ -1,4 +1,11 @@
 export type PredictMode = 'fast' | 'accurate';
+export type ImagePreprocessMode =
+  | 'none'
+  | 'jpeg-only'
+  | 'contain-224-jpeg'
+  | 'cover-224-jpeg';
+export type ImageEmbeddingBackend = 'auto' | 'geoclip' | 'clip' | 'fallback';
+export type ReferenceBackend = 'auto' | 'geoclip' | 'clip' | 'fallback';
 
 export interface PredictRequest {
   image_base64?: string;
@@ -47,6 +54,22 @@ export interface PredictResponse {
     embedding_source: 'geoclip' | 'clip' | 'fallback';
     reference_index_source: 'model' | 'cache' | 'clip' | 'fallback' | 'unknown';
     reference_image_anchors?: number;
+    // Verifier diagnostics
+    verifier_invoked?: boolean;
+    verifier_stage?: 'rule-based' | 'clip' | 'llm' | 'none';
+    verifier_reasoning?: string;
+    verifier_override?: boolean;
+  };
+  // New features
+  intelligence_brief?: {
+    brief: string;
+    generated_at: string;
+    model: string;
+  };
+  anomaly_alert?: {
+    message: string;
+    level: 'low' | 'medium' | 'high';
+    signals_count: number;
   };
 }
 

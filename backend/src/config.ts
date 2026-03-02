@@ -1,3 +1,9 @@
+import type {
+  ImageEmbeddingBackend,
+  ImagePreprocessMode,
+  ReferenceBackend,
+} from './types.js';
+
 const DEFAULT_API_PORT = 8080;
 const DEFAULT_MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
@@ -20,6 +26,40 @@ function parseBoolean(value: string | undefined, fallback: boolean): boolean {
   if (value === '1' || value.toLowerCase() === 'true') return true;
   if (value === '0' || value.toLowerCase() === 'false') return false;
   return fallback;
+}
+
+function parseImagePreprocessMode(value: string | undefined): ImagePreprocessMode {
+  switch (value) {
+    case 'none':
+    case 'jpeg-only':
+    case 'contain-224-jpeg':
+    case 'cover-224-jpeg':
+      return value;
+    default:
+      return 'cover-224-jpeg';
+  }
+}
+
+function parseImageEmbeddingBackend(value: string | undefined): ImageEmbeddingBackend {
+  switch (value) {
+    case 'geoclip':
+    case 'clip':
+    case 'fallback':
+      return value;
+    default:
+      return 'auto';
+  }
+}
+
+function parseReferenceBackend(value: string | undefined): ReferenceBackend {
+  switch (value) {
+    case 'geoclip':
+    case 'clip':
+    case 'fallback':
+      return value;
+    default:
+      return 'auto';
+  }
 }
 
 /**
@@ -140,9 +180,50 @@ export const ANCHOR_PENALTY = {
   strongAnchorMargin: parseFloat(process.env.GEOWRAITH_STRONG_ANCHOR_MARGIN, 0.18, 0.05, 0.5),
 };
 
+/**
+ * LLM Verifier configuration
+ */
+export const VERIFIER_CONFIG = {
+  enabled: parseBoolean(process.env.GEOWRAITH_ENABLE_VERIFIER, false),
+  threshold: parseFloat(process.env.GEOWRAITH_VERIFIER_THRESHOLD, 0.60, 0, 1),
+  model: process.env.GEOWRAITH_LLM_MODEL || 'qwen3.5:9b',
+  // Keep a generous timeout because Ollama may need to load the local vision model on first use.
+  timeout: parseInteger(process.env.GEOWRAITH_VERIFIER_TIMEOUT, 30000, 1000, 120000),
+};
+
+/**
+ * Corpus selection config
+ * Priority: Unified (endgame) > OSV-5M > Standard
+ */
+export const CORPUS_CONFIG = {
+  // Unified endgame index (Mapillary + Synthetic + Base)
+  useUnifiedIndex: parseBoolean(process.env.GEOWRAITH_USE_UNIFIED_INDEX, false),
+  unifiedIndexVersion: 'v3-unified-endgame',
+  
+  // OSV-5M corpus densification
+  useOSVEnrichedIndex: parseBoolean(process.env.GEOWRAITH_USE_OSV_INDEX, false),
+  osvIndexVersion: 'v3-osv-enriched',
+  targetImagesPerLocation: parseInteger(process.env.GEOWRAITH_OSV_IMAGES_PER_LOCATION, 5000, 1000, 50000),
+  radiusKm: parseInteger(process.env.GEOWRAITH_OSV_RADIUS_KM, 50, 10, 200),
+};
+
 export const config = {
   apiPort: parseInteger(process.env.GEOWRAITH_API_PORT, DEFAULT_API_PORT),
   maxImageBytes: parseInteger(process.env.GEOWRAITH_MAX_IMAGE_BYTES, DEFAULT_MAX_IMAGE_BYTES),
   offlineMode: parseBoolean(process.env.GEOWRAITH_OFFLINE, true),
   sfmEnabled: parseBoolean(process.env.GEOWRAITH_ENABLE_SFM, false),
+  // Feature flags
+  verifierEnabled: VERIFIER_CONFIG.enabled,
+  verifierThreshold: VERIFIER_CONFIG.threshold,
+  verifierModel: VERIFIER_CONFIG.model,
+  verifierTimeout: VERIFIER_CONFIG.timeout,
+  ollamaEndpoint: process.env.OLLAMA_ENDPOINT || 'http://localhost:11434',
+  enableIntelligenceBrief: parseBoolean(process.env.GEOWRAITH_ENABLE_BRIEF, false),
+  enableAnomalyDetection: parseBoolean(process.env.GEOWRAITH_ENABLE_ANOMALY, false),
+  enableUniversalImageFormat: parseBoolean(process.env.GEOWRAITH_ENABLE_UNIVERSAL_FORMAT, true),
+  imagePreprocessMode: parseImagePreprocessMode(process.env.GEOWRAITH_IMAGE_PREPROCESS_MODE),
+  imageEmbeddingBackend: parseImageEmbeddingBackend(
+    process.env.GEOWRAITH_IMAGE_EMBEDDING_BACKEND,
+  ),
+  referenceBackend: parseReferenceBackend(process.env.GEOWRAITH_REFERENCE_BACKEND),
 };

@@ -15,6 +15,8 @@ interface ImageUploadPanelProps {
   mode: Mode;
   dataSource: 'demo' | 'live';
   liveApiStatus: 'checking' | 'online' | 'offline';
+  liveReadiness?: 'idle' | 'checking' | 'ready' | 'warming' | 'not_ready' | 'offline';
+  liveStatusText?: string;
   phase: AnalysisPhase;
   errorMsg: string;
   warningMsg: string;
@@ -47,6 +49,8 @@ export const ImageUploadPanel: React.FC<ImageUploadPanelProps> = ({
   mode,
   dataSource,
   liveApiStatus,
+  liveReadiness = 'idle',
+  liveStatusText,
   phase,
   errorMsg,
   warningMsg,
@@ -61,7 +65,16 @@ export const ImageUploadPanel: React.FC<ImageUploadPanelProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isAnalyzing = phase === 'uploading' || phase === 'scanning' || phase === 'processing';
-  const isLiveDisabled = dataSource === 'live' && (!file || liveApiStatus !== 'online');
+  const isLiveDisabled =
+    dataSource === 'live' &&
+    (!file || liveApiStatus !== 'online' || liveReadiness !== 'ready');
+
+  const liveBadgeClass =
+    liveApiStatus === 'offline'
+      ? 'border-red-500/25 bg-red-500/10 text-red-300'
+      : liveReadiness === 'ready'
+        ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300'
+        : 'border-amber-500/25 bg-amber-500/10 text-amber-300';
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -160,16 +173,17 @@ export const ImageUploadPanel: React.FC<ImageUploadPanelProps> = ({
         </div>
 
         {dataSource === 'live' && (
-          <div className={`mb-5 rounded-lg border px-3 py-2 text-[11px] font-mono uppercase tracking-wider ${
-            liveApiStatus === 'online'
-              ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300'
-              : liveApiStatus === 'checking'
-                ? 'border-amber-500/25 bg-amber-500/10 text-amber-300'
-                : 'border-red-500/25 bg-red-500/10 text-red-300'
-          }`}>
-            {liveApiStatus === 'online' && 'Live API online'}
-            {liveApiStatus === 'checking' && 'Checking API health'}
-            {liveApiStatus === 'offline' && 'Live API offline · run npm run start'}
+          <div className={`mb-5 rounded-lg border px-3 py-2 text-[11px] font-mono uppercase tracking-wider ${liveBadgeClass}`}>
+            {liveStatusText ??
+              (liveApiStatus === 'offline'
+                ? 'Live API offline · run npm run start'
+                : liveReadiness === 'ready'
+                  ? 'Live API ready'
+                  : liveReadiness === 'warming'
+                    ? 'Index warming'
+                    : liveReadiness === 'not_ready'
+                      ? 'Backend online, not ready'
+                      : 'Checking API health')}
           </div>
         )}
 
@@ -226,8 +240,8 @@ export const ImageUploadPanel: React.FC<ImageUploadPanelProps> = ({
             <><CheckCircle2 className="w-4 h-4" />Analysis Complete</>
           ) : dataSource === 'demo' && !file ? (
             <><Crosshair className="w-4 h-4 group-hover:scale-110 transition-transform" />Run Demo</>
-          ) : dataSource === 'live' && liveApiStatus !== 'online' ? (
-            <><AlertTriangle className="w-4 h-4" />Live API Offline</>
+          ) : dataSource === 'live' && (liveApiStatus !== 'online' || liveReadiness !== 'ready') ? (
+            <><AlertTriangle className="w-4 h-4" />Stack Not Ready</>
           ) : (
             <><Crosshair className="w-4 h-4 group-hover:scale-110 transition-transform" />Begin Analysis</>
           )}

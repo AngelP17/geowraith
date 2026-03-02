@@ -4,6 +4,215 @@
 
 ---
 
+## 2026-03-02T23:02:00Z [CODE] [USER] [MODELS] Holdout benchmark path added; hard-failure investigation shows Marrakech and Copacabana are model/preprocessing-limited, not simple coverage misses
+## 2026-03-03T00:10:00Z [CODE] [USER] [MODELS] Preprocessing ablation and model-profile harness added; docs synchronized to the clean 96.6% baseline and qwen3.5:9b default
+
+**Task:** Run the next pass on Marrakech/Copacabana with preprocessing ablations, wire a
+model-comparison harness, update the docs/memory stack, and prepare the branch for commit/push.
+
+**Implemented:**
+- `backend/src/types.ts`
+  - adds `ImagePreprocessMode`, `ImageEmbeddingBackend`, and `ReferenceBackend`
+- `backend/src/config.ts`
+  - adds env parsing for preprocessing/embedding/reference profile switches
+  - changes the local default verifier model to `qwen3.5:9b`
+- `backend/src/services/imageProcessor.ts`
+  - exposes `preprocessImageForInference()` with four benchmarking modes
+- `backend/src/services/imageSignals.ts`
+  - respects `GEOWRAITH_IMAGE_EMBEDDING_BACKEND`
+- `backend/src/services/geoclipIndex.ts`
+  - respects `GEOWRAITH_REFERENCE_BACKEND`
+- `backend/src/services/vectorSearch.ts`
+  - avoids mixing separate image-anchor injection into `clip`/`fallback` reference profiles
+- `backend/src/services/predictPipeline.ts`
+  - uses configurable preprocessing and reports truthful reference diagnostics on first request
+- `backend/src/scripts/ablateHardFailurePreprocessing.ts`
+  - writes `.cache/geoclip/preprocessing_ablation.json`
+- `backend/src/scripts/compareModelProfiles.ts`
+  - benchmarks multiple model/reference profiles and now preserves partial results even if a child
+    process crashes after writing its report
+- `README.md`, `STATUS.md`, `ARCHITECTURE.md`, `VALIDATION_GUIDE.md`,
+  `docs/REPRODUCIBILITY_PLAYBOOK.md`, `docs/DEPLOYMENT_RUNBOOK.md`, `backend/README.md`,
+  `OLLAMA_SETUP.md`, `ENDGAME_ARCHITECTURE.md`, `hybrid.md`, `Memory.md`, `knowissues.md`
+  - synchronized to the clean `96.6%` baseline, holdout caveats, preprocessing ablation findings,
+    current `qwen3.5:9b` verifier default, and the `/demo` route / SPA deployment note
+
+**Key discoveries:**
+- Preprocessing ablation result is now explicit and verified:
+  - `Marrakech`
+    - `none`: `7130.2km`
+    - `jpeg-only`: `7130.2km`
+    - `contain-224-jpeg`: `7804.5km`
+    - `cover-224-jpeg`: `2529.7km` (least-bad)
+  - `Copacabana`
+    - remains `~6058.8km` wrong across all tested modes, dominated by `mapillary_TableMountain`
+- The current CLIP city-text profile is dramatically worse than unified GeoCLIP on the validation
+  set, so it is not a plausible fix for the remaining misses.
+- The comparison harness still exposes a macOS native `libvips` duplication risk on `clip-city`
+  runs, but it no longer discards already-written benchmark data when the child process exits late.
+
+**Verification evidence:**
+- `cd backend && npm run lint` ✅
+- `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run ablate:preprocess` ✅
+  - wrote `.cache/geoclip/preprocessing_ablation.json`
+- `cd backend && npm run benchmark:compare-models -- --benchmark=validation` ✅
+  - wrote `.cache/geoclip/model_profile_comparison.validation.json`
+  - `clip-city` still surfaced the known `libvips` duplication problem, but the harness preserved
+    the benchmark result instead of failing the entire comparison
+
+**Status class:** PARTIAL
+**Confidence:** 0.97
+**Unrun checks:** full frontend/browser validation after doc sync; alternate geo-specialized
+embedding experiments beyond the current CLIP fallback; verifier benchmark with a measured positive
+delta.
+
+## 2026-03-02T23:02:00Z [CODE] [USER] [MODELS] Holdout benchmark path added; hard-failure investigation shows Marrakech and Copacabana are model/preprocessing-limited, not simple coverage misses
+
+**Task:** Create a separate holdout benchmark with new images, investigate why `Marrakech` and
+`Copacabana` still fail despite dense coverage, and record whether the issue points to data,
+preprocessing, or model limitations.
+
+**Implemented:**
+- `backend/src/benchmarks/validationBenchmark/config.ts`
+  - makes the benchmark gallery root configurable via `GEOWRAITH_BENCHMARK_DIR`
+- `backend/src/benchmarks/validationBenchmark/leakage.ts`
+  - fails fast on obvious benchmark-prefix leakage (`validation_`, `holdout_`) unless explicitly
+    overridden
+- `backend/src/benchmarks/validationBenchmark/index.ts`
+  - now uses configurable manifest/report paths and benchmark names
+- `backend/src/scripts/buildGalleryFromCSV.ts`
+  - accepts `--output-dir=...` so custom validation/holdout galleries do not overwrite the canonical
+    validation set
+- `backend/src/scripts/buildHoldoutGallery.ts`
+  - creates `.cache/holdout_gallery` from `11` locally cached images that are checked against the
+    active merged corpus before being copied
+- `backend/src/scripts/investigateHardFailures.ts`
+  - writes `.cache/geoclip/hard_failure_investigation.json` with current pipeline predictions,
+    source-quality flags, same-label support, and a side-by-side view of original-image vs
+    pipeline-processed candidate behavior
+- `backend/package.json`
+  - adds `build:gallery:holdout`, `benchmark:holdout`, and `investigate:failures`
+
+**Key discoveries:**
+- The separate holdout path is real and uncontaminated, but the current seed set is small and
+  curated. It is useful for leakage prevention and quick sanity checks, not for broad release
+  claims.
+- `Marrakech` is not failing because of missing data:
+  - the clean unified corpus has `45` refined Marrakech references
+  - none appear in the top `50` processed candidates
+  - the original image drifts toward Copacabana-like visual neighbors, while the pipeline-processed
+    image drifts toward Amsterdam/Rijksmuseum-like anchors
+- `Copacabana` is also not failing because of missing data:
+  - the clean unified corpus has `60` refined Copacabana references
+  - the best same-label refined anchor rank is only `31`
+  - the image is flagged as `aggressive_jpeg_compression_or_low_detail` and
+    `extreme_aspect_ratio_for_center_crop_models`
+  - both original and processed embeddings stay dominated by a `mapillary_TableMountain` cluster
+- The strongest current hypothesis is that the two remaining misses need preprocessing/model
+  experiments, not more blind corpus densification.
+
+**Verification evidence:**
+- `cd backend && npm run lint` ✅
+- `cd backend && npm run build:gallery:holdout` ✅
+- `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:holdout` ✅
+  - seed holdout result: `11/11`, `100.0% within 10km`
+- `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run investigate:failures` ✅
+  - wrote `.cache/geoclip/hard_failure_investigation.json`
+- `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:validation` ✅
+  - current clean baseline remains `96.6% within 10km` with the same two remaining misses
+
+**Status class:** PARTIAL
+**Confidence:** 0.98
+**Unrun checks:** larger holdout/OOD gallery beyond the current 11-image seed; preprocessing
+ablation experiments (letterbox vs center-crop vs original-aspect); alternate geo-specialized
+embedding models; verifier-enabled benchmark with a ready Ollama model.
+
+## 2026-03-02T20:44:00Z [CODE] [USER] [MODELS] Confidence calibration fix restores high-confidence exact hits without changing retrieval accuracy
+
+**Task:** Fix the underconfident benchmark outputs where exact or near-exact predictions were still reported around `59-68%`, and where `Moai Statues` could be exact but still returned `low_confidence`.
+
+**Implemented:**
+- `backend/src/services/confidenceCalibration.ts`
+  - adds a conservative benchmark-informed calibration layer on top of the raw aggregation score
+  - boosts only three proven high-signal cases:
+    - exact curated-anchor wins
+    - refined-anchor recoveries (for hard curated labels such as Moai)
+    - coherent local-cluster overrides where the final location is supported by a dense nearby label cluster rather than the raw top global anchor
+  - deliberately does **not** boost same-label Mapillary-only clusters when they are also the top global label, which avoids falsely upgrading the remaining Copacabana failure
+- `backend/src/services/predictPipeline.ts`
+  - applies the calibration after verification/fallback adjustments and before confidence-tier/visibility decisions
+- `backend/src/services/confidenceGate.ts`
+  - adds a refined-anchor recovery exception so nearby repeated refined anchors can surface coordinates instead of being withheld as weak-consensus outliers
+- `backend/src/services/confidenceCalibration.test.ts`
+  - covers curated-anchor boost, refined-anchor recovery, and non-boosting of the wrong Copacabana/Table Mountain cluster
+- `backend/src/services/confidenceGate.test.ts`
+  - adds coverage for refined-anchor recoveries becoming visible
+
+**Key discoveries:**
+- The raw aggregation confidence is still useful for ranking, but it compressed many exact landmark wins into the `0.59-0.68` band because it mostly reflected margin/spread and not curated-anchor provenance.
+- `Moai Statues` was a separate failure mode: after calibration it could exceed the global confidence floor, but the visibility gate still withheld it because the top-match neighborhood was geographically noisy even though two refined Moai anchors agreed exactly on location.
+
+**Verification evidence:**
+- `cd backend && npm run lint` ✅
+- `cd backend && npm run test -- src/services/confidenceCalibration.test.ts src/services/confidenceGate.test.ts` ✅
+- `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:validation` ✅
+  - accuracy unchanged:
+    - `Within 10km`: `96.6%` (`56/58`)
+    - `Mean error`: `148km`
+    - `P95`: `7.8km`
+    - `P99/max`: `6059km`
+  - confidence distribution improved:
+    - before: `0` high / `54` medium / `4` low
+    - after: `24` high / `31` medium / `3` low
+  - representative changes:
+    - `Golden Gate Bridge`: `0.6083 → 0.9000` (`medium → high`)
+    - `Moai Statues`: `0.5945 → 0.7600`, `low_confidence/withheld → ok/visible`
+    - `Copacabana`: unchanged at `0.6228` (`medium`) despite remaining wrong, which is intentional
+
+**Status class:** PARTIAL
+**Confidence:** 0.98
+**Unrun checks:** verifier-enabled benchmark after confidence calibration; manual UI/browser review of any frontend confidence copy that assumes the old distribution.
+
+## 2026-03-02T20:02:00Z [CODE] [USER] [MODELS] Unified exact-search ranking fix lifts validation to 96.6% and narrows remaining misses to Marrakech + Copacabana
+
+**Task:** Continue the unified-corpus investigation, add benchmark candidate-debug logging, target the Cape Point/Table Mountain failures first, then rerun the verifier benchmark and compare the delta.
+
+**Implemented:**
+- `backend/src/services/vectorSearch.ts`
+  - adds `GEOWRAITH_DEBUG_BENCHMARK_CANDIDATES=true` to log boosted anchors, supplemental unified candidates, and final selected matches under `[VectorSearchDebug]`
+  - adds a reusable boosted-anchor builder so unified exact search and ANN search operate in the same score space
+  - applies coherent supplemental-cluster promotion in unified exact search using boosted anchor scores, which prevents strong refined anchors from being overruled by mistake while still allowing coherent Mapillary clusters to recover hard scenes
+
+**Key discoveries:**
+- The previous Moai regression was caused by applying the supplemental-cluster bailout against raw anchor similarities while the final ranking operated on boosted anchor scores.
+- After moving the promotion decision into the boosted score space:
+  - `Cape Point` improved to `3.6km`
+  - `Table Mountain` improved to `5.2km`
+  - `Moai Statues` returned to `0m`
+- The unified corpus is no longer the blocker for those cases. The remaining validation misses are now:
+  - `Marrakech`: still pulled toward Amsterdam-like urban anchors (`2529.7km`)
+  - `Copacabana`: still pulled into the Table Mountain Mapillary cluster (`6058.8km`)
+- Local Ollama is running on `localhost:11434`, but the verifier benchmark still could not execute because no models were ready yet:
+  - `curl http://localhost:11434/api/tags` returned `{"models":[]}`
+  - `/tmp/pull.log` showed `llava:13b` still downloading (~`981MB / 7.3GB`) during this task
+
+**Verification evidence:**
+- `cd backend && npm run lint` ✅
+- `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:validation` ✅
+  - `Within 10km`: `96.6%` (`56/58`)
+  - `Within 100m`: `91.4%`
+  - `Within 1km`: `91.4%`
+  - `Mean error`: `148km`
+  - `P95`: `7.8km`
+  - `P99/max`: `6059km`
+- `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true GEOWRAITH_ENABLE_VERIFIER=true npm run benchmark:validation` ✅
+  - exact delta vs unified baseline: `0`
+  - verifier still logged `[Verifier] Ollama unavailable, skipping verification`
+
+**Status class:** PARTIAL
+**Confidence:** 0.98
+**Unrun checks:** rerun the verifier benchmark after a local Ollama model is actually available; targeted corpus/query-path fixes for Marrakech and Copacabana; holdout/OOD validation excluding any anchor overlap.
+
 ## 2026-02-27T23:40:00Z [CODE] [DETERMINISM] EXIF warning-spam fix for valid non-EXIF uploads
 
 **Task:** Investigate repeated backend log lines:
@@ -24,6 +233,192 @@ were logged as warnings even when inference succeeded.
 
 **Status:** VERIFIED
 **Confidence:** 0.98
+
+---
+
+## 2026-03-02T19:11:52Z [CODE] [USER] [MODELS] Unified-index retrieval audit and EXIF benchmark-warning regression fix
+
+**Task:** Investigate why `GEOWRAITH_USE_UNIFIED_INDEX=true` did not improve the four known validation failures, trace renewed EXIF warning spam on benchmark inputs, and compare the verifier-enabled benchmark delta.
+
+**Implemented:**
+- `backend/src/services/vectorSearch.ts`
+  - keeps the legacy boosted image-anchor path intact
+  - when the active catalog is `unified`, removes duplicate base-anchor ids from the ANN side so the same base corpus is not counted twice
+  - reserves part of the final candidate set for non-legacy ANN results in unified mode so Mapillary/synthetic additions reach aggregation instead of being fully crowded out by boosted legacy anchors
+- `backend/src/services/geoclipIndex.ts`
+  - exports the active reference catalog so vector search can apply catalog-aware candidate selection
+- `backend/src/services/imageSignals.ts`
+  - switches EXIF parsing to the extracted EXIF blob from `sharp(...).metadata()`
+  - treats `exifr`'s `Unknown file format` on optional EXIF GPS parsing as a benign miss instead of warning spam
+
+**Key discoveries:**
+- `GEOWRAITH_USE_UNIFIED_INDEX=true` was genuinely loading `1468` unified vectors, but the search path still separately injected and boosted the legacy image-anchor pool. In unified mode that meant the old base anchor corpus could dominate ranking while the new Mapillary/synthetic references only appeared on the weaker ANN side.
+- Live debug runs on the four failing benchmark images showed:
+  - `Cape Point` and `Table Mountain` had relevant `mapillary_*` candidates in the raw ANN results, but they were losing to boosted legacy anchors in the final match set.
+  - `Marrakech` and `Copacabana` still retrieved the wrong densification targets even in the raw unified ANN results, so corpus loading alone is not enough to fix those cases.
+- The renewed EXIF warnings on the validation gallery were not malformed uploads; they were optional GPS parse misses where `exifr` returned `Unknown file format` for metadata blobs surfaced by `sharp`. Treating that signature as a benign no-GPS outcome removes the warning spam without affecting inference.
+
+**Verification evidence:**
+- `cd backend && npm run lint` ✅
+- `cd backend && npm run test -- src/app.test.ts` ✅ (`48` passing)
+- `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:validation` ✅
+  - no `[imageSignals] EXIF parse failed` lines after the benign parse-miss guard
+  - still `93.1%` within `10km` (`54/58`)
+  - tail errors improved versus the prior unified run:
+    - mean error `547km` → `406km`
+    - p95 `8545km` → `3893km`
+    - p99 `12072km` → `8547km`
+    - max `12072km` → `8547km`
+- `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true GEOWRAITH_ENABLE_VERIFIER=true npm run benchmark:validation` ✅
+  - Ollama was unavailable, so verifier logged `Ollama unavailable, skipping verification`
+  - benchmark metrics were unchanged from the post-fix unified baseline
+
+**Current verified benchmark state:**
+- Remaining >10km failures are still `Marrakech`, `Cape Point`, `Copacabana`, and `Table Mountain`
+- `Cape Point` improved materially in distance error after the unified candidate-mix change, but not enough to cross the `10km` threshold
+- `Marrakech` and `Copacabana` remain limited by wrong nearest-neighbor retrieval even after unified candidates are surfaced
+
+**Status class:** PARTIAL
+**Confidence:** 0.98
+**Unrun checks:** Ollama-backed verifier benchmark with a live model available; holdout/OOD validation excluding any anchor overlap; further targeted corpus rebuilds for Marrakech/Copacabana under the current GeoCLIP query path.
+
+---
+
+## 2026-03-02T17:28:00Z [TOOL] [USER] [DETERMINISM] Hybrid implementation verification audit
+
+**Task:** Verify whether `hybrid.md` is fully implemented as claimed by `IMPLEMENTATION_COMPLETE.md`.
+
+**Claim under review:** "All phases ... implemented, integrated, and verified."  
+**Claim label:** PARTIAL  
+**Confidence:** 0.97
+
+**Verified evidence:**
+- `npm run lint` ✅
+- `npm run build` ✅
+- `cd backend && npm run lint` ✅
+- `cd backend && npm run build` ✅
+- `cd backend && npm run test` ✅ (`33` passing)
+
+**Contradicting evidence:**
+- `cd backend && npm run test -- src/app.test.ts` ❌  
+  `backend/src/app.test.ts` still expects `/health` to return `status: "ok"` while `backend/src/routes/health.ts`
+  now returns `status: "healthy"`.
+- `cd backend && npm run test:verifier` ❌  
+  `backend/package.json` points to `src/services/verifier.test.ts`, which does not exist.
+- `backend/src/config.ts` defines `GEOWRAITH_USE_OSV_INDEX`, but `backend/src/services/geoclipIndex.ts`
+  always loads/saves the base HNSW path and never selects the OSV-enriched index.
+- `src/utils/reportGenerator.ts` exists, but `rg -n "generateShareableReport|downloadReport" src`
+  only found the utility definition; no frontend caller was verified.
+- `backend/src/services/verifier.ts` and `backend/src/services/anomalyDetector.ts` contain explicit
+  "for now"/simulated placeholder behavior, so those features are not fully productionized.
+
+**Outcome:** `hybrid.md` is only partially implemented/verified as of 2026-03-02.  
+**Unrun checks:** OSV-5M audit/download flow, Ollama-backed verifier run with `qwen3.5:35b-a3b`, browser-only
+manual validation of any hidden report-export UI (none found in code search).
+
+---
+
+## 2026-03-02T17:55:00Z [CODE] [USER] [DETERMINISM] Follow-up fixes for review findings on EXIF, OSV runtime, health, verifier, and UI integration
+
+**Task:** Fix the concrete regressions identified in the uncommitted review pass.
+
+**Implemented:**
+- `backend/src/services/predictPipeline.ts`
+  - resolves EXIF GPS from the original upload before any universal-format conversion
+  - avoids re-encoding away exact embedded coordinates
+- `backend/src/services/imageSignals.ts`
+  - adds a lightweight embedded-location probe for the EXIF fast path
+- `backend/src/services/geoclipIndex.ts`
+  - separates standard vs OSV-enriched reference catalogs
+  - loads OSV metadata when `GEOWRAITH_USE_OSV_INDEX=true`
+  - stops silently rebuilding the standard index into the OSV cache path when enriched assets are missing
+  - adds a lightweight HNSW snapshot for non-blocking health checks
+- `backend/src/routes/health.ts`
+  - keeps `/health` as a fast liveness endpoint
+  - moves blocking readiness behavior to `/ready`
+- `backend/src/services/verifier.ts`
+  - bounds LLM `bestIndex` to the same top-5 candidate slice sent to Ollama
+- `src/components/product/MapLayers.tsx`
+  - caches context-layer GeoJSON and reapplies enabled layers after basemap `style.load`
+- `src/components/sections/ProductUI.tsx`
+  - passes the current preview image into `ResultsPanel`, making report export reachable
+- `backend/src/scripts/ingestTargetedOSV5M.ts`
+  - writes stable OSV metadata ids/labels that match the enriched runtime loader
+
+**Verification evidence:**
+- `cd backend && npm run lint` ✅
+- `cd backend && npm run test -- src/app.test.ts` ✅ (`48` passing in current suite)
+- `cd backend && npm run test:verifier` ✅
+- `npm run lint` ✅
+- `npm run build` ✅
+- cold `/health` probe via ephemeral `createApp()` server: `200` in `10ms` ✅
+
+**Status class:** PARTIAL  
+**Confidence:** 0.95
+**Unrun checks:** end-to-end OSV ingest plus live inference with `GEOWRAITH_USE_OSV_INDEX=true`; manual browser verification that the shareable report button renders/downloads correctly and that context layers stay visible across style switches.
+
+---
+
+## 2026-03-02T18:05:00Z [TOOL] [USER] [DETERMINISM] Hybrid readiness claim verification
+
+**Task:** Validate the claim that the hybrid implementation is "production-ready" and fully ready to ship.
+
+**Verified evidence:**
+- `cd backend && npm run test` ✅ (`42` passing)
+- `cd backend && npm run benchmark:validation` ✅
+  - `93.1%` within `10km` (`54/58`)
+  - continent weaknesses remain:
+    - Africa `57.1%` within `10km`
+    - South America `75.0%` within `10km`
+  - known misses still present:
+    - Marrakech `2529.7km`
+    - Cape Point `12071.8km`
+    - Copacabana `8547.3km`
+    - Table Mountain `8544.8km`
+
+**Contradicting evidence:**
+- `backend/src/services/verifier.ts` still contains explicit placeholder CLIP-stage logic:
+  - comments state "Full CLIP text-image comparison requires additional implementation"
+  - current branch returns fixed conservative values and always defers to LLM
+- `backend/src/services/anomalyDetector.ts` still uses simulated hotspot data:
+  - comments state "For now, return simulated data"
+  - FIRMS/ACLED/military feeds are not real integrations yet
+- `src/utils/reportGenerator.ts` still contains a QR placeholder instead of a full implementation
+- OSV-enriched runtime loading is wired, but no end-to-end OSV ingest + live inference validation was rerun in this task
+- browser validation of the report-download UI and map-layer persistence was not rerun in this task
+
+**Outcome:** The hybrid path is ready for further testing, but "production-ready" remains **PARTIAL**, not verified, as of 2026-03-02.
+
+---
+
+## 2026-03-02T18:51:48Z [CODE] [USER] [FRONTEND] Landing/demo split implemented with dedicated `/demo` Mission Console
+
+**Task:** Implement the split-surface rollout so the landing page stays marketing-first and the advanced hybrid experience moves into a dedicated route.
+
+**Implemented:**
+- Added frontend routing with lazy-loaded `LandingPage` and `DemoPage`
+- Replaced the landing-page embedded console with `src/components/sections/DemoPreview.tsx`
+- Added `src/components/demo/` workbench modules:
+  - `usePredictionWorkbench.ts`
+  - `DemoWorkbench.tsx`
+  - `DemoScenarioStrip.tsx`
+  - `DemoStatusRail.tsx`
+- Expanded `src/lib/demo.ts` from raw result fixtures into scenario-driven replay metadata with route-safe URLs
+- Added curated replay assets under `public/demo/` for scenario previews and report export
+- Updated landing CTAs, nav, examples, gallery, and final CTA to point into `/demo`
+- Added typed `/health` and `/ready` frontend fetchers in `src/lib/api.ts`
+- Updated README and deployment docs to document the new `/demo` route and SPA fallback expectations
+
+**Verification evidence:**
+- `npm run lint` ✅
+- `npm run build` ✅
+- `npm run preview -- --host 0.0.0.0 --port 4173` ✅
+- `curl -I http://localhost:4173/` ✅ (`200 OK`)
+- `curl -I http://localhost:4173/demo` ✅ (`200 OK`, SPA fallback verified)
+
+**Status class:** PARTIAL
+**Confidence:** 0.97
+**Unrun checks:** manual browser validation of `/demo` replay/live UX, report download interaction, and mobile layout; live backend/browser validation of readiness badges and scenario preloading.
 
 ---
 

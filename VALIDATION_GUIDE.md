@@ -1,7 +1,7 @@
 # GeoWraith Validation Guide
 
-**Last Updated:** 2026-02-27  
-**Purpose:** Reproduce and compare real-image validation metrics consistently.
+**Last Updated:** 2026-03-02  
+**Purpose:** Reproduce and compare validation, holdout, and failure-analysis results consistently.
 
 > **Quick Links:** [Reproducibility Playbook](docs/REPRODUCIBILITY_PLAYBOOK.md) | [STATUS](STATUS.md) | [README](README.md) | [Known Issues](knowissues.md)
 
@@ -9,16 +9,17 @@
 
 ## 1. Scope
 
-This guide validates geolocation quality on labeled image galleries and produces a machine-readable report.
+This guide validates geolocation quality on labeled image galleries and produces machine-readable
+reports.
 
 Primary benchmark command:
 
 ```bash
 cd backend
-npm run benchmark:validation
+GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:validation
 ```
 
-Output artifact:
+Primary output artifact:
 
 - `backend/.cache/validation_gallery/benchmark_report.json`
 
@@ -26,20 +27,22 @@ Output artifact:
 
 ## 2. Current Reference Snapshot
 
-Current expected baseline in this workspace:
+Current expected clean baseline in this workspace:
 
 - Set size: **58 images**
-- Within 10km: **93.1%** (54/58)
+- Within 10km: **96.6%** (56/58)
+- Within 1km: **91.4%**
 - Cohort split:
   - `iconic_landmark`: **100.0%**
-  - `generic_scene`: **88.9%**
+  - `generic_scene`: **94.4%**
 
 Known hard misses:
 
 - Marrakech Medina
-- Cape Point
-- Copacabana
-- Table Mountain
+- Copacabana Beach
+
+The current seed holdout set is separate and uncontaminated, but at `11` images it is still too
+small to replace the main validation benchmark in release claims.
 
 ---
 
@@ -54,11 +57,12 @@ cd backend && npm install
 
 2. Ensure model mode is explicit:
 
-- For GeoCLIP ONNX benchmark parity, verify:
+- for GeoCLIP parity, verify:
   - `backend/.cache/geoclip/vision_model_q4.onnx`
   - `backend/.cache/geoclip/location_model_uint8.onnx`
 
-If these are missing, benchmark mode will drift to CLIP fallback and results will differ.
+If these are missing, benchmark mode will drift to CLIP or deterministic fallback and the results
+will differ.
 
 ---
 
@@ -66,7 +70,7 @@ If these are missing, benchmark mode will drift to CLIP fallback and results wil
 
 ```bash
 cd backend
-npm run benchmark:validation
+GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:validation
 ```
 
 Optional: inspect summarized metrics directly from JSON:
@@ -77,40 +81,36 @@ jq '.summary, .thresholds, .byCohort' .cache/validation_gallery/benchmark_report
 
 ---
 
-## 5. Optional: Anchor Refinement Loop
-
-For targeted improvement experiments:
+## 5. Run Holdout and Failure Investigation
 
 ```bash
 cd backend
-npm run refine:anchors
-npm run benchmark:validation
+npm run build:gallery:holdout
+GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:holdout
+GEOWRAITH_USE_UNIFIED_INDEX=true npm run investigate:failures
+GEOWRAITH_USE_UNIFIED_INDEX=true npm run ablate:preprocess
 ```
 
-Record both before/after report files and compare:
+Artifacts:
 
-- overall within-10km
-- cohort split
-- per-landmark failures
+- `.cache/holdout_gallery/benchmark_report.json`
+- `.cache/geoclip/hard_failure_investigation.json`
+- `.cache/geoclip/preprocessing_ablation.json`
 
 ---
 
-## 6. Adding or Rebuilding Validation Gallery
-
-If using curated datasets:
+## 6. Compare Embedding/Reference Profiles
 
 ```bash
 cd backend
-npm run build:gallery:csv -- --images=<images_dir> --csv=<metadata_csv>
-npm run benchmark:validation
+npm run benchmark:compare-models -- --benchmark=validation
 ```
 
-Minimum CSV columns:
+Current verified outcome:
 
-- `filename`
-- `lat`
-- `lon`
-- `label`
+- `geoclip-unified` is the best validated profile
+- `clip-city` is dramatically worse on the same gallery and should not be used as a drop-in
+  replacement
 
 ---
 
@@ -119,22 +119,28 @@ Minimum CSV columns:
 Every reported result should include:
 
 - date/time (UTC)
-- model mode (GeoCLIP ONNX / CLIP fallback)
-- gallery size
+- benchmark set name and size
+- model mode (`geoclip`, `clip`, or fallback)
+- corpus mode (`unified`, `osv`, or standard)
 - within-10km aggregate
 - cohort split
 - unresolved hard failures
 
-Do not publish a single blended score without cohort context.
+Do not:
+
+- publish a single blended score without cohort context
+- claim verifier gains without a measured delta
+- claim holdout parity from the current `11`-image seed alone
 
 ---
 
 ## 8. Troubleshooting
 
 - Benchmark unexpectedly slow on first image:
-  - Expected during model/index warmup
+  - expected during model or index warmup
 - Sudden metric drop:
-  - verify model files present and index cache consistency
-- Inconsistent results across machines:
-  - compare `benchmark_report.json` and model mode first
-
+  - verify GeoCLIP model files, benchmark set, and corpus flags first
+- Suspiciously perfect results:
+  - check for benchmark leakage before trusting the number
+- Hard-scene behavior changes across preprocessing modes:
+  - compare `.cache/geoclip/preprocessing_ablation.json` rather than relying on anecdotal single runs

@@ -105,3 +105,26 @@ test('decideLocationVisibility withholds incoherent high-score predictions', () 
   assert.equal(decision.shouldWithholdLocation, true);
   assert.equal(decision.locationReason, 'match_consensus_weak');
 });
+
+test('decideLocationVisibility allows refined-anchor recoveries with nearby label support', () => {
+  const matches = [
+    createMatch('refined_moai_044', 'Moai Statues', -27.1258, -109.2774, 0.7338),
+    createMatch('ultra_densified_final_salar_uyuni_pexels_587', 'Salar de Uyuni', -20.1338, -67.4891, 0.7257),
+    createMatch('api_images_extra_banff_pexels_97', 'Banff National Park', 51.4968, -115.9281, 0.7239),
+    createMatch('ultra_densified_final_salar_uyuni_pexels_611', 'Salar de Uyuni', -20.1338, -67.4891, 0.706),
+    createMatch('images_park_guell', 'Park Guell', 41.4145, 2.1527, 0.6995),
+    createMatch('refined_moai_010', 'Moai Statues', -27.1258, -109.2774, 0.6967),
+  ];
+
+  const decision = decideLocationVisibility({
+    confidence: 0.76,
+    matches,
+    usesFallback: false,
+    usesClip: false,
+    isWideRadius: false,
+    minimumConfidence: 0.605,
+  });
+
+  assert.equal(decision.shouldWithholdLocation, false);
+  assert.equal(decision.weakConsensus, false);
+});

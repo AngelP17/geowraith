@@ -192,34 +192,47 @@ export class HNSWIndex {
   }
 }
 
-/** Global HNSW index instance. */
-let hnswIndexInstance: HNSWIndex | null = null;
-let hnswIndexPromise: Promise<HNSWIndex> | null = null;
+/** Global HNSW index instance (for standalone usage). */
+let standaloneHnswIndexInstance: HNSWIndex | null = null;
+let standaloneHnswIndexPromise: Promise<HNSWIndex> | null = null;
 
-/** Get or create the global HNSW index instance. */
-export async function getHNSWIndex(): Promise<HNSWIndex> {
-  if (hnswIndexInstance?.ready) {
-    return hnswIndexInstance;
+/**
+ * Get or create a standalone HNSW index instance.
+ * This is separate from the geoclipIndex singleton and intended for
+ * scripts and utilities that need their own index instance.
+ */
+export async function getStandaloneHNSWIndex(): Promise<HNSWIndex> {
+  if (standaloneHnswIndexInstance?.ready) {
+    return standaloneHnswIndexInstance;
   }
 
-  if (!hnswIndexPromise) {
-    hnswIndexPromise = (async () => {
+  if (!standaloneHnswIndexPromise) {
+    standaloneHnswIndexPromise = (async () => {
       const { getReferenceVectors } = await import('./geoclipIndex.js');
       const vectors = await getReferenceVectors();
 
       const index = new HNSWIndex();
       await index.buildIndex(vectors);
 
-      hnswIndexInstance = index;
+      standaloneHnswIndexInstance = index;
       return index;
     })();
   }
 
-  return hnswIndexPromise;
+  return standaloneHnswIndexPromise;
 }
 
-/** Invalidate the cached HNSW index (for testing). */
-export function invalidateHNSWIndex(): void {
-  hnswIndexInstance = null;
-  hnswIndexPromise = null;
+/**
+ * Invalidate the standalone HNSW index cache.
+ * Use this for testing or when you need to force a rebuild.
+ */
+export function invalidateStandaloneHNSWIndex(): void {
+  standaloneHnswIndexInstance = null;
+  standaloneHnswIndexPromise = null;
 }
+
+// Deprecated aliases for backward compatibility - avoid using these
+/** @deprecated Use getStandaloneHNSWIndex instead */
+export const getHNSWIndex = getStandaloneHNSWIndex;
+/** @deprecated Use invalidateStandaloneHNSWIndex instead */
+export const invalidateHNSWIndex = invalidateStandaloneHNSWIndex;

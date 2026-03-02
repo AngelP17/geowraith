@@ -5,7 +5,8 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ChevronDown, Github, BookOpen, Image, Mail, ExternalLink } from 'lucide-react';
+import { X, ChevronDown, Github, BookOpen, Image, Mail, ExternalLink, Radar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { navLinks } from '../../data/features';
 
 interface MobileMenuProps {
@@ -17,18 +18,26 @@ interface MobileMenuProps {
 const iconMap: Record<string, React.ReactNode> = {
   Docs: <BookOpen className="w-4 h-4" />,
   Examples: <ExternalLink className="w-4 h-4" />,
+  Demo: <Radar className="w-4 h-4" />,
   Gallery: <Image className="w-4 h-4" />,
   Contact: <Mail className="w-4 h-4" />,
 };
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, onOpenComingSoon }) => {
+  const navigate = useNavigate();
+
   const openGitHub = () => {
     window.open('https://github.com/AngelP17/geowraith', '_blank', 'noopener,noreferrer');
     onClose();
   };
 
-  const handleNavClick = (href: string, label: string) => {
-    // Handle placeholder links
+  const handleNavClick = (href: string) => {
+    if (href.startsWith('/')) {
+      onClose();
+      navigate(href);
+      return;
+    }
+
     if (href.startsWith('#')) {
       onClose();
       setTimeout(() => {
@@ -89,7 +98,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, onOpenC
                     transition={{ delay: index * 0.05 + 0.1 }}
                   >
                     <button
-                      onClick={() => handleNavClick(link.href, link.label)}
+                      onClick={() => handleNavClick(link.href)}
                       className="w-full flex items-center justify-between p-3 rounded-xl text-white/70 
                                  hover:text-white hover:bg-white/5 transition-all duration-200
                                  active:scale-[0.98] text-left"

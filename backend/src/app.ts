@@ -3,16 +3,14 @@ import { config } from './config.js';
 import { toErrorResponse } from './errors.js';
 import type { PredictRequest } from './types.js';
 import { runPredictPipeline } from './services/predictPipeline.js';
+import { healthRouter } from './routes/health.js';
 
 /** Create and configure the GeoWraith backend Express application. */
 export function createApp() {
   const app = express();
   app.use(express.json({ limit: `${Math.ceil(config.maxImageBytes / (1024 * 1024))}mb` }));
-  const endpoints = ['/health', '/api/predict'];
-  if (config.sfmEnabled) {
-    endpoints.push('/api/predict/sfm');
-  }
 
+  // CORS middleware
   app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
@@ -24,26 +22,32 @@ export function createApp() {
     next();
   });
 
-  app.get('/health', (_req: Request, res: Response) => {
-    res.json({
-      status: 'ok',
-      service: 'geowraith-backend',
-      version: '0.2.0',
-      offline_mode: config.offlineMode,
-      sfm_enabled: config.sfmEnabled,
-      engine: 'local-visual-signal-v1',
-    });
-  });
+  // Mount health routes
+  app.use(healthRouter);
+
+  // Legacy root endpoint
+  const endpoints = ['/health', '/metrics', '/ready', '/live', '/api/predict'];
+  if (config.sfmEnabled) {
+    endpoints.push('/api/predict/sfm');
+  }
 
   app.get('/', (_req: Request, res: Response) => {
     res.json({
       status: 'ok',
       service: 'geowraith-backend',
       message: 'GeoWraith backend is running',
+      version: '0.2.0',
       endpoints,
+      features: {
+        verifier: config.verifierEnabled,
+        intelligenceBrief: config.enableIntelligenceBrief,
+        anomalyDetection: config.enableAnomalyDetection,
+        universalImageFormat: config.enableUniversalImageFormat,
+      },
     });
   });
 
+  // Prediction endpoint
   app.post('/api/predict', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const response = await runPredictPipeline(req.body as PredictRequest);
@@ -53,6 +57,7 @@ export function createApp() {
     }
   });
 
+  // SfM endpoint
   app.post('/api/predict/sfm', async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!config.sfmEnabled) {
@@ -93,6 +98,7 @@ export function createApp() {
     }
   });
 
+  // Error handler
   app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
     const { statusCode, body } = toErrorResponse(error);
     if (statusCode >= 500) {

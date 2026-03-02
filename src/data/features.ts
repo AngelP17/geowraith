@@ -96,6 +96,7 @@ export const techStack: TechStackItem[] = [
 export const navLinks: NavLink[] = [
   { label: 'Docs', href: '#docs', hasDropdown: true },
   { label: 'Examples', href: '#examples', hasDropdown: true },
+  { label: 'Demo', href: '/demo', hasDropdown: false },
   { label: 'Gallery', href: '#gallery', hasDropdown: false },
   { label: 'Contact', href: '#contact', hasDropdown: false },
 ];
@@ -113,6 +114,7 @@ export const footerSections: FooterSection[] = [
   {
     title: 'Resources',
     links: [
+      { label: 'Demo Console', href: '/demo' },
       { label: 'Documentation', href: '#docs' },
       { label: 'API Reference', href: '#api' },
       { label: 'Examples', href: '#examples' },

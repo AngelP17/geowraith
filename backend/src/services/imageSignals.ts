@@ -1,5 +1,6 @@
 import exifr from 'exifr';
 import sharp from 'sharp';
+import { config } from '../config.js';
 import { ApiError } from '../errors.js';
 import { FEATURE_VECTOR_SIZE } from '../data/referenceVectors.js';
 import type { ImageGpsLocation, ImageSignals } from '../types.js';
@@ -53,15 +54,14 @@ function getLuma(r: number, g: number, b: number): number {
 }
 
 async function extractExifLocation(
-  imageBuffer: Buffer,
-  hasExif: boolean
+  exifBuffer: Buffer | undefined
 ): Promise<ImageGpsLocation | null> {
-  if (!hasExif) {
+  if (!exifBuffer || exifBuffer.length === 0) {
     return null;
   }
 
   try {
-    const gps = await exifr.gps(imageBuffer);
+    const gps = await exifr.gps(exifBuffer);
     if (!gps || !Number.isFinite(gps.latitude) || !Number.isFinite(gps.longitude)) {
       return null;
     }
@@ -70,8 +70,24 @@ async function extractExifLocation(
       lon: gps.longitude,
     };
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes('Unknown file format')) {
+      return null;
+    }
     // eslint-disable-next-line no-console
     console.warn('[imageSignals] EXIF parse failed, continuing without EXIF location:', error);
+    return null;
+  }
+}
+
+/** Read embedded GPS coordinates without running the full embedding pipeline. */
+export async function extractEmbeddedLocation(
+  imageBuffer: Buffer
+): Promise<ImageGpsLocation | null> {
+  try {
+    const metadata = await sharp(imageBuffer, { failOn: 'error' }).metadata();
+    return extractExifLocation(metadata.exif);
+  } catch {
     return null;
   }
 }
@@ -80,7 +96,7 @@ async function decodeForFeatureExtraction(imageBuffer: Buffer): Promise<{
   format: string;
   width: number;
   height: number;
-  hasExif: boolean;
+  exifBuffer: Buffer | undefined;
   pixels: Buffer;
 }> {
   try {
@@ -104,7 +120,7 @@ async function decodeForFeatureExtraction(imageBuffer: Buffer): Promise<{
       format,
       width,
       height,
-      hasExif: Boolean(metadata.exif),
+      exifBuffer: metadata.exif,
       pixels,
     };
   } catch (error) {
@@ -183,27 +199,55 @@ function expandVector(base: number[], targetSize: number): number[] {
   return expanded;
 }
 
+async function extractEmbeddingByPreference(
+  imageBuffer: Buffer
+): Promise<Pick<ImageSignals, 'vector' | 'embeddingSource'>> {
+  switch (config.imageEmbeddingBackend) {
+    case 'geoclip':
+      return {
+        vector: await extractCLIPEmbedding(imageBuffer),
+        embeddingSource: 'geoclip',
+      };
+    case 'clip':
+      return {
+        vector: await embedImage(imageBuffer),
+        embeddingSource: 'clip',
+      };
+    case 'fallback':
+      throw new Error('forced fallback embedding');
+    default:
+      try {
+        return {
+          vector: await extractCLIPEmbedding(imageBuffer),
+          embeddingSource: 'geoclip',
+        };
+      } catch {
+        return {
+          vector: await embedImage(imageBuffer),
+          embeddingSource: 'clip',
+        };
+      }
+  }
+}
+
 /** Extract GeoCLIP embeddings and optional EXIF geolocation from an image payload. */
 export async function extractImageSignals(imageBuffer: Buffer): Promise<ImageSignals> {
   const decoded = await decodeForFeatureExtraction(imageBuffer);
-  const exifLocation = await extractExifLocation(imageBuffer, decoded.hasExif);
+  const exifLocation = await extractExifLocation(decoded.exifBuffer);
 
   let vector: number[];
   let embeddingSource: ImageSignals['embeddingSource'] = 'geoclip';
   try {
-    vector = await extractCLIPEmbedding(imageBuffer);
-  } catch {
-    try {
-      vector = await embedImage(imageBuffer);
-      embeddingSource = 'clip';
-    } catch (clipError) {
-      console.warn(
-        '[imageSignals] CLIP extraction failed, using deterministic fallback embedding:',
-        clipError
-      );
-      vector = expandVector(computeImageVector(decoded.pixels), FEATURE_VECTOR_SIZE);
-      embeddingSource = 'fallback';
-    }
+    const embedding = await extractEmbeddingByPreference(imageBuffer);
+    vector = embedding.vector;
+    embeddingSource = embedding.embeddingSource;
+  } catch (embeddingError) {
+    console.warn(
+      '[imageSignals] Embedding extraction failed, using deterministic fallback embedding:',
+      embeddingError
+    );
+    vector = expandVector(computeImageVector(decoded.pixels), FEATURE_VECTOR_SIZE);
+    embeddingSource = 'fallback';
   }
 
   if (vector.length !== FEATURE_VECTOR_SIZE) {

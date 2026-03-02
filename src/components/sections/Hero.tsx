@@ -6,6 +6,7 @@
 import React from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { Play, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { MagneticButton } from '../ui/SectionReveal';
 import { VideoBackground, MeshGradient, AnimatedBackground } from '../ui/AnimatedBackground';
 
@@ -14,27 +15,18 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ onOpenComingSoon }) => {
+  const navigate = useNavigate();
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 500], [0, 150]);
   const y2 = useTransform(scrollY, [0, 500], [0, 100]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
-  const scrollToFeatures = () => {
-    const element = document.querySelector('#what-it-is');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const scrollToContact = () => {
-    const element = document.querySelector('#contact');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   const openGitHub = () => {
     window.open('https://github.com/AngelP17/geowraith', '_blank', 'noopener,noreferrer');
+  };
+
+  const openDemo = () => {
+    navigate('/demo');
   };
 
   const handleDocsClick = () => {
@@ -175,14 +167,14 @@ export const Hero: React.FC<HeroProps> = ({ onOpenComingSoon }) => {
               
               <MagneticButton
                 strength={0.2}
-                onClick={scrollToFeatures}
+                onClick={openDemo}
                 className="group px-8 py-4 bg-white/[0.03] text-white rounded-full font-medium text-[15px]
                            border border-[rgba(255,255,255,0.16)] backdrop-blur-sm hover:bg-white/[0.08]
                            hover:border-white/35 transition-all duration-300"
               >
                 <span className="flex items-center gap-2">
                   <Play className="w-4 h-4" />
-                  Learn More
+                  Open Demo
                 </span>
               </MagneticButton>
             </motion.div>
@@ -190,14 +182,14 @@ export const Hero: React.FC<HeroProps> = ({ onOpenComingSoon }) => {
 
           {/* Scroll Indicator */}
           <motion.button
-            onClick={scrollToFeatures}
+            onClick={openDemo}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.5 }}
             className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 
                        text-white/20 hover:text-white/40 transition-colors cursor-pointer group"
           >
-            <span className="text-[11px] uppercase tracking-[0.2em]">Explore</span>
+            <span className="text-[11px] uppercase tracking-[0.2em]">Demo</span>
             <motion.div
               animate={{ y: [0, 8, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}

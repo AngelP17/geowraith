@@ -1,0 +1,21 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#06080B"/>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <circle cx="950" cy="136" r="170" fill="#E7B165" fill-opacity="0.12"/>
+  <path d="M0 458H1200V800H0V458Z" fill="#061A24"/>
+  <path d="M0 514H1200V800H0V514Z" fill="#08222E"/>
+  <path d="M0 574C150 520 238 640 382 618C540 594 652 468 840 484C1028 500 1084 566 1200 546V800H0V574Z" fill="#0E2B39"/>
+  <path d="M104 476C232 508 296 600 462 584C648 566 712 390 910 400C1044 406 1108 468 1184 520" stroke="#F3B861" stroke-width="20" stroke-linecap="round"/>
+  <path d="M122 480C248 512 312 602 474 588C654 572 722 402 918 410C1046 416 1100 470 1168 514" stroke="#F9F3E4" stroke-opacity="0.34" stroke-width="4" stroke-linecap="round" stroke-dasharray="16 16"/>
+  <path d="M0 454C218 420 314 282 500 290C692 298 806 430 986 404C1074 392 1136 344 1200 294V458H0V454Z" fill="#0B1118"/>
+  <rect x="90" y="598" width="1020" height="120" rx="22" fill="#081019" fill-opacity="0.88" stroke="#F3B861" stroke-opacity="0.18"/>
+  <text x="132" y="656" fill="#F4EBDD" font-family="Geist, Arial, sans-serif" font-size="42" font-weight="700">Coastal Brief</text>
+  <text x="132" y="696" fill="#ABC3CF" font-family="Satoshi, Arial, sans-serif" font-size="22">Nature-heavy replay paired with a generated intelligence brief for follow-up verification.</text>
+  <defs>
+    <linearGradient id="bg" x1="108" y1="42" x2="982" y2="748" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#152130"/>
+      <stop offset="0.42" stop-color="#09131C"/>
+      <stop offset="1" stop-color="#050709"/>
+    </linearGradient>
+  </defs>
+</svg>

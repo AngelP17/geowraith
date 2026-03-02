@@ -1,24 +1,51 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPin, Target, Clock, Copy, CheckCircle2, AlertTriangle, Cpu, Database } from 'lucide-react';
+import {
+  MapPin,
+  Target,
+  Clock,
+  Copy,
+  CheckCircle2,
+  AlertTriangle,
+  Cpu,
+  Database,
+  Shield,
+  Brain,
+  Link2,
+} from 'lucide-react';
 import { ConfidenceIndicator } from './ConfidenceIndicator';
 import { SceneContextBadge } from './SceneContextBadge';
+import { IntelligenceBriefCard } from './IntelligenceBriefCard';
 import { Mode, AnalysisPhase, DisplayMode } from './types';
 import type { PredictResponse } from '../../lib/api';
 import { formatCoords } from './utils';
 import { MapView } from './MapView';
+import { generateShareableReport, downloadReport } from '../../utils/reportGenerator';
 
 interface ResultsPanelProps {
   mode: Mode;
   phase: AnalysisPhase;
   displayMode: DisplayMode;
   result: PredictResponse | null;
+  originalImage?: string; // base64 for report generation
   copied: boolean;
   onCopy: () => void;
   onToggleDisplayMode: () => void;
+  showMap?: boolean;
 }
 
-export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, displayMode, result, copied, onCopy, onToggleDisplayMode }) => {
+export const ResultsPanel: React.FC<ResultsPanelProps> = ({
+  mode,
+  phase,
+  displayMode,
+  result,
+  originalImage,
+  copied,
+  onCopy,
+  onToggleDisplayMode,
+  showMap = true,
+}) => {
+  const [generatingReport, setGeneratingReport] = React.useState(false);
   const isAnalyzing = phase === 'uploading' || phase === 'scanning' || phase === 'processing';
 
   const statusText = {
@@ -258,6 +285,23 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, display
             )}
           </AnimatePresence>
 
+          <AnimatePresence>
+            {result?.intelligence_brief && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ delay: 0.15 }}
+              >
+                <IntelligenceBriefCard
+                  brief={result.intelligence_brief.brief}
+                  generatedAt={result.intelligence_brief.generated_at}
+                  model={result.intelligence_brief.model}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
               <div className="flex items-center gap-2 mb-2">
@@ -338,6 +382,17 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, display
                     {result.diagnostics.reference_image_anchors ?? 0}
                   </span>
                 </div>
+                {result.diagnostics.verifier_invoked && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono text-white/30 uppercase">LLM Verifier</span>
+                    <div className="flex items-center gap-1.5">
+                      <Brain className="w-3 h-3 text-purple-400" />
+                      <span className="text-xs font-mono text-purple-400">
+                        {result.diagnostics.verifier_stage} {result.diagnostics.verifier_override && '(adjusted)'}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -363,13 +418,58 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({ mode, phase, display
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono text-white/30 uppercase">Map View</span>
-              <span className="text-[10px] font-mono text-white/40">Standard · Satellite · 3D</span>
+          {/* Shareable Report Button */}
+          <AnimatePresence>
+            {result && originalImage && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+              >
+                <button
+                  onClick={async () => {
+                    if (!result || !originalImage) return;
+                    setGeneratingReport(true);
+                    try {
+                      const reportBlob = await generateShareableReport({
+                        originalImage,
+                        prediction: result,
+                      });
+                      downloadReport(reportBlob, `geowraith-report-${result.request_id.slice(0, 8)}.png`);
+                    } catch (error) {
+                      console.error('Failed to generate report:', error);
+                    } finally {
+                      setGeneratingReport(false);
+                    }
+                  }}
+                  disabled={generatingReport}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl border border-[rgba(243,184,97,0.26)] bg-[linear-gradient(135deg,rgba(243,184,97,0.18),rgba(243,184,97,0.08))] px-4 py-3 text-[var(--gw-text-primary)] transition-all hover:border-[rgba(243,184,97,0.4)] hover:bg-[linear-gradient(135deg,rgba(243,184,97,0.24),rgba(243,184,97,0.12))] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {generatingReport ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span className="text-sm font-medium text-white">Generating Report...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Link2 className="h-4 w-4 text-[var(--gw-accent)]" />
+                      <span className="text-sm font-medium text-white">Download Shareable Report</span>
+                    </>
+                  )}
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {showMap && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono text-white/30 uppercase">Map View</span>
+                <span className="text-[10px] font-mono text-white/40">Standard · Satellite · 3D</span>
+              </div>
+              <MapView result={result} displayMode={displayMode} />
             </div>
-            <MapView result={result} displayMode={displayMode} />
-          </div>
+          )}
         </div>
       </div>
 

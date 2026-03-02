@@ -28,6 +28,73 @@ Persistent project memory for high-signal decisions and context that should surv
 
 ## Current Memory
 
+- 2026-03-03T00:10Z [CODE] [MODELS] Simple preprocessing swaps do not solve the remaining
+  Marrakech/Copacabana failures. A four-mode ablation (`none`, `jpeg-only`, `contain-224-jpeg`,
+  `cover-224-jpeg`) left both scenes wrong; `cover-224-jpeg` is still the least-bad current mode
+  for Marrakech, while Copacabana remains trapped in the Table Mountain cluster regardless.
+  Evidence: `backend/.cache/geoclip/preprocessing_ablation.json`, `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run ablate:preprocess`
+  Status: VERIFIED
+  Confidence: 0.98
+
+- 2026-03-03T00:10Z [CODE] [MODELS] The current CLIP city-text fallback is not a credible fix for
+  the remaining misses. On the same validation benchmark it performs far worse than unified GeoCLIP,
+  so future model experiments should target stronger geo-specialized embeddings rather than the
+  existing CLIP fallback path.
+  Evidence: `backend/.cache/geoclip/model_profile_comparison.validation.json`, `cd backend && npm run benchmark:compare-models -- --benchmark=validation`
+  Status: PARTIAL
+  Confidence: 0.95
+
+- 2026-03-03T00:10Z [CODE] [DETERMINISM] The local verifier default should remain
+  `qwen3.5:9b` in this workspace because it fits the current machine without the memory pressure
+  observed from larger Qwen variants.
+  Evidence: `backend/src/config.ts`, `backend/src/scripts/runBenchmarkWithCheck.ts`, `OLLAMA_SETUP.md`
+  Status: VERIFIED
+  Confidence: 0.96
+
+- 2026-03-02T23:02Z [CODE] [DETERMINISM] Benchmark galleries must remain separate from the active
+  retrieval corpus. The benchmark runner now supports a distinct holdout gallery path and fails fast
+  on obvious benchmark-prefix leakage (`validation_`, `holdout_`) instead of silently scoring a
+  contaminated index.
+  Evidence: `backend/src/benchmarks/validationBenchmark/config.ts`, `backend/src/benchmarks/validationBenchmark/leakage.ts`, `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:holdout`
+  Status: VERIFIED
+  Confidence: 0.98
+
+- 2026-03-02T23:02Z [CODE] [MODELS] The remaining `Marrakech` and `Copacabana` misses are not just
+  missing-data problems. On the clean unified corpus, `Marrakech` retrieves zero same-label refined
+  anchors in the top `50`, while `Copacabana` still ranks its best same-label refined anchor only
+  `31st`; future work should prioritize preprocessing/model experiments over more blind densification.
+  Evidence: `backend/.cache/geoclip/hard_failure_investigation.json`, `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run investigate:failures`
+  Status: VERIFIED
+  Confidence: 0.97
+
+- 2026-03-02T20:44Z [CODE] [MODELS] Confidence should be calibrated from match shape, anchor provenance, and local recovery patterns rather than using the raw aggregation score alone; otherwise exact curated or refined-anchor hits collapse into medium/low confidence and can even be withheld despite `0m` error on the validation set.
+  Evidence: `backend/src/services/confidenceCalibration.ts`, `backend/src/services/confidenceGate.ts`, `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:validation`
+  Status: VERIFIED
+  Confidence: 0.98
+
+- 2026-03-02T20:02Z [CODE] [MODELS] Unified exact-search cluster promotion must evaluate the
+  boosted legacy-anchor ranking space, not raw anchor similarities, or coherent Mapillary clusters
+  can wrongly override strong refined anchors such as Moai while still being needed to recover Cape
+  Point and Table Mountain.
+  Evidence: `backend/src/services/vectorSearch.ts`, `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:validation`
+  Status: VERIFIED
+  Confidence: 0.98
+
+- 2026-03-02T19:11Z [CODE] [MODELS] Unified-index retrieval must mix boosted legacy anchors with non-legacy ANN candidates; otherwise the old base anchor corpus monopolizes ranking and hides Mapillary/synthetic additions.
+  Evidence: `backend/src/services/vectorSearch.ts`, `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:validation`
+  Status: VERIFIED
+  Confidence: 0.96
+
+- 2026-03-02T19:11Z [CODE] [DETERMINISM] Optional EXIF GPS parsing should treat `exifr`'s `Unknown file format` as a benign no-GPS outcome, not an operator warning, because benchmark images can expose non-GPS EXIF blobs through `sharp`.
+  Evidence: `backend/src/services/imageSignals.ts`, `cd backend && GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:validation`
+  Status: VERIFIED
+  Confidence: 0.97
+
+- 2026-03-02T18:51Z [CODE] [FRONTEND] The landing page and advanced hybrid experience are now intentionally split: `/` remains marketing-first, while `/demo` is the dedicated Mission Console with replay scenarios, runtime health/readiness, and the full geospatial workbench.
+  Evidence: `src/App.tsx`, `src/pages/LandingPage.tsx`, `src/pages/DemoPage.tsx`, `src/components/demo/*`, `curl -I http://localhost:4173/demo`
+  Status: VERIFIED
+  Confidence: 0.97
+
 - 2026-02-24T16:47Z [CODE] [DETERMINISM] Added confidence-scored status classes for technical claims.
   Evidence: README.md and AGENTS.md policy updates
   Status: VERIFIED
@@ -701,3 +768,18 @@ Persistent project memory for high-signal decisions and context that should surv
   `cd backend && npm run test -- src/app.test.ts`, `cd backend && npm run lint`
   Status: VERIFIED
   Confidence: 0.98
+- 2026-03-02T17:55Z [CODE] [DETERMINISM] `/health` is now reserved for fast liveness checks and must
+  stay independent of HNSW/Ollama warmup. Dependency readiness remains on `/ready`, which can block on
+  actual index availability without breaking the frontend’s startup health probe.
+  Evidence: `backend/src/routes/health.ts`, cold probe via `npx tsx ... createApp() ... /health`
+  returned `elapsed_ms: 10` on 2026-03-02.
+  Status: VERIFIED
+  Confidence: 0.98
+- 2026-03-02T17:55Z [CODE] [MODELS] Exact EXIF GPS is resolved from the original upload before any
+  universal-format conversion, and OSV-enriched mode now binds runtime metadata to the OSV HNSW cache
+  instead of silently rebuilding the standard index into the OSV path.
+  Evidence: `backend/src/services/predictPipeline.ts`, `backend/src/services/imageSignals.ts`,
+  `backend/src/services/geoclipIndex.ts`, `backend/src/scripts/ingestTargetedOSV5M.ts`
+  Status: PARTIAL
+  Confidence: 0.90
+  Note: OSV end-to-end ingest plus live inference was not rerun in this task.

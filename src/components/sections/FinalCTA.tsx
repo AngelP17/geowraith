@@ -6,15 +6,11 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { MagneticButton } from '../ui/SectionReveal';
 
 export const FinalCTA: React.FC = () => {
-  const scrollToContact = () => {
-    const element = document.querySelector('#contact');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const navigate = useNavigate();
 
   const openGitHub = () => {
     window.open('https://github.com/AngelP17/geowraith', '_blank', 'noopener,noreferrer');
@@ -79,12 +75,12 @@ export const FinalCTA: React.FC = () => {
           >
             <MagneticButton
               strength={0.15}
-              onClick={scrollToContact}
-              className="group px-10 py-5 bg-white text-black rounded-full font-semibold text-base 
-                         hover:shadow-[0_0_60px_rgba(255,255,255,0.25)] transition-all duration-300"
+              onClick={() => navigate('/demo')}
+              className="group px-10 py-5 bg-[var(--gw-accent)] text-black rounded-full font-semibold text-base 
+                         hover:shadow-[0_0_60px_rgba(243,184,97,0.28)] transition-all duration-300"
             >
               <span className="flex items-center gap-2">
-                Get Started Free
+                Open Demo Console
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </span>
             </MagneticButton>

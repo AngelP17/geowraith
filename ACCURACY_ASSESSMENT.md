@@ -8,9 +8,10 @@ Use these as the current source of truth:
 - [VALIDATION_GUIDE.md](VALIDATION_GUIDE.md)
 - [docs/REPRODUCIBILITY_PLAYBOOK.md](docs/REPRODUCIBILITY_PLAYBOOK.md)
 
-Current validated benchmark snapshot (2026-02-27):
+Current validated benchmark snapshot (2026-03-02):
 
 - 58-image gallery
-- 93.1% within 10km
-- Cohorts: 100.0% iconic / 88.9% generic
-
+- 96.6% within 10km
+- 91.4% within 1km
+- Cohorts: 100.0% iconic / 94.4% generic
+- Remaining misses: Marrakech Medina and Copacabana Beach

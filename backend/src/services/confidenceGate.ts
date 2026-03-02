@@ -40,6 +40,34 @@ function normalizeLabel(label: string): string {
   return label.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
+function hasRefinedAnchorRecovery(matches: VectorMatch[]): boolean {
+  const topMatches = matches.slice(0, 8);
+  const top = topMatches[0];
+  if (!top || !top.id.startsWith('refined_')) {
+    return false;
+  }
+
+  const topLabel = normalizeLabel(top.label);
+  let nearbySameLabelMatches = 0;
+
+  for (const match of topMatches) {
+    if (normalizeLabel(match.label) !== topLabel) {
+      continue;
+    }
+
+    const distance = haversineMeters(
+      { lat: top.lat, lon: top.lon },
+      { lat: match.lat, lon: match.lon }
+    );
+
+    if (distance <= STRONG_CONSENSUS_RADIUS_M) {
+      nearbySameLabelMatches += 1;
+    }
+  }
+
+  return nearbySameLabelMatches >= 2;
+}
+
 /**
  * Inspect the top match neighborhood to determine whether nearby candidates
  * agree on one local area. This is stronger evidence for actionable display
@@ -114,9 +142,13 @@ export function decideLocationVisibility(
     minimumConfidence = MINIMUM_CONFIDENCE,
   } = input;
   const matchConsensus = analyzeMatchConsensus(matches);
+  const refinedAnchorRecovery = hasRefinedAnchorRecovery(matches);
 
-  const lowConfidence = confidence < minimumConfidence && !matchConsensus.strongConsensus;
-  const weakConsensus = !matchConsensus.actionableCoherence;
+  const lowConfidence =
+    confidence < minimumConfidence &&
+    !matchConsensus.strongConsensus &&
+    !refinedAnchorRecovery;
+  const weakConsensus = !matchConsensus.actionableCoherence && !refinedAnchorRecovery;
   const shouldWithholdLocation =
     !usesClip && (usesFallback || isWideRadius || weakConsensus || lowConfidence);
 

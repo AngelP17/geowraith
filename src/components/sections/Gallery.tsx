@@ -6,7 +6,8 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Image as ImageIcon, MapPin, Target } from 'lucide-react';
-import { dispatchDemo, getDemoResult, type DemoKey } from '../../lib/demo';
+import { useNavigate } from 'react-router-dom';
+import { buildDemoUrl, getDemoResult, type DemoKey } from '../../lib/demo';
 
 const galleryItems: Array<{
   title: string;
@@ -39,6 +40,8 @@ const galleryItems: Array<{
 ];
 
 export const Gallery: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <section id="gallery" className="relative w-full py-24 md:py-32 bg-black">
       <div className="absolute inset-0 bg-gradient-to-b from-black via-[#050505] to-black pointer-events-none" />
@@ -93,9 +96,7 @@ export const Gallery: React.FC = () => {
                     viewport={{ once: true }}
                     transition={{ delay: 0.05 * index }}
                     onClick={() => {
-                      const target = document.querySelector('#product');
-                      if (target) target.scrollIntoView({ behavior: 'smooth' });
-                      dispatchDemo(item.key);
+                      navigate(buildDemoUrl(item.key));
                     }}
                     className="text-left rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 hover:border-white/20 hover:bg-white/[0.04] transition-all"
                   >

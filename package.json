@@ -11,7 +11,11 @@
     "lint": "tsc --noEmit",
     "smartblend": "tsx backend/src/scripts/smartBlendValidation.ts",
     "start": "./start.sh",
-    "start:services": "./start.sh"
+    "start:services": "./start.sh",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:demo": "playwright test demo.spec.ts"
   },
   "dependencies": {
     "@tabler/icons-react": "^3.37.1",
@@ -23,13 +27,17 @@
     "lucide-react": "^0.546.0",
     "maplibre-gl": "^5.19.0",
     "motion": "^12.23.24",
+    "qrcode": "^1.5.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^7.13.1",
     "vite": "^6.2.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.21",

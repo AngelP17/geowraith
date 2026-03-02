@@ -1,8 +1,8 @@
 # GeoWraith Architecture
 
 **Version:** 2.2  
-**Last Updated:** 2026-02-27  
-**Status:** Core pipeline stable; SfM endpoint feature-gated by default.
+**Last Updated:** 2026-03-02  
+**Status:** Hybrid local-first pipeline active; remaining generic-scene misses under investigation.
 
 > **Quick Links:** [README](README.md) | [Status](STATUS.md) | [Reproducibility Playbook](docs/REPRODUCIBILITY_PLAYBOOK.md) | [Validation Guide](VALIDATION_GUIDE.md)
 
@@ -16,146 +16,165 @@ GeoWraith predicts image location using a local-first inference and retrieval pi
 flowchart TB
     A[Input Image] --> B{EXIF GPS?}
     B -->|Yes| C[Return EXIF Coordinates]
-    B -->|No| D[Extract Image Embedding]
-    D --> E[ANN Search on Combined Index]
-    E --> F[Aggregate + Geographic Constraints]
-    F --> G[Confidence + Withholding Policy]
-    G --> H[PredictResponse]
+    B -->|No| D[Optional Preprocess]
+    D --> E[Extract Image Embedding]
+    E --> F[Search Active Reference Corpus]
+    F --> G[Aggregate + Geographic Constraints]
+    G --> H[Confidence + Visibility Gate]
+    H --> I{Verifier Enabled?}
+    I -->|No| J[PredictResponse]
+    I -->|Yes| K[Rule -> CLIP -> Ollama verifier]
+    K --> J
 ```
 
 ---
 
-## 2. Inference Modes
+## 2. Embedding and Fallback Modes
 
-GeoWraith uses a fallback chain:
+GeoWraith uses a tiered embedding strategy:
 
 1. **GeoCLIP ONNX** (`backend/src/services/clipExtractor.ts`)
-- `vision_model_q4.onnx`
-- `location_model_uint8.onnx`
-
-2. **CLIP text-matching fallback** (`backend/src/services/clipGeolocator.ts`)
-- `Xenova/clip-vit-base-patch32`
-- City text embedding index (`WORLD_CITIES`)
-
+   - preferred path for validated benchmark parity
+2. **CLIP fallback** (`backend/src/services/imageSignals.ts`)
+   - used for explicit comparison or when GeoCLIP is unavailable
 3. **Deterministic fallback** (`backend/src/services/imageSignals.ts`)
-- Hand-crafted image features when model extraction fails
+   - last-resort recovery path
+
+The backend now exposes runtime switches for controlled experiments:
+
+- `GEOWRAITH_IMAGE_EMBEDDING_BACKEND=auto|geoclip|clip|fallback`
+- `GEOWRAITH_REFERENCE_BACKEND=auto|geoclip|clip|fallback`
+
+These switches are intended for benchmark comparison and failure analysis, not for headline claims.
 
 ---
 
-## 3. Reference Index Composition
+## 3. Image Preprocessing
 
-The active search index is built in `backend/src/services/geoclipIndex.ts` and combines:
+The inference pipeline can normalize the image before embedding:
 
-- Coordinate embeddings from `backend/src/data/geoclipCoordinates.json`
-- Multi-source image anchors from `backend/.cache/geoclip/referenceImageVectors.merged_v1.json`
+- `none`
+- `jpeg-only`
+- `contain-224-jpeg`
+- `cover-224-jpeg` (current default)
 
-In the current validated workspace:
+Implemented in:
 
-- Coordinates: 54,646
-- Image anchors: 1,081
-- Total combined vectors: 55,727
+- `backend/src/services/imageProcessor.ts`
+- `backend/src/services/predictPipeline.ts`
 
-Index is cached to HNSW binary files in `backend/.cache/geoclip/`.
+The preprocessing ablation on 2026-03-02 showed that these simple swaps do not fix Marrakech or
+Copacabana, although `cover-224-jpeg` remains the least-bad option among the tested modes.
 
 ---
 
-## 4. Retrieval and Aggregation
+## 4. Reference Index Composition
 
-```mermaid
-flowchart LR
-    Q[Query Embedding] --> S[Vector Search]
-    S --> T[Top Matches]
-    T --> G[Geographic Constraints]
-    G --> A[Aggregate Coordinates]
-    A --> C[Compute Confidence Tier]
-    C --> R[Response]
-```
+The active search index is built in `backend/src/services/geoclipIndex.ts`.
 
-Key modules:
+Primary validated corpus:
+
+- Unified GeoCLIP reference corpus
+  - base references
+  - Mapillary densification
+  - synthetic geo-anchors
+
+Current validated unified snapshot:
+
+- unified reference vectors: `1,468`
+- validation benchmark: `56/58` within `10km`
+
+Search behavior is implemented in:
 
 - `backend/src/services/vectorSearch.ts`
-- `backend/src/services/geoConstraints.ts`
+
+Notable current behavior:
+
+- boosted legacy anchors and non-legacy ANN candidates are mixed intentionally
+- coherent supplemental cluster promotion operates in the same boosted score space as final ranking
+- image-anchor injection is disabled when the reference backend is forced to `clip` or `fallback`,
+  avoiding mixed embedding spaces
+
+---
+
+## 5. Aggregation, Confidence, and Visibility
+
+Core modules:
+
+- `backend/src/services/vectorSearch.ts`
+- `backend/src/services/confidenceCalibration.ts`
+- `backend/src/services/confidenceGate.ts`
 - `backend/src/services/predictPipeline.ts`
 
 Behavioral controls:
 
-- continent consistency filtering
-- rank-aware voting
-- cohort-aware confidence thresholds and location withholding
-  (`MINIMUM_CONFIDENCE` + top-match coherence checks)
+- continent-aware filtering
+- rank-aware consensus and aggregation
+- confidence calibration based on match shape and anchor provenance
+- coordinate withholding for weak or incoherent results
+
+This is why exact curated wins can now surface as `high` confidence without promoting the remaining
+generic-scene confusers.
 
 ---
 
-## 5. Scene Context and Cohort Hints
+## 6. Optional Verifier and Intelligence Layers
 
-Live prediction responses can include scene context generated by:
+Optional runtime features:
 
-- `backend/src/services/sceneClassifier.ts`
+- verifier: `backend/src/services/verifier.ts`
+- Ollama client: `backend/src/services/ollamaClient.ts`
+- intelligence briefs: `backend/src/services/intelligenceBrief.ts`
+- anomaly detection: `backend/src/services/anomalyDetector.ts`
 
-Validation benchmark cohorts are computed by:
+Current local default verifier model:
 
-- `backend/src/benchmarks/validationBenchmark/geo.ts`
-- `backend/src/benchmarks/validationBenchmark/runner.ts`
+- `qwen3.5:9b`
 
-Cohorts:
-
-- `iconic_landmark`
-- `generic_scene`
-
----
-
-## 6. API Surface
-
-Primary endpoint:
-
-- `POST /api/predict`
-
-Additional endpoint (feature-gated):
-
-- `POST /api/predict/sfm`
-
-Health:
-
-- `GET /health`
-
-Contract reference:
-
-- `backend/docs/openapi.yaml`
+The last verified verifier-enabled rerun did not improve the `56/58` validation result, so the
+verifier should still be treated as experimental.
 
 ---
 
-## 7. Configuration
+## 7. Frontend Surface Split
 
-Runtime configuration is defined in:
+The frontend is intentionally split into two page-level surfaces:
 
-- `backend/src/config.ts`
+- `/`:
+  marketing narrative and capability preview
+- `/demo`:
+  Mission Console for replay scenarios, live inference, map layers, anomaly/intelligence cards,
+  report export, and service readiness
 
-Important controls:
+Key frontend files:
 
-- `GEOWRAITH_OFFLINE`
-- `GEOWRAITH_ENABLE_SFM`
-- `GEOWRAITH_COORDINATE_COUNT`
-- confidence thresholds (`CONFIDENCE_THRESHOLDS`,
-  `MINIMUM_CONFIDENCE` plus top-match coherence checks)
+- `src/pages/LandingPage.tsx`
+- `src/pages/DemoPage.tsx`
+- `src/components/demo/*`
 
 ---
 
-## 8. Validation Architecture
+## 8. Validation and Investigation Tooling
 
 Validation benchmark implementation:
 
 - `backend/src/benchmarks/validationBenchmark/`
 
-Outputs:
+Investigation helpers:
+
+- `npm run benchmark:validation`
+- `npm run benchmark:holdout`
+- `npm run investigate:failures`
+- `npm run ablate:preprocess`
+- `npm run benchmark:compare-models -- --benchmark=validation`
+
+Generated artifacts:
 
 - `backend/.cache/validation_gallery/benchmark_report.json`
-
-Metrics include:
-
-- aggregate distance thresholds
-- by-continent split
-- by-scene-type split
-- by-cohort split (`iconic_landmark` vs `generic_scene`)
+- `backend/.cache/holdout_gallery/benchmark_report.json`
+- `backend/.cache/geoclip/hard_failure_investigation.json`
+- `backend/.cache/geoclip/preprocessing_ablation.json`
+- `backend/.cache/geoclip/model_profile_comparison.validation.json`
 
 ---
 
@@ -167,4 +186,9 @@ Use these docs together:
 - [VALIDATION_GUIDE.md](VALIDATION_GUIDE.md)
 - [STATUS.md](STATUS.md)
 
-Do not mix benchmark claims from different model modes or dataset snapshots.
+Rules:
+
+- do not mix benchmark sets in one headline claim
+- do not claim holdout parity from the current 11-image seed alone
+- do not inject benchmark images into the active retrieval corpus
+- always report model mode, corpus mode, and benchmark size together

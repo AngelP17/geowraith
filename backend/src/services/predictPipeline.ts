@@ -8,7 +8,7 @@ import { ApiError } from '../errors.js';
 import type { ConfidenceTier, PredictRequest, PredictResponse, VectorMatch } from '../types.js';
 import { clamp } from '../utils/math.js';
 import { getReferenceImageAnchorCount, getReferenceIndexSource } from './geoclipIndex.js';
-import { extractImageSignals } from './imageSignals.js';
+import { extractEmbeddedLocation, extractImageSignals } from './imageSignals.js';
 import { parsePredictRequest } from './requestParser.js';
 import { aggregateMatches, searchNearestNeighborsWithFallback } from './vectorSearch.js';
 import { preventCrossContinentErrors } from './geoConstraints.js';
@@ -18,6 +18,12 @@ import {
   getConfidenceCalibration,
 } from './sceneClassifier.js';
 import { decideLocationVisibility } from './confidenceGate.js';
+import { calibrateConfidence } from './confidenceCalibration.js';
+import { preprocessImageForInference } from './imageProcessor.js';
+import { verifyPrediction, shouldInvokeVerifier } from './verifier.js';
+import { generateIntelligenceBrief } from './intelligenceBrief.js';
+import { detectNearbyAnomalies } from './anomalyDetector.js';
+import { metricsStore } from './metricsStore.js';
 
 const WITHHELD_LOCATION_MIN_RADIUS_M = 1_000_000;
 
@@ -66,22 +72,24 @@ function getConfidenceTier(confidence: number): ConfidenceTier {
 export async function runPredictPipeline(body: PredictRequest): Promise<PredictResponse> {
   const startedAt = Date.now();
   const parsed = parsePredictRequest(body);
+  const requestId = crypto.randomUUID();
 
   if (parsed.imageBuffer.length > config.maxImageBytes) {
     throw new ApiError(400, 'invalid_input', `Image exceeds max size (${config.maxImageBytes} bytes)`);
   }
 
-  const signals = await extractImageSignals(parsed.imageBuffer);
-  const requestId = crypto.randomUUID();
-  if (signals.exifLocation) {
-    const referenceIndexSource = getReferenceIndexSource();
+  const exifLocation = await extractEmbeddedLocation(parsed.imageBuffer);
+  if (exifLocation) {
+    const elapsed = Date.now() - startedAt;
+    metricsStore.recordPrediction(elapsed);
+
     return {
       request_id: requestId,
       status: 'ok',
       mode: parsed.mode,
       location: {
-        lat: signals.exifLocation.lat,
-        lon: signals.exifLocation.lon,
+        lat: exifLocation.lat,
+        lon: exifLocation.lon,
         radius_m: 25,
       },
       location_visibility: 'visible',
@@ -92,21 +100,35 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
         cohort_hint: 'generic_scene',
         confidence_calibration: 'Exact GPS coordinates from image metadata',
       },
-      elapsed_ms: Date.now() - startedAt,
+      elapsed_ms: elapsed,
       notes: 'Exact EXIF GPS metadata detected. Returning embedded coordinates from uploaded image.',
       top_matches: [],
-      diagnostics: {
-        embedding_source: signals.embeddingSource,
-        reference_index_source: referenceIndexSource,
-      },
     };
   }
 
+  // Phase 0: Universal image format support
+  let processedBuffer = parsed.imageBuffer;
+  if (config.enableUniversalImageFormat) {
+    try {
+      processedBuffer = await preprocessImageForInference(
+        parsed.imageBuffer,
+        config.imagePreprocessMode,
+      );
+    } catch (error) {
+      console.warn('[PredictPipeline] Image conversion failed, using original:', error);
+      processedBuffer = parsed.imageBuffer;
+    }
+  }
+
+  const signals = await extractImageSignals(processedBuffer);
+
   const k = parsed.mode === 'fast' ? 8 : 20;
-  const referenceIndexSource = getReferenceIndexSource();
-  const referenceImageAnchors = getReferenceImageAnchorCount();
+  let referenceIndexSource = getReferenceIndexSource();
+  let referenceImageAnchors = getReferenceImageAnchorCount();
 
   let matches = await searchNearestNeighborsWithFallback(signals.vector, k, true);
+  referenceIndexSource = getReferenceIndexSource();
+  referenceImageAnchors = getReferenceImageAnchorCount();
   if (referenceIndexSource === 'clip') {
     matches = rescaleClipSimilarities(matches);
   }
@@ -123,8 +145,54 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
   const usesClip = signals.embeddingSource === 'clip' || referenceIndexSource === 'clip';
   const fallbackPenalty = usesFallback ? 0.55 : 1;
   const clipBoost = usesClip ? 1.15 : 1;
-  const confidence = clamp(aggregated.confidence * fallbackPenalty * clipBoost, 0, 0.97);
-  const isWideRadius = aggregated.location.radius_m > 300_000;
+  
+  let confidence = clamp(aggregated.confidence * fallbackPenalty * clipBoost, 0, 0.97);
+  let finalLocation = aggregated.location;
+  let verifierInvoked = false;
+  let verifierStage: 'rule-based' | 'clip' | 'llm' | 'none' = 'none';
+  let verifierReasoning: string | undefined;
+  let verifierOverride = false;
+
+  // Phase 2: Multi-stage verification (if enabled and needed)
+  if (config.verifierEnabled && shouldInvokeVerifier(confidence, matches)) {
+    try {
+      const verificationResult = await verifyPrediction(
+        processedBuffer,
+        aggregated.location,
+        matches,
+        confidence
+      );
+      
+      verifierInvoked = true;
+      verifierStage = verificationResult.stage;
+      verifierReasoning = verificationResult.reasoning;
+      
+      if (verificationResult.shouldOverride && verificationResult.location) {
+        finalLocation = {
+          lat: verificationResult.location.lat,
+          lon: verificationResult.location.lon,
+          radius_m: aggregated.location.radius_m,
+        };
+        confidence = verificationResult.confidence ?? confidence;
+        verifierOverride = true;
+      }
+      
+      metricsStore.recordVerifierInvocation(verifierOverride);
+    } catch (error) {
+      console.error('[PredictPipeline] Verifier error:', error);
+      metricsStore.recordError();
+    }
+  }
+
+  confidence = calibrateConfidence({
+    rawConfidence: confidence,
+    location: finalLocation,
+    matches,
+    usesFallback,
+    usesClip,
+  });
+
+  const isWideRadius = finalLocation.radius_m > 300_000;
   const visibilityDecision = decideLocationVisibility({
     confidence,
     matches,
@@ -133,20 +201,21 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
     isWideRadius,
     minimumConfidence: MINIMUM_CONFIDENCE,
   });
+  
   const shouldWithholdLocation = visibilityDecision.shouldWithholdLocation;
   const status: PredictResponse['status'] = shouldWithholdLocation ? 'low_confidence' : 'ok';
   const locationVisibility: PredictResponse['location_visibility'] = shouldWithholdLocation
     ? 'withheld'
     : 'visible';
   const locationReason = visibilityDecision.locationReason;
-  const location =
-    shouldWithholdLocation
-      ? {
-          ...aggregated.location,
-          radius_m: Math.max(aggregated.location.radius_m, WITHHELD_LOCATION_MIN_RADIUS_M),
-        }
-      : aggregated.location;
+  const location = shouldWithholdLocation
+    ? {
+        ...finalLocation,
+        radius_m: Math.max(finalLocation.radius_m, WITHHELD_LOCATION_MIN_RADIUS_M),
+      }
+    : finalLocation;
 
+  // Build notes
   const notes = [
     'Approximate location from local visual-signal nearest-neighbor search.',
     'Accuracy depends on reference coverage and landmark visibility.',
@@ -160,6 +229,9 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
     notes.push('Using CLIP text-based city reference index for geolocation.');
   } else if (referenceIndexSource === 'fallback') {
     notes.push('Warning: GeoCLIP reference index unavailable; fallback coordinate vectors used.');
+  }
+  if (verifierInvoked) {
+    notes.push(`LLM verifier ${verifierOverride ? 'adjusted' : 'validated'} prediction (${verifierStage} stage).`);
   }
   if (usesFallback && !usesClip) {
     notes.push('Location withheld because fallback mode cannot guarantee continent-level reliability.');
@@ -182,6 +254,45 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
     notes.push(`Multi-source landmark anchors active (${referenceImageAnchors} image vectors).`);
   }
 
+  const elapsed = Date.now() - startedAt;
+  metricsStore.recordPrediction(elapsed);
+
+  // Phase 0.5: Intelligence brief generation (async, non-blocking)
+  let intelligenceBrief: PredictResponse['intelligence_brief'] | undefined;
+  if (config.enableIntelligenceBrief && confidence > 0.70 && !shouldWithholdLocation) {
+    try {
+      const brief = await generateIntelligenceBrief(location, processedBuffer, confidence);
+      if (brief) {
+        intelligenceBrief = {
+          brief: brief.brief,
+          generated_at: brief.generatedAt,
+          model: brief.model,
+        };
+      }
+    } catch (error) {
+      console.warn('[PredictPipeline] Intelligence brief generation failed:', error);
+    }
+  }
+
+  // Phase 0.5: Anomaly detection (async, non-blocking)
+  let anomalyAlert: PredictResponse['anomaly_alert'] | undefined;
+  if (config.enableAnomalyDetection && !shouldWithholdLocation) {
+    try {
+      const anomalyCheck = await detectNearbyAnomalies(location);
+      if (anomalyCheck.hasAnomaly && anomalyCheck.message) {
+        const level = anomalyCheck.signals.length >= 5 ? 'high' : 
+                      anomalyCheck.signals.length >= 3 ? 'medium' : 'low';
+        anomalyAlert = {
+          message: anomalyCheck.message,
+          level,
+          signals_count: anomalyCheck.signals.length,
+        };
+      }
+    } catch (error) {
+      console.warn('[PredictPipeline] Anomaly detection failed:', error);
+    }
+  }
+
   return {
     request_id: requestId,
     status,
@@ -196,7 +307,7 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
       cohort_hint: cohortHint,
       confidence_calibration: confidenceCalibration,
     },
-    elapsed_ms: Date.now() - startedAt,
+    elapsed_ms: elapsed,
     notes: notes.join(' '),
     top_matches: matches.slice(0, 8).map((match) => ({
       id: match.id,
@@ -209,6 +320,12 @@ export async function runPredictPipeline(body: PredictRequest): Promise<PredictR
       embedding_source: signals.embeddingSource,
       reference_index_source: referenceIndexSource,
       reference_image_anchors: referenceImageAnchors,
+      verifier_invoked: verifierInvoked,
+      verifier_stage: verifierStage,
+      verifier_reasoning: verifierReasoning,
+      verifier_override: verifierOverride,
     },
+    intelligence_brief: intelligenceBrief,
+    anomaly_alert: anomalyAlert,
   };
 }

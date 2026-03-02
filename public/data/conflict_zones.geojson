@@ -1,0 +1,10 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Example Zone", "severity": "low" },
+      "geometry": { "type": "Point", "coordinates": [-7.9, 31.6] }
+    }
+  ]
+}

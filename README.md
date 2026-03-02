@@ -21,19 +21,37 @@ Inference is local-first and does not require paid APIs.
 
 ---
 
-## Current Verified Snapshot (2026-02-27)
+## Current Verified Snapshot (2026-03-02)
 
 From `backend/.cache/validation_gallery/benchmark_report.json`:
 
 - Validation set: **58 images**
-- Within 10km: **93.1%** (54/58)
+- Within 10km: **96.6%** (56/58)
+- Tail error after the latest unified exact-search ranking fix:
+  - mean: **148km**
+  - p95: **7.8km**
+  - p99/max: **6059km**
 - Cohorts:
   - `iconic_landmark`: **100.0%** (22/22)
-  - `generic_scene`: **88.9%** (32/36)
+  - `generic_scene`: **94.4%** (34/36)
 
-Remaining hard failures (generic scenes): Marrakech, Cape Point, Copacabana, Table Mountain.
+Remaining hard failures (generic scenes): Marrakech and Copacabana.
+
+Verifier note: the latest local Ollama path now targets `qwen3.5:9b` by default. A verifier-enabled
+rerun on 2026-03-02 did not improve the `56/58` validation result.
 
 Important: these numbers are tied to the current GeoCLIP + anchor corpus in this workspace. Do not generalize without running your own benchmark.
+
+Separate holdout path:
+
+- A distinct seed holdout benchmark now lives under `backend/.cache/holdout_gallery`
+- It is built from local images that are checked against the active merged corpus before use
+- The current seed set is intentionally small (`11` images) and should be treated as a leakage guard
+  plus sanity check, not as a replacement for the 58-image validation benchmark
+- A preprocessing ablation across `none`, `jpeg-only`, `contain-224-jpeg`, and `cover-224-jpeg`
+  showed that simple preprocessing swaps do not fix Marrakech or Copacabana
+- A model-profile comparison confirmed that the current CLIP city-text fallback is far worse than
+  GeoCLIP unified on the validation gallery
 
 ---
 
@@ -56,12 +74,21 @@ GeoWraith supports three inference tiers:
 
 ## Runtime Notes
 
+- The frontend is intentionally split into two surfaces:
+  - `/` keeps the marketing narrative and lightweight capability preview
+  - `/demo` hosts the full Mission Console with replay scenarios, live local inference, and runtime status rails
 - Product map uses a fixed-height viewport so the basemap does not collapse into a black pane.
 - Standard, Satellite, and 3D style switches use a guarded completion path so stalled
   `style.load` events do not leave the map stuck between modes.
 - Operator-safe mode keeps the basemap visible while withheld coordinates remain hidden.
 - EXIF GPS extraction only runs when the uploaded image actually contains EXIF metadata, so
   valid WebP/GIF uploads no longer spam backend logs with `Unknown file format` warnings.
+- Set `GEOWRAITH_DEBUG_BENCHMARK_CANDIDATES=true` when running the backend validation benchmark to
+  log raw boosted anchors, supplemental unified candidates, and the final selected match set.
+- `GEOWRAITH_IMAGE_PREPROCESS_MODE` controls image normalization before embedding:
+  `none`, `jpeg-only`, `contain-224-jpeg`, or `cover-224-jpeg`
+- `GEOWRAITH_IMAGE_EMBEDDING_BACKEND` and `GEOWRAITH_REFERENCE_BACKEND` allow targeted benchmarking
+  of `geoclip`, `clip`, and deterministic fallback paths without changing benchmark code
 
 ---
 
@@ -84,7 +111,14 @@ npm run dev
 ```
 
 Frontend: `http://localhost:3001`  
+Mission Console: `http://localhost:3001/demo`  
 Backend health: `http://localhost:8080/health`
+
+### Frontend Surfaces
+
+- `/`: marketing landing page, docs, scenarios, and capability preview
+- `/demo`: dedicated hybrid console with replay scenarios, live/replay switching, report export,
+  map layers, verifier diagnostics, anomaly cards, and service readiness state
 
 ### Start Both Services Together
 
@@ -109,12 +143,33 @@ BACKEND_STARTUP_RETRIES=360 STARTUP_POLL_SECONDS=0.5 npm run start
 
 ```bash
 cd backend
-npm run benchmark:validation
+GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:validation
 ```
 
 See full reproducibility instructions in:
 
 - [docs/REPRODUCIBILITY_PLAYBOOK.md](docs/REPRODUCIBILITY_PLAYBOOK.md)
+
+Holdout and failure analysis helpers:
+
+```bash
+cd backend
+npm run build:gallery:holdout
+GEOWRAITH_USE_UNIFIED_INDEX=true npm run benchmark:holdout
+GEOWRAITH_USE_UNIFIED_INDEX=true npm run investigate:failures
+npm run ablate:preprocess
+npm run benchmark:compare-models -- --benchmark=validation
+```
+
+Verifier benchmark with the current local default:
+
+```bash
+cd backend
+GEOWRAITH_USE_UNIFIED_INDEX=true \
+GEOWRAITH_ENABLE_VERIFIER=true \
+GEOWRAITH_LLM_MODEL=qwen3.5:9b \
+npm run benchmark:validation
+```
 
 ---
 
@@ -136,6 +191,11 @@ npm run lint
 npm run test
 npm run build
 npm run benchmark:validation
+npm run build:gallery:holdout
+npm run benchmark:holdout
+npm run investigate:failures
+npm run ablate:preprocess
+npm run benchmark:compare-models -- --benchmark=validation
 ```
 
 ---

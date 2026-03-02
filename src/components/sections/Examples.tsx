@@ -6,7 +6,8 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { CheckCircle2, Radar, Shield, Route } from 'lucide-react';
-import { dispatchDemo, type DemoKey } from '../../lib/demo';
+import { useNavigate } from 'react-router-dom';
+import { buildDemoUrl, type DemoKey } from '../../lib/demo';
 
 const examples: Array<{
   title: string;
@@ -47,6 +48,8 @@ const examples: Array<{
 ];
 
 export const Examples: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <section id="examples" className="relative w-full py-24 md:py-32 bg-[#050505]">
       <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-black to-[#050505] pointer-events-none" />
@@ -95,9 +98,7 @@ export const Examples: React.FC = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 + index * 0.1 }}
                 onClick={() => {
-                  const target = document.querySelector('#product');
-                  if (target) target.scrollIntoView({ behavior: 'smooth' });
-                  dispatchDemo(example.key, example.mode);
+                  navigate(buildDemoUrl(example.key, example.mode));
                 }}
                 className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 flex flex-col gap-5 text-left hover:border-white/20 hover:bg-white/[0.04] transition-all"
               >

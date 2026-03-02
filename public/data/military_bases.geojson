@@ -1,0 +1,10 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Example Base", "type": "airfield" },
+      "geometry": { "type": "Point", "coordinates": [18.5, -34.0] }
+    }
+  ]
+}

@@ -23,6 +23,7 @@ function resolveStyle(baseStyle: BaseMapStyle) {
 }
 interface UseMapRuntimeResult {
   mapContainer: RefObject<HTMLDivElement | null>;
+  map: maplibregl.Map | null;
   activeStyle: MapStyle;
   setActiveStyle: Dispatch<SetStateAction<MapStyle>>;
   viewState: ViewState;
@@ -311,6 +312,7 @@ export function useMapRuntime(
   }, [result]);
   return {
     mapContainer,
+    map: map.current,
     activeStyle,
     setActiveStyle,
     viewState,
