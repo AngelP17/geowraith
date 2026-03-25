@@ -13,8 +13,7 @@ Local-first visual geolocation with explicit confidence gating and reproducible 
 **Hero Section**
 ![Hero](./screenshots/01-landing-hero.png)
 
-**Features**
-![Features](./screenshots/02-landing-features.png)
+
 
 **How It Works**
 ![How It Works](./screenshots/03-landing-how-it-works.png)
