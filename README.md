@@ -6,6 +6,35 @@ Local-first visual geolocation with explicit confidence gating and reproducible 
 
 ---
 
+## Screenshots
+
+### Landing Page
+
+**Hero Section**
+![Hero](./screenshots/01-landing-hero.png)
+
+**Features**
+![Features](./screenshots/02-landing-features.png)
+
+**How It Works**
+![How It Works](./screenshots/03-landing-how-it-works.png)
+
+**Demo Preview**
+![Demo Preview](./screenshots/04-landing-demo-preview.png)
+
+**Use Cases**
+![Use Cases](./screenshots/05-landing-use-cases.png)
+
+**Tech Stack**
+![Tech Stack](./screenshots/06-landing-tech-stack.png)
+
+### Mission Console
+
+**Demo Page**
+![Demo Console](./screenshots/07-demo-console.png)
+
+---
+
 ## What GeoWraith Is
 
 GeoWraith is an experimental geolocation system that predicts coordinates from images using a local pipeline:
