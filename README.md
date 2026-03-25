@@ -22,16 +22,10 @@ Local-first visual geolocation with explicit confidence gating and reproducible 
 **Demo Preview**
 ![Demo Preview](./screenshots/04-landing-demo-preview.png)
 
-**Use Cases**
-![Use Cases](./screenshots/05-landing-use-cases.png)
-
-**Tech Stack**
-![Tech Stack](./screenshots/06-landing-tech-stack.png)
-
 ### Mission Console
 
 **Demo Page**
-![Demo Console](./screenshots/07-demo-console.png)
+![Demo Console](./screenshots/05-demo-console.png)
 
 ---
 
